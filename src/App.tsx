@@ -1,27 +1,50 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
-import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
+import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import Index from "./pages/Index.tsx";
-import NotFound from "./pages/NotFound.tsx";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { ThemeProvider } from "next-themes";
+import { ConsentBanner } from "@/components/ConsentBanner";
+import Index from "./pages/Index";
+import Auth from "./pages/Auth";
+import CalendarPage from "./pages/CalendarPage";
+import Profile from "./pages/Profile";
+import ReadAloudDemo from "./pages/ReadAloudDemo";
+import CoursePage from "./pages/CoursePage";
+import TransitPage from "./pages/TransitPage";
+import RubricsPage from "./pages/RubricsPage";
+import NotificationsPage from "./pages/NotificationsPage";
+import AnalyticsPage from "./pages/AnalyticsPage";
+import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
+  <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <ConsentBanner />
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/calendar" element={<CalendarPage />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/read-aloud" element={<ReadAloudDemo />} />
+            <Route path="/course/:className" element={<CoursePage />} />
+            <Route path="/course/:className/rubrics" element={<RubricsPage />} />
+            <Route path="/transit" element={<TransitPage />} />
+            <Route path="/notifications" element={<NotificationsPage />} />
+            <Route path="/analytics" element={<AnalyticsPage />} />
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  </ThemeProvider>
 );
 
 export default App;
