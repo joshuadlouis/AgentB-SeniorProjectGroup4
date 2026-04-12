@@ -12,6 +12,7 @@ interface TransitMapProps {
   metroStation?: WmataStation | null;
   selectedMetroLine?: string | null;
   linePreferences?: LinePreferences;
+  activeTab: 'shuttles' | 'public-transit';
 }
 
 // OSRM public demo server for routing
@@ -75,7 +76,7 @@ function createMetroIcon(lineCodes: string[]) {
   });
 }
 
-export const TransitMap = ({ routes, selectedRouteId, metroStation, selectedMetroLine, linePreferences }: TransitMapProps) => {
+export const TransitMap = ({ routes, selectedRouteId, metroStation, selectedMetroLine, linePreferences, activeTab }: TransitMapProps) => {
   const mapRef = useRef<L.Map | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const layersRef = useRef<L.LayerGroup>(L.layerGroup());
@@ -109,6 +110,8 @@ export const TransitMap = ({ routes, selectedRouteId, metroStation, selectedMetr
     const map = mapRef.current;
     if (!map) return;
     layersRef.current.clearLayers();
+
+    if (activeTab !== 'shuttles') return;
 
     const visibleRoutes = selectedRouteId
       ? routes.filter((r) => r.id === selectedRouteId)
@@ -154,8 +157,7 @@ export const TransitMap = ({ routes, selectedRouteId, metroStation, selectedMetr
       });
     }
 
-    // Only fit bounds if no metro station is selected
-    if (!metroStation && !selectedMetroLine && allPoints.length > 0) {
+    if (allPoints.length > 0) {
       const bounds = L.latLngBounds(allPoints);
       if (selectedRouteId) {
         map.flyToBounds(bounds, { padding: [50, 50], duration: 0.8 });
@@ -163,7 +165,7 @@ export const TransitMap = ({ routes, selectedRouteId, metroStation, selectedMetr
         map.fitBounds(bounds, { padding: [40, 40] });
       }
     }
-  }, [routes, selectedRouteId, routeCache, metroStation, selectedMetroLine]);
+  }, [routes, selectedRouteId, routeCache, activeTab]);
 
   useEffect(() => {
     drawRoutes();
@@ -175,8 +177,9 @@ export const TransitMap = ({ routes, selectedRouteId, metroStation, selectedMetr
     if (!map) return;
     metroLinesLayerRef.current.clearLayers();
 
+    if (activeTab !== 'public-transit') return;
+
     for (const line of WMATA_LINES_GEO) {
-      // Skip if filtered out
       if (linePreferences && linePreferences[line.code] === false) continue;
 
       const isHighlighted = selectedMetroLine === line.code;
@@ -188,7 +191,6 @@ export const TransitMap = ({ routes, selectedRouteId, metroStation, selectedMetr
       metroLinesLayerRef.current.addLayer(polyline);
     }
 
-    // Zoom to fit selected line
     if (selectedMetroLine) {
       const lineGeo = WMATA_LINES_GEO.find((l) => l.code === selectedMetroLine);
       if (lineGeo && lineGeo.path.length > 0) {
@@ -196,7 +198,7 @@ export const TransitMap = ({ routes, selectedRouteId, metroStation, selectedMetr
         map.flyToBounds(bounds, { padding: [50, 50], duration: 0.8 });
       }
     }
-  }, [selectedMetroLine, linePreferences]);
+  }, [selectedMetroLine, linePreferences, activeTab]);
 
   // Draw metro station marker
   useEffect(() => {
@@ -204,26 +206,37 @@ export const TransitMap = ({ routes, selectedRouteId, metroStation, selectedMetr
     if (!map) return;
     metroLayerRef.current.clearLayers();
 
-    if (metroStation) {
-      const codes = getLineCodes(metroStation);
-      const icon = createMetroIcon(codes);
-      const marker = L.marker([metroStation.Lat, metroStation.Lon], { icon });
+    if (activeTab !== 'public-transit' || !metroStation) return;
 
-      const lineLabels = codes
-        .map((lc) => `<span style="background:${lineColor(lc)};color:white;padding:1px 5px;border-radius:3px;font-size:10px;font-weight:bold;">${lc}</span>`)
-        .join(" ");
+    const codes = getLineCodes(metroStation);
+    const icon = createMetroIcon(codes);
+    const marker = L.marker([metroStation.Lat, metroStation.Lon], { icon });
 
-      marker.bindPopup(
-        `<div style="font-size:13px">
-          <strong>🚇 ${metroStation.Name}</strong>
-          <br/><div style="margin-top:4px">${lineLabels}</div>
-        </div>`
-      ).openPopup();
+    const lineLabels = codes
+      .map((lc) => `<span style="background:${lineColor(lc)};color:white;padding:1px 5px;border-radius:3px;font-size:10px;font-weight:bold;">${lc}</span>`)
+      .join(" ");
 
-      metroLayerRef.current.addLayer(marker);
-      map.flyTo([metroStation.Lat, metroStation.Lon], 15, { duration: 0.8 });
+    marker.bindPopup(
+      `<div style="font-size:13px">
+        <strong>🚇 ${metroStation.Name}</strong>
+        <br/><div style="margin-top:4px">${lineLabels}</div>
+      </div>`
+    ).openPopup();
+
+    metroLayerRef.current.addLayer(marker);
+    map.flyTo([metroStation.Lat, metroStation.Lon], 15, { duration: 0.8 });
+  }, [metroStation, activeTab]);
+
+  // Smooth center on tab switch
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    if (activeTab === 'shuttles') {
+      map.flyTo([38.9225, -77.0210], 14, { duration: 0.8 });
+    } else {
+      map.flyTo([38.917, -77.022], 13, { duration: 0.8 });
     }
-  }, [metroStation]);
+  }, [activeTab]);
 
   return (
     <div
