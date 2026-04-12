@@ -600,13 +600,14 @@ export default function Profile() {
 
             <div className="space-y-2">
               <Label htmlFor="university">University</Label>
-              {profile.university_id && (
-                <div className="flex items-center gap-2 p-3 rounded-lg border border-border bg-muted/30">
-                  <Badge variant="outline" className="text-sm font-medium">
-                    {universities.find(u => u.id === profile.university_id)?.name || "Loading..."}
-                  </Badge>
-                </div>
-              )}
+              <div className="p-3 rounded-lg border border-border bg-muted/30">
+                <p className="text-xs text-muted-foreground mb-1">Current University</p>
+                <p className="text-sm font-semibold text-foreground">
+                  {profile.university_id
+                    ? (universities.find(u => u.id === profile.university_id)?.name || "Loading...")
+                    : "No university selected"}
+                </p>
+              </div>
               <Select
                 value={profile.university_id || ""}
                 onValueChange={(value) => updateProfile({ university_id: value })}
