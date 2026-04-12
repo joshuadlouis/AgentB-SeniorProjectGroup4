@@ -127,14 +127,17 @@ export const PersonalizedPractice = ({ className, learningStyles }: Personalized
         }
       );
 
-      if (!response.ok) throw new Error("Failed to generate problems");
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.error || `Failed to generate problems (${response.status})`);
+      }
       const data = await response.json();
       const generated = data.problems || [];
       if (data.bloom_level) setBloomLevel(data.bloom_level);
       setProblems(generated);
-    } catch (err) {
+    } catch (err: any) {
       console.error("Practice generation error:", err);
-      toast({ title: "Error", description: "Failed to generate practice problems", variant: "destructive" });
+      toast({ title: "Error", description: err?.message || "Failed to generate practice problems", variant: "destructive" });
     } finally {
       setIsLoading(false);
     }
