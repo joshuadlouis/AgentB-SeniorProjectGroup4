@@ -282,17 +282,20 @@ export const Dashboard = ({ learningStyles, onOpenChat, onRetakeQuiz }: Dashboar
         <div
           className={cn(
             "bg-card/95 backdrop-blur-md border-t border-border overflow-hidden transition-all duration-300",
-            bottomBarOpen ? "max-h-28 py-3" : "max-h-0 py-0"
+            bottomBarOpen ? "max-h-32 py-3" : "max-h-0 py-0"
           )}
         >
-          <div className="container mx-auto px-4 flex items-center justify-center">
+          <div className="container mx-auto px-4 flex items-center justify-between gap-4">
+            <p className="text-sm text-muted-foreground max-w-md">
+              Your AI assistant is here 24/7 to answer questions, provide reminders, and guide you to resources.
+            </p>
             <Button
               size="lg"
               onClick={() => {
                 setBottomBarOpen(false);
                 onOpenChat();
               }}
-              className="bg-[image:var(--gradient-primary)] hover:opacity-90 gap-2 shadow-lg"
+              className="bg-[image:var(--gradient-primary)] hover:opacity-90 gap-2 shadow-lg shrink-0"
             >
               <MessageSquare className="h-5 w-5" />
               Chat with AgentB
@@ -306,7 +309,7 @@ export const Dashboard = ({ learningStyles, onOpenChat, onRetakeQuiz }: Dashboar
           className="w-full bg-card border-t border-border px-4 py-2.5 flex items-center justify-center gap-3 hover:bg-muted/50 transition-colors"
         >
           <img src={agentBHeader} alt="AgentB" className="w-7 h-7 rounded-lg object-cover" />
-          <span className="font-semibold text-sm text-foreground">AgentB</span>
+          <span className="font-semibold text-sm text-foreground">Need Help? Ask AgentB!</span>
           <ChevronUp
             className={cn(
               "w-4 h-4 text-muted-foreground transition-transform duration-300",
