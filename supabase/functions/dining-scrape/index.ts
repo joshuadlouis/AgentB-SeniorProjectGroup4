@@ -137,11 +137,12 @@ function buildLocations(raw: any[]): Location[] {
     const imgRef = a?.teaserAssetRef;
     const dynamicUrl = imgRef?._dynamicUrl;
     const imageUrl = dynamicUrl
-      ? `https://images.elevate-dxp.com${dynamicUrl}?width=600&quality=75&format=webply`
+      ? `https://images.elevate-dxp.com${dynamicUrl}?width=600&quality=75&format=webp`
       : imgRef?._publishUrl ?? "";
 
     return {
       name: a?.name ?? c?.name ?? "Unknown",
+      urlKey: c?.url_key ?? "",
       address: c?.address_line_1 ?? "",
       latitude: parseFloat(c?.latitude ?? "0"),
       longitude: parseFloat(c?.longitude ?? "0"),

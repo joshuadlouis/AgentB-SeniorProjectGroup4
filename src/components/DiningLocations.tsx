@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
-import { Loader2, MapPin, Clock, Utensils } from "lucide-react";
+import { Loader2, MapPin, Clock, Utensils, ExternalLink } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 interface MealPeriod {
@@ -13,6 +13,7 @@ interface MealPeriod {
 
 interface DiningLocation {
   name: string;
+  urlKey: string;
   address: string;
   latitude: number;
   longitude: number;
@@ -149,6 +150,17 @@ export function DiningLocations({ open, onOpenChange }: DiningLocationsProps) {
                         <p className="text-xs text-muted-foreground line-clamp-2">
                           {loc.description}
                         </p>
+                      )}
+
+                      {["bethune-annex-cafe", "blackburn-cafe"].includes(loc.urlKey) && (
+                        <a
+                          href={`https://howard.mydininghub.com/en/locations/${loc.urlKey}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 text-xs text-primary hover:underline font-medium"
+                        >
+                          View Today's Menu <ExternalLink className="h-3 w-3" />
+                        </a>
                       )}
                     </div>
                   </div>
