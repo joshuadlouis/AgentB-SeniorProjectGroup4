@@ -2,10 +2,12 @@ import { useState, useMemo, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
-  Bus, Clock, MapPin, ArrowLeft, ChevronRight, Info,
+  Bus, Clock, MapPin, ArrowLeft, ChevronRight, Info, Train,
 } from "lucide-react";
 import { TransitMap } from "@/components/TransitMap";
+import { PublicTransit, type WmataStation } from "@/components/PublicTransit";
 import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import {
@@ -33,15 +35,9 @@ const fmt = (d: Date) =>
 /* ── Route Card ─────────────────────────────────── */
 
 const RouteCard = ({
-  route,
-  isSelected,
-  onClick,
-  now,
+  route, isSelected, onClick, now,
 }: {
-  route: ShuttleRoute;
-  isSelected: boolean;
-  onClick: () => void;
-  now: Date;
+  route: ShuttleRoute; isSelected: boolean; onClick: () => void; now: Date;
 }) => {
   const status = getRouteStatus(route, now);
   const cfg = STATUS_CONFIG[status];
@@ -89,15 +85,9 @@ const RouteCard = ({
   );
 };
 
-/* ── Schedule Panel (right side) ────────────────── */
+/* ── Schedule Panel ─────────────────────────────── */
 
-const SchedulePanel = ({
-  route,
-  now,
-}: {
-  route: ShuttleRoute;
-  now: Date;
-}) => {
+const SchedulePanel = ({ route, now }: { route: ShuttleRoute; now: Date }) => {
   const status = getRouteStatus(route, now);
   const nextDeps = getNextDepartures(route, 5, now);
   const weekday = now.getDay() >= 1 && now.getDay() <= 5;
@@ -169,9 +159,7 @@ const SchedulePanel = ({
                                 key={i}
                                 className={cn(
                                   "text-xs px-1.5 py-0.5 rounded",
-                                  t >= now
-                                    ? "bg-primary/10 text-primary font-medium"
-                                    : "text-muted-foreground"
+                                  t >= now ? "bg-primary/10 text-primary font-medium" : "text-muted-foreground"
                                 )}
                               >
                                 {fmt(t)}
@@ -229,6 +217,8 @@ export const TransitDashboard = () => {
   const navigate = useNavigate();
   const [selectedRouteId, setSelectedRouteId] = useState<string | null>(null);
   const [now, setNow] = useState(new Date());
+  const [tab, setTab] = useState("shuttles");
+  const [metroStation, setMetroStation] = useState<WmataStation | null>(null);
 
   useEffect(() => {
     const id = setInterval(() => setNow(new Date()), 30_000);
@@ -240,13 +230,9 @@ export const TransitDashboard = () => {
     [selectedRouteId]
   );
 
-  // Sort: active routes first, then after-hours, then no-service
   const sortedRoutes = useMemo(() => {
     const order: Record<RouteStatus, number> = {
-      active: 0,
-      "after-hours": 1,
-      inactive: 2,
-      "weekend-no-service": 3,
+      active: 0, "after-hours": 1, inactive: 2, "weekend-no-service": 3,
     };
     return [...SHUTTLE_ROUTES].sort(
       (a, b) => order[getRouteStatus(a, now)] - order[getRouteStatus(b, now)]
@@ -264,7 +250,7 @@ export const TransitDashboard = () => {
           <div>
             <h1 className="text-lg font-bold text-foreground">Transit & Shuttles</h1>
             <p className="text-xs text-muted-foreground">
-              Howard University Shuttle Schedules ·{" "}
+              Howard University Transit ·{" "}
               {now.toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" })}
             </p>
           </div>
@@ -275,41 +261,56 @@ export const TransitDashboard = () => {
         {/* Map */}
         <TransitMap
           routes={SHUTTLE_ROUTES}
-          selectedRouteId={selectedRouteId}
+          selectedRouteId={tab === "shuttles" ? selectedRouteId : null}
+          metroStation={tab === "public-transit" ? metroStation : null}
         />
 
-        {/* Content grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Route list */}
-          <div className="space-y-3">
-            <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
-              Shuttle Routes
-            </h2>
-            {sortedRoutes.map((route) => (
-              <RouteCard
-                key={route.id}
-                route={route}
-                isSelected={selectedRouteId === route.id}
-                onClick={() =>
-                  setSelectedRouteId(selectedRouteId === route.id ? null : route.id)
-                }
-                now={now}
-              />
-            ))}
-          </div>
+        {/* Tabs */}
+        <Tabs value={tab} onValueChange={(v) => { setTab(v); setSelectedRouteId(null); setMetroStation(null); }}>
+          <TabsList className="w-full max-w-sm">
+            <TabsTrigger value="shuttles" className="flex-1 gap-1.5">
+              <Bus className="w-4 h-4" /> Campus Shuttles
+            </TabsTrigger>
+            <TabsTrigger value="public-transit" className="flex-1 gap-1.5">
+              <Train className="w-4 h-4" /> Public Transit
+            </TabsTrigger>
+          </TabsList>
 
-          {/* Schedule panel */}
-          <div>
-            {selectedRoute ? (
-              <SchedulePanel route={selectedRoute} now={now} />
-            ) : (
-              <Card className="p-8 text-center text-muted-foreground text-sm">
-                <MapPin className="w-8 h-8 mx-auto mb-3 opacity-40" />
-                Select a route to view the full schedule
-              </Card>
-            )}
-          </div>
-        </div>
+          <TabsContent value="shuttles" className="mt-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-3">
+                <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+                  Shuttle Routes
+                </h2>
+                {sortedRoutes.map((route) => (
+                  <RouteCard
+                    key={route.id}
+                    route={route}
+                    isSelected={selectedRouteId === route.id}
+                    onClick={() =>
+                      setSelectedRouteId(selectedRouteId === route.id ? null : route.id)
+                    }
+                    now={now}
+                  />
+                ))}
+              </div>
+              <div>
+                {selectedRoute ? (
+                  <SchedulePanel route={selectedRoute} now={now} />
+                ) : (
+                  <Card className="p-8 text-center text-muted-foreground text-sm">
+                    <MapPin className="w-8 h-8 mx-auto mb-3 opacity-40" />
+                    Select a route to view the full schedule
+                  </Card>
+                )}
+              </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="public-transit" className="mt-4">
+            <PublicTransit onStationSelect={setMetroStation} />
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
