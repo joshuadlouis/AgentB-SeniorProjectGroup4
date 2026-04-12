@@ -1,28 +1,31 @@
 
 
-## Plan: Client-Side Leaked Password Check via HIBP API
+## Plan: Tab-Based Map/List Sync with Mutual Exclusivity
 
-### What it does
-Before allowing signup or password reset, hash the password with SHA-1, send only the first 5 characters to the Have I Been Pwned Passwords API, and check if the full hash appears in the response. If it does, warn the user and block submission.
+### Problem
+Currently, shuttle route polylines and markers are always drawn on the map regardless of the active tab. Metro lines also linger when switching back to shuttles. The two categories need strict mutual exclusivity.
 
 ### Changes
 
-**1. Create `src/lib/checkLeakedPassword.ts`**
-- SHA-1 hash the password using the Web Crypto API
-- Send first 5 hex chars to `https://api.pwnedpasswords.com/range/{prefix}`
-- Check if the suffix appears in the returned list
-- Return `true` if leaked, `false` if safe
+**1. `TransitMap.tsx` — Add `activeTab` prop for layer control**
+- Add `activeTab: 'shuttles' | 'public-transit'` to `TransitMapProps`
+- In the shuttle `drawRoutes` callback: skip drawing entirely if `activeTab !== 'shuttles'`, and clear shuttle layers
+- In the metro lines effect: skip drawing if `activeTab !== 'public-transit'`, and clear metro line layers
+- In the metro station effect: skip if `activeTab !== 'public-transit'`, and clear metro station layer
+- Add a new effect that handles smooth map centering on tab switch:
+  - `shuttles` → fly to campus bounds (Howard area, ~38.922, -77.021, zoom 14)
+  - `public-transit` → fly to Howard-area metro stations (Shaw/U St area, ~38.917, -77.022, zoom 13)
 
-**2. Update `src/pages/Auth.tsx`**
-- Import and call `checkLeakedPassword` during signup, after existing validation but before `supabase.auth.signUp`
-- If leaked, show a toast: "This password has appeared in a data breach. Please choose a different one." and block submission
+**2. `TransitDashboard.tsx` — Pass `activeTab` prop**
+- Pass `tab` as `activeTab` to `TransitMap`
+- Remove the existing conditional logic that nulls out props per tab (the map component will handle it internally via `activeTab`)
 
-**3. Update `src/pages/ResetPassword.tsx`**
-- Same check before `supabase.auth.updateUser({ password })`
-- Block with a similar warning if leaked
+**3. Walking ETA optimization (already handled)**
+- The `filteredStations` memo in `PublicTransit.tsx` already only computes walking times for visible stations. The `PublicTransit` component only renders when the metro tab is active (via `TabsContent`), so no extra work needed.
 
-### Technical notes
-- The HIBP API is free, no key needed, and the k-anonymity model means the full password never leaves the browser
-- Web Crypto API (`crypto.subtle.digest`) is available in all modern browsers
-- No new dependencies required
+### Summary of behavior
+- Switching to "Campus Shuttles": map clears all metro polylines/markers, draws shuttle routes, centers on campus
+- Switching to "Public Transit": map clears all shuttle polylines/markers, draws metro lines per preferences, centers on Shaw/U St area
+- Selecting a metro color tab: only that line's polyline is shown, map zooms to fit it
+- Walking ETAs only calculated for stations in the active, filtered list (already the case)
 
