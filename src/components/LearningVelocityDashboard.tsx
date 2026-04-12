@@ -109,19 +109,26 @@ export const LearningVelocityDashboard = ({ embedded = false }: { embedded?: boo
     <Wrapper className={embedded ? "space-y-5" : "p-6 border-border space-y-5"}>
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="p-2 rounded-lg bg-primary/10">
-            <Activity className="w-5 h-5 text-primary" />
+        {!embedded && (
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-primary/10">
+              <Activity className="w-5 h-5 text-primary" />
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-foreground">
+                Learning Velocity
+              </h3>
+              <p className="text-xs text-muted-foreground">
+                Real-time engagement & pace monitoring
+              </p>
+            </div>
           </div>
-          <div>
-            <h3 className="text-lg font-semibold text-foreground">
-              Learning Velocity
-            </h3>
-            <p className="text-xs text-muted-foreground">
-              Real-time engagement & pace monitoring
-            </p>
-          </div>
-        </div>
+        )}
+        {embedded && (
+          <p className="text-xs text-muted-foreground">
+            Real-time engagement & pace monitoring
+          </p>
+        )}
         <Button variant="outline" size="sm" onClick={handleRefresh}>
           <RefreshCw className="w-4 h-4 mr-1" /> Check Now
         </Button>
