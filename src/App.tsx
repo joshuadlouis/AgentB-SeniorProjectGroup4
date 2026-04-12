@@ -7,6 +7,8 @@ import { ThemeProvider } from "next-themes";
 import { ConsentBanner } from "@/components/ConsentBanner";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { RequireAuth } from "@/components/RequireAuth";
+import { TutorialProvider } from "@/contexts/TutorialContext";
+import { TutorialStepOverlay } from "@/components/TutorialStepOverlay";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import CalendarPage from "./pages/CalendarPage";
@@ -33,25 +35,28 @@ const App = () => (
           <Toaster />
           <Sonner />
           <BrowserRouter>
-            <ConsentBanner />
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/auth" element={<Auth />} />
-              <Route path="/reset-password" element={<ResetPassword />} />
-              <Route path="/calendar" element={<RequireAuth><CalendarPage /></RequireAuth>} />
-              <Route path="/profile" element={<RequireAuth><Profile /></RequireAuth>} />
-              <Route path="/read-aloud" element={<RequireAuth><ReadAloudDemo /></RequireAuth>} />
-              <Route path="/course/:className" element={<RequireAuth><CoursePage /></RequireAuth>} />
-              <Route path="/course/:className/rubrics" element={<RequireAuth><RubricsPage /></RequireAuth>} />
-              <Route path="/transit" element={<RequireAuth><TransitPage /></RequireAuth>} />
-              <Route path="/notifications" element={<RequireAuth><NotificationsPage /></RequireAuth>} />
-              <Route path="/campus-map" element={<RequireAuth><CampusMapPage /></RequireAuth>} />
-              <Route path="/dining" element={<RequireAuth><DiningPage /></RequireAuth>} />
-              <Route path="/safety-resources" element={<SafetyResourcesPage />} />
-              <Route path="/analytics" element={<RequireAuth><AnalyticsPage /></RequireAuth>} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
+            <TutorialProvider>
+              <ConsentBanner />
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/auth" element={<Auth />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
+                <Route path="/calendar" element={<RequireAuth><CalendarPage /></RequireAuth>} />
+                <Route path="/profile" element={<RequireAuth><Profile /></RequireAuth>} />
+                <Route path="/read-aloud" element={<RequireAuth><ReadAloudDemo /></RequireAuth>} />
+                <Route path="/course/:className" element={<RequireAuth><CoursePage /></RequireAuth>} />
+                <Route path="/course/:className/rubrics" element={<RequireAuth><RubricsPage /></RequireAuth>} />
+                <Route path="/transit" element={<RequireAuth><TransitPage /></RequireAuth>} />
+                <Route path="/notifications" element={<RequireAuth><NotificationsPage /></RequireAuth>} />
+                <Route path="/campus-map" element={<RequireAuth><CampusMapPage /></RequireAuth>} />
+                <Route path="/dining" element={<RequireAuth><DiningPage /></RequireAuth>} />
+                <Route path="/safety-resources" element={<SafetyResourcesPage />} />
+                <Route path="/analytics" element={<RequireAuth><AnalyticsPage /></RequireAuth>} />
+                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+              <TutorialStepOverlay />
+            </TutorialProvider>
           </BrowserRouter>
         </TooltipProvider>
       </QueryClientProvider>
