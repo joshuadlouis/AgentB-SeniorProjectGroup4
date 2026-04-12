@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { Card } from "@/components/ui/card";
-import { DiningLocations } from "./DiningLocations";
+
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { 
@@ -48,7 +48,7 @@ export const Dashboard = ({ learningStyles, onOpenChat, onRetakeQuiz }: Dashboar
   const { toast } = useToast();
   const [syllabusRefreshTrigger, setSyllabusRefreshTrigger] = useState(0);
   const [isReadAloudActive, setIsReadAloudActive] = useState(false);
-  const [diningOpen, setDiningOpen] = useState(false);
+  
   const mainContentRef = useRef<HTMLElement>(null);
 
   const { profile, saveProfile } = useProfile();
