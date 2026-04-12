@@ -214,9 +214,8 @@ export const MiniQuiz = ({ isOpen, onClose, className, weakAreas, learningStyles
       setSelectedAnswer(null);
       setIsAnswered(false);
     } else {
-      // Calculate final score directly to avoid stale state issues
-      const lastCorrect = selectedAnswer === questions[currentIndex].correctIndex ? 1 : 0;
-      const finalScore = score + lastCorrect;
+      // score already includes the last answer from handleAnswer, no need to add again
+      const finalScore = score;
       setIsComplete(true);
       await saveScore();
       track({
