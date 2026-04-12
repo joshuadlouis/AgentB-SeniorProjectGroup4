@@ -1,40 +1,28 @@
 
 
-## F11 - Flashcard Builder: Subfeature Breakdown
+## Plan: Client-Side Leaked Password Check via HIBP API
 
-The absence management code was built under F11 by mistake. Here's a proper breakdown for a **Flashcard Builder** feature, aligned with the app's existing course generation and study tools:
+### What it does
+Before allowing signup or password reset, hash the password with SHA-1, send only the first 5 characters to the Have I Been Pwned Passwords API, and check if the full hash appears in the response. If it does, warn the user and block submission.
 
-### Proposed Subfeatures
+### Changes
 
-**11.1 — Auto-generate flashcards from course content**
-Use AI (via AgentB or a new edge function) to extract key terms, definitions, and concepts from generated course lessons and create flashcard decks automatically.
+**1. Create `src/lib/checkLeakedPassword.ts`**
+- SHA-1 hash the password using the Web Crypto API
+- Send first 5 hex chars to `https://api.pwnedpasswords.com/range/{prefix}`
+- Check if the suffix appears in the returned list
+- Return `true` if leaked, `false` if safe
 
-**11.2 — Manual flashcard creation and editing**
-Let students create custom flashcards (front/back), organize them into decks per course, and edit or delete cards.
+**2. Update `src/pages/Auth.tsx`**
+- Import and call `checkLeakedPassword` during signup, after existing validation but before `supabase.auth.signUp`
+- If leaked, show a toast: "This password has appeared in a data breach. Please choose a different one." and block submission
 
-**11.3 — Spaced repetition study engine**
-Implement an SM-2 or similar spaced repetition algorithm so students review cards at optimal intervals. Track per-card difficulty and next-review date.
+**3. Update `src/pages/ResetPassword.tsx`**
+- Same check before `supabase.auth.updateUser({ password })`
+- Block with a similar warning if leaked
 
-**11.4 — Flashcard study session UI**
-Build an interactive study mode: flip animation, self-rating (Again / Hard / Good / Easy), progress bar, and session summary with stats.
-
-**11.5 — Integration with mastery tracking**
-Connect flashcard performance to the existing knowledge mastery system so card reviews contribute to topic mastery scores and appear in analytics.
-
-### What happens to the absence management code?
-
-Two options:
-1. **Keep it** as a separate feature (rename internally, it's functional)
-2. **Remove it** to reduce clutter
-
-### Technical approach
-
-- New DB tables: `flashcard_decks`, `flashcards`, `flashcard_reviews`
-- New edge function for AI card generation from course content
-- New components: `FlashcardDeck`, `FlashcardStudy`, `FlashcardEditor`
-- Integration points: `CoursePage.tsx`, mastery hooks
-
-### Implementation order
-
-11.1 → 11.2 → 11.3 → 11.4 → 11.5 (each builds on the previous)
+### Technical notes
+- The HIBP API is free, no key needed, and the k-anonymity model means the full password never leaves the browser
+- Web Crypto API (`crypto.subtle.digest`) is available in all modern browsers
+- No new dependencies required
 
