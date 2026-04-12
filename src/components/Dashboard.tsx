@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -38,7 +38,8 @@ import agentBHeader from "@/assets/AgentBIconHeader.png";
 import { useToast } from "@/hooks/use-toast";
 import { useProfile } from "@/hooks/useProfile";
 import { cn } from "@/lib/utils";
-import { SiteTutorialGuide } from "./SiteTutorialGuide";
+import { TutorialMenuCard } from "./TutorialMenuCard";
+import { useTutorial } from "@/contexts/TutorialContext";
 
 interface DashboardProps {
   learningStyles: string[];
@@ -69,12 +70,17 @@ export const Dashboard = ({ learningStyles, onOpenChat, onRetakeQuiz }: Dashboar
   const [isReadAloudActive, setIsReadAloudActive] = useState(false);
   const [bottomBarOpen, setBottomBarOpen] = useState(false);
   const [isNewUser, setIsNewUser] = useState(false);
-  const [showTutorial, setShowTutorial] = useState(false);
 
   const mainContentRef = useRef<HTMLElement>(null);
 
   const { profile, saveProfile } = useProfile();
+  const { showTutorial, setOnOpenChat } = useTutorial();
   useStreakTracker();
+
+  // Register the onOpenChat callback so tutorial context can use it
+  useEffect(() => {
+    setOnOpenChat(onOpenChat);
+  }, [onOpenChat, setOnOpenChat]);
 
   useEffect(() => {
     const checkNewUser = async () => {
@@ -83,23 +89,9 @@ export const Dashboard = ({ learningStyles, onOpenChat, onRetakeQuiz }: Dashboar
         const createdAt = new Date(session.user.created_at).getTime();
         const lastSignIn = new Date(session.user.last_sign_in_at || session.user.created_at).getTime();
         setIsNewUser(Math.abs(lastSignIn - createdAt) < 60_000);
-
-        // Show tutorial if user hasn't dismissed it
-        const dismissed = localStorage.getItem(`tutorial_dismissed_${session.user.id}`);
-        if (!dismissed) {
-          setShowTutorial(true);
-        }
       }
     };
     checkNewUser();
-  }, []);
-
-  const handleDismissTutorial = useCallback(async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (session?.user) {
-      localStorage.setItem(`tutorial_dismissed_${session.user.id}`, "true");
-    }
-    setShowTutorial(false);
   }, []);
 
   const handleSignOut = async () => {
@@ -196,14 +188,8 @@ export const Dashboard = ({ learningStyles, onOpenChat, onRetakeQuiz }: Dashboar
           <p className="text-muted-foreground">Your personalized learning dashboard is ready.</p>
         </div>
 
-        {/* Site Tutorial Guide */}
-        {showTutorial && (
-          <SiteTutorialGuide
-            onDismiss={handleDismissTutorial}
-            onOpenChat={onOpenChat}
-            onNavigate={(path) => navigate(path)}
-          />
-        )}
+        {/* Site Tutorial Guide — inline menu */}
+        {showTutorial && <TutorialMenuCard />}
 
         {/* Test Reminders — first widget */}
         <div data-tutorial-id="test-reminders">
