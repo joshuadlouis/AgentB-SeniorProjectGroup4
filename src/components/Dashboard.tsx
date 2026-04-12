@@ -113,6 +113,10 @@ export const Dashboard = ({ learningStyles, onOpenChat, onRetakeQuiz }: Dashboar
             <h1 className="text-xl font-bold text-foreground">Dashboard</h1>
 
             <div className="flex items-center gap-2">
+              <Button variant="outline" size="icon" className="h-9 w-9" onClick={() => navigate("/read-aloud")} title="Read Aloud">
+                <BookOpen className="h-5 w-5" />
+              </Button>
+
               <NotificationBell />
 
               <DropdownMenu>
@@ -122,10 +126,6 @@ export const Dashboard = ({ learningStyles, onOpenChat, onRetakeQuiz }: Dashboar
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-48">
-                  <DropdownMenuItem onClick={() => navigate("/read-aloud")}>
-                    <BookOpen className="mr-2 h-4 w-4" />
-                    Read Aloud
-                  </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => navigate("/analytics")}>
                     <BarChart3 className="mr-2 h-4 w-4" />
                     Analytics
