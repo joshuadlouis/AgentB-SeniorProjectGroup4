@@ -23,7 +23,7 @@ import {
 const STATUS_CONFIG: Record<RouteStatus, { label: string; className: string }> = {
   active:             { label: "Active",              className: "bg-emerald-500/90 text-white" },
   inactive:           { label: "Inactive",            className: "bg-muted text-muted-foreground" },
-  "weekend-no-service": { label: "Weekend – No Service", className: "bg-amber-500/90 text-white" },
+  "weekend-no-service": { label: "No Service Today", className: "bg-amber-500/90 text-white" },
   "after-hours":      { label: "After Hours",         className: "bg-muted text-muted-foreground" },
 };
 
@@ -116,7 +116,6 @@ const SchedulePanel = ({
           </Badge>
         </div>
 
-        {/* Next departures */}
         {nextDeps.length > 0 && (
           <div className="mb-4">
             <p className="text-xs font-medium text-muted-foreground mb-2">NEXT DEPARTURES</p>
@@ -130,7 +129,6 @@ const SchedulePanel = ({
           </div>
         )}
 
-        {/* Full stop-by-stop schedule table */}
         <div>
           <p className="text-xs font-medium text-muted-foreground mb-2">
             STOP-BY-STOP SCHEDULE {weekday ? "(Weekday)" : "(Weekend)"}
@@ -147,19 +145,21 @@ const SchedulePanel = ({
                 <tbody>
                   {route.stops.map((stop, si) => {
                     const times = getStopSchedule(route, si, now);
-                    // Show next 6 upcoming times
                     const upcoming = times.filter((t) => t >= now).slice(0, 6);
                     const display = upcoming.length > 0 ? upcoming : times.slice(-3);
-
                     return (
                       <tr key={si} className="border-t border-border">
                         <td className="px-3 py-2">
                           <div className="flex items-center gap-2">
-                            <div
-                              className="w-2 h-2 rounded-full shrink-0"
-                              style={{ backgroundColor: route.color }}
-                            />
-                            <span className="font-medium text-foreground text-xs">{stop.name}</span>
+                            {stop.isMajor ? (
+                              <div className="w-3 h-3 rounded-sm shrink-0" style={{ backgroundColor: route.color }} />
+                            ) : (
+                              <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: route.color }} />
+                            )}
+                            <span className={cn("text-xs", stop.isMajor ? "font-semibold text-foreground" : "font-medium text-foreground")}>
+                              {stop.name}
+                              {stop.isMajor && <span className="text-[10px] text-muted-foreground ml-1">★</span>}
+                            </span>
                           </div>
                         </td>
                         <td className="px-3 py-2">
@@ -177,9 +177,6 @@ const SchedulePanel = ({
                                 {fmt(t)}
                               </span>
                             ))}
-                            {upcoming.length > 6 && (
-                              <span className="text-[10px] text-muted-foreground">…</span>
-                            )}
                           </div>
                         </td>
                       </tr>
@@ -196,34 +193,23 @@ const SchedulePanel = ({
           )}
         </div>
 
-        {/* Operating info */}
         <div className="mt-4 pt-3 border-t border-border text-xs text-muted-foreground space-y-1">
           {route.weekday && (
             <p>
               <span className="font-medium">Weekday:</span>{" "}
-              {route.weekday.startHour > 12
-                ? `${route.weekday.startHour - 12}:00 PM`
-                : `${route.weekday.startHour}:00 AM`}
+              {route.weekday.startHour > 12 ? `${route.weekday.startHour - 12}:00 PM` : `${route.weekday.startHour}:00 AM`}
               {" – "}
-              {route.weekday.endHour > 12
-                ? `${route.weekday.endHour - 12}:00 PM`
-                : `${route.weekday.endHour}:00 AM`}
-              {" · every "}
-              {route.weekday.frequencyMin} min
+              {route.weekday.endHour > 12 ? `${route.weekday.endHour - 12}:00 PM` : `${route.weekday.endHour}:00 AM`}
+              {" · every "}{route.weekday.frequencyMin} min
             </p>
           )}
           {route.weekend && (
             <p>
               <span className="font-medium">Weekend:</span>{" "}
-              {route.weekend.startHour > 12
-                ? `${route.weekend.startHour - 12}:00 PM`
-                : `${route.weekend.startHour}:00 AM`}
+              {route.weekend.startHour > 12 ? `${route.weekend.startHour - 12}:00 PM` : `${route.weekend.startHour}:00 AM`}
               {" – "}
-              {route.weekend.endHour > 12
-                ? `${route.weekend.endHour - 12}:00 PM`
-                : `${route.weekend.endHour}:00 AM`}
-              {" · every "}
-              {route.weekend.frequencyMin} min
+              {route.weekend.endHour > 12 ? `${route.weekend.endHour - 12}:00 PM` : `${route.weekend.endHour}:00 AM`}
+              {" · every "}{route.weekend.frequencyMin} min
             </p>
           )}
           {!route.weekend && (
@@ -244,7 +230,6 @@ export const TransitDashboard = () => {
   const [selectedRouteId, setSelectedRouteId] = useState<string | null>(null);
   const [now, setNow] = useState(new Date());
 
-  // Tick every 30s to keep "Next in X min" fresh
   useEffect(() => {
     const id = setInterval(() => setNow(new Date()), 30_000);
     return () => clearInterval(id);
@@ -254,6 +239,19 @@ export const TransitDashboard = () => {
     () => SHUTTLE_ROUTES.find((r) => r.id === selectedRouteId) ?? null,
     [selectedRouteId]
   );
+
+  // Sort: active routes first, then after-hours, then no-service
+  const sortedRoutes = useMemo(() => {
+    const order: Record<RouteStatus, number> = {
+      active: 0,
+      "after-hours": 1,
+      inactive: 2,
+      "weekend-no-service": 3,
+    };
+    return [...SHUTTLE_ROUTES].sort(
+      (a, b) => order[getRouteStatus(a, now)] - order[getRouteStatus(b, now)]
+    );
+  }, [now]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -287,7 +285,7 @@ export const TransitDashboard = () => {
             <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
               Shuttle Routes
             </h2>
-            {SHUTTLE_ROUTES.map((route) => (
+            {sortedRoutes.map((route) => (
               <RouteCard
                 key={route.id}
                 route={route}
