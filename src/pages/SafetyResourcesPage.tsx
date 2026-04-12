@@ -93,6 +93,99 @@ const sections = [
     ),
   },
   {
+    title: "Mental Health And Emotional Support - Online/Telehealth Resources",
+    content: (
+      <div className="space-y-4 text-sm text-muted-foreground">
+        <p>If you would like to access online or telehealth mental health services, the following resources are available to you:</p>
+        <div className="space-y-3">
+          <div>
+            <p className="font-medium text-foreground">University Counseling Service</p>
+            <p>Daytime/Weekdays: <a href="tel:2028066870" className="text-primary underline">(202) 806-6870</a></p>
+            <p>Crisis Line (After Hours & Weekends): <a href="tel:2023456709" className="text-primary underline">(202) 345-6709</a>, Monday-Friday, 6 p.m. to 8 a.m. and 24/7 on weekends.</p>
+            <a href="https://studentaffairs.howard.edu/opportunities/clinical-psychology-training" target="_blank" rel="noopener noreferrer" className="text-primary underline inline-flex items-center gap-1">
+              Clinical Psychology Training <ExternalLink className="h-3 w-3" />
+            </a>
+          </div>
+          <div>
+            <p className="font-medium text-foreground">"Healthiest You" - Student Telehealth Mental Health Provider</p>
+            <p>Phone: <a href="tel:8558705858" className="text-primary underline">855-870-5858</a></p>
+            <a href="https://telehealth4students.com" target="_blank" rel="noopener noreferrer" className="text-primary underline inline-flex items-center gap-1">
+              telehealth4students.com <ExternalLink className="h-3 w-3" />
+            </a>
+          </div>
+          <div>
+            <p className="font-medium text-foreground">Employee Assistance Program (EAP)</p>
+            <p>Howard offers the LifeWorks Employee Assistance Program through MetLife – at no cost to you. Call <a href="tel:8883197819" className="text-primary underline">888-319-7819</a>, log on to metlifeeap.lifeworks.com or download the LifeWorks app (username: metlifeeap, password: eap). Available 24/7/365. Includes up to 5 phone or video consultations with a licensed counselor per issue, per calendar year.</p>
+            <div className="flex flex-col gap-1 mt-1">
+              <a href="https://myhowardbenefits.com/public/welcome" target="_blank" rel="noopener noreferrer" className="text-primary underline inline-flex items-center gap-1">
+                MyHoward Benefits <ExternalLink className="h-3 w-3" />
+              </a>
+              <a href="https://howard.edu/sites/home.howard.edu/files/2022-11/EAP%20Manager%27s%20Guide-%20%20Standard%20Option.pdf" target="_blank" rel="noopener noreferrer" className="text-primary underline inline-flex items-center gap-1">
+                EAP Manager's Guide <ExternalLink className="h-3 w-3" />
+              </a>
+            </div>
+          </div>
+        </div>
+        <div>
+          <p className="font-medium text-foreground mb-2">Additional Resources</p>
+          <ul className="space-y-1 pl-4">
+            <li><a href="https://www.betterhelp.com/" target="_blank" rel="noopener noreferrer" className="text-primary underline inline-flex items-center gap-1">BetterHelp - 24/7 counseling <ExternalLink className="h-3 w-3" /></a></li>
+            <li><a href="https://www.nami.org/nami-news/nami-updates-on-the-coronavirus/" target="_blank" rel="noopener noreferrer" className="text-primary underline inline-flex items-center gap-1">NAMI - Updates on the Coronavirus <ExternalLink className="h-3 w-3" /></a></li>
+            <li><a href="https://adaa.org" target="_blank" rel="noopener noreferrer" className="text-primary underline inline-flex items-center gap-1">Anxiety and Depression Association of America <ExternalLink className="h-3 w-3" /></a></li>
+          </ul>
+        </div>
+      </div>
+    ),
+  },
+  {
+    title: "Interpersonal Violence Prevention Program (IVPP)",
+    content: (
+      <div className="space-y-3 text-sm text-muted-foreground">
+        <p>The Howard University Interpersonal Violence Prevention Program (IVPP) provides confidential advocacy, safety planning, referrals and support.</p>
+        <div className="flex items-center gap-2">
+          <Phone className="h-4 w-4 text-primary" />
+          <span className="font-medium text-foreground">Phone:</span>
+          <a href="tel:2028361401" className="text-primary underline">(202) 836-1401</a>
+        </div>
+      </div>
+    ),
+  },
+  {
+    title: "University Counseling Service",
+    content: (
+      <div className="space-y-3 text-sm text-muted-foreground">
+        <p>Provides individual and group counseling, psychotherapy, crisis intervention and consultation for students.</p>
+        <a href="https://studentaffairs.howard.edu/wellness/get-counseling-services" target="_blank" rel="noopener noreferrer" className="text-primary underline inline-flex items-center gap-1">
+          Get Counseling Services <ExternalLink className="h-3 w-3" />
+        </a>
+        <div>
+          <p className="font-medium text-foreground">Location</p>
+          <p>CB Powell/School of Communications Building</p>
+          <p>6th and Bryant Streets, N.W.</p>
+          <p>Washington, D.C. 20059</p>
+        </div>
+        <div>
+          <p>Phone: <a href="tel:2028066870" className="text-primary underline">(202) 806-6870</a></p>
+          <p>Hours: 8:00 am - 6:00 pm</p>
+          <p>Crisis Line: <a href="tel:2023456709" className="text-primary underline">(202) 345-6709</a> (after hours, weekends and holidays)</p>
+        </div>
+      </div>
+    ),
+  },
+  {
+    title: "Contact the Title IX Office",
+    content: (
+      <div className="space-y-3 text-sm text-muted-foreground">
+        <p className="font-medium text-foreground">Angie Logan-Pope — Title IX Director</p>
+        <div>
+          <p>Phone: <a href="tel:2028062550" className="text-primary underline">(202) 806-2550</a></p>
+          <p>Email: <a href="mailto:TitleIX@howard.edu" className="text-primary underline">TitleIX@howard.edu</a></p>
+          <p>Address: 2400 6th Street NW, Washington, DC 20059</p>
+        </div>
+      </div>
+    ),
+  },
+  {
     title: "LGBTQ+ Resources",
     content: (
       <div className="space-y-4 text-sm text-muted-foreground">
