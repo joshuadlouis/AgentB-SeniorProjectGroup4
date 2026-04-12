@@ -110,11 +110,14 @@ function LocationsTab() {
           {!loading && !error && filtered.map((loc) => (
             <Card key={loc.name} className="overflow-hidden border-border">
               <div className="flex flex-col sm:flex-row">
-                {loc.imageUrl && (
-                  <div className="sm:w-40 sm:min-h-[140px] flex-shrink-0">
-                    <img src={DINING_IMAGES[loc.urlKey] || loc.imageUrl} alt={loc.name} className="w-full h-36 sm:h-full object-cover" loading="lazy" />
-                  </div>
-                )}
+                {(() => {
+                  const imageSrc = DINING_IMAGES[loc.urlKey] || loc.imageUrl;
+                  return imageSrc ? (
+                    <div className="sm:w-40 sm:min-h-[140px] flex-shrink-0">
+                      <img src={imageSrc} alt={loc.name} className="w-full h-36 sm:h-full object-cover" loading="lazy" />
+                    </div>
+                  ) : null;
+                })()}
                 <div className="p-4 flex-1 space-y-2">
                   <div className="flex items-start justify-between gap-2">
                     <h3 className="font-semibold text-foreground leading-tight">{loc.name}</h3>
