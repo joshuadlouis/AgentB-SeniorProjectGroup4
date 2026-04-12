@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -67,11 +67,25 @@ export const Dashboard = ({ learningStyles, onOpenChat, onRetakeQuiz }: Dashboar
   const [syllabusRefreshTrigger, setSyllabusRefreshTrigger] = useState(0);
   const [isReadAloudActive, setIsReadAloudActive] = useState(false);
   const [bottomBarOpen, setBottomBarOpen] = useState(false);
+  const [isNewUser, setIsNewUser] = useState(false);
 
   const mainContentRef = useRef<HTMLElement>(null);
 
   const { profile, saveProfile } = useProfile();
   useStreakTracker();
+
+  useEffect(() => {
+    const checkNewUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        const createdAt = new Date(session.user.created_at).getTime();
+        const lastSignIn = new Date(session.user.last_sign_in_at || session.user.created_at).getTime();
+        // If last sign-in is within 60 seconds of account creation, it's a first login
+        setIsNewUser(Math.abs(lastSignIn - createdAt) < 60_000);
+      }
+    };
+    checkNewUser();
+  }, []);
 
   const handleSignOut = async () => {
     await saveProfile();
@@ -160,7 +174,9 @@ export const Dashboard = ({ learningStyles, onOpenChat, onRetakeQuiz }: Dashboar
         {/* Welcome Section */}
         <div className="space-y-4">
           <h2 className="text-3xl font-bold text-foreground">
-            Welcome back{profile.first_name ? `, ${profile.first_name}` : ""}!
+            {isNewUser
+              ? `Welcome to Bison Secure${profile.first_name ? `, ${profile.first_name}` : ""}!`
+              : `Welcome back${profile.first_name ? `, ${profile.first_name}` : ""}!`}
           </h2>
           <p className="text-muted-foreground">Your personalized learning dashboard is ready.</p>
         </div>
