@@ -1,13 +1,20 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
-  Train, Bus, RefreshCw, Clock, MapPin, Search, ChevronRight,
+  Train, Bus, RefreshCw, Clock, MapPin, Search, ChevronRight, Filter,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
+import {
+  LineFilterDrawer,
+  type LinePreferences,
+  loadLinePreferences,
+  saveLinePreferences,
+  isAnyFilterActive,
+} from "@/components/transit/LineFilterDrawer";
 
 /* ── WMATA colors ─────────────────────────────────── */
 
@@ -18,7 +25,6 @@ export const WMATA_LINE_COLORS: Record<string, string> = {
   BL: "#009CDE",
   YL: "#FFD200",
   GR: "#00B050",
-  // combined keys
   "RD,BL,OR,SV": "#888",
 };
 
@@ -69,6 +75,16 @@ async function wmataFetch(endpoint: string, params?: Record<string, string>) {
   return data;
 }
 
+/* ── Helpers ──────────────────────────────────────── */
+
+const getLineCodes = (s: WmataStation) =>
+  [s.LineCode1, s.LineCode2, s.LineCode3, s.LineCode4].filter(Boolean) as string[];
+
+function stationPassesFilter(station: WmataStation, prefs: LinePreferences): boolean {
+  const codes = getLineCodes(station);
+  return codes.some((c) => prefs[c] !== false);
+}
+
 /* ── Component ────────────────────────────────────── */
 
 interface PublicTransitProps {
@@ -80,12 +96,20 @@ export const PublicTransit = ({ onStationSelect }: PublicTransitProps) => {
   const [railPredictions, setRailPredictions] = useState<RailPrediction[]>([]);
   const [busPredictions, setBusPredictions] = useState<BusPrediction[]>([]);
   const [selectedStation, setSelectedStation] = useState<WmataStation | null>(null);
-  const [busStopId, setBusStopId] = useState("1001195"); // default: near Howard U
+  const [busStopId, setBusStopId] = useState("1001195");
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
   const [mode, setMode] = useState<"rail" | "bus">("rail");
+  const [linePreferences, setLinePreferences] = useState<LinePreferences>(loadLinePreferences);
+
+  const handlePrefsChange = useCallback((prefs: LinePreferences) => {
+    setLinePreferences(prefs);
+    saveLinePreferences(prefs);
+  }, []);
+
+  const filtersActive = isAnyFilterActive(linePreferences);
 
   // Fetch station list on mount
   useEffect(() => {
@@ -101,7 +125,6 @@ export const PublicTransit = ({ onStationSelect }: PublicTransitProps) => {
     })();
   }, []);
 
-  // Fetch rail predictions
   const fetchRailPredictions = useCallback(async (stationCode?: string) => {
     try {
       setRefreshing(true);
@@ -118,7 +141,6 @@ export const PublicTransit = ({ onStationSelect }: PublicTransitProps) => {
     }
   }, []);
 
-  // Fetch bus predictions
   const fetchBusPredictions = useCallback(async () => {
     try {
       setRefreshing(true);
@@ -134,7 +156,6 @@ export const PublicTransit = ({ onStationSelect }: PublicTransitProps) => {
     }
   }, [busStopId]);
 
-  // Auto-refresh every 20s
   useEffect(() => {
     const refresh = () => {
       if (mode === "rail") fetchRailPredictions(selectedStation?.Code);
@@ -151,23 +172,28 @@ export const PublicTransit = ({ onStationSelect }: PublicTransitProps) => {
     fetchRailPredictions(station.Code);
   };
 
-  const filteredStations = stations.filter((s) =>
-    s.Name.toLowerCase().includes(searchQuery.toLowerCase())
+  // Filtered stations: search + line prefs
+  const filteredStations = useMemo(
+    () =>
+      stations
+        .filter((s) => s.Name.toLowerCase().includes(searchQuery.toLowerCase()))
+        .filter((s) => stationPassesFilter(s, linePreferences)),
+    [stations, searchQuery, linePreferences]
   );
 
-  // Group predictions by line for display
-  const stationPredictions = selectedStation
-    ? railPredictions.filter((p) => p.LocationCode === selectedStation.Code)
-    : railPredictions.slice(0, 30);
-
-  const lineCodes = (s: WmataStation) =>
-    [s.LineCode1, s.LineCode2, s.LineCode3, s.LineCode4].filter(Boolean) as string[];
+  // Filtered predictions: line prefs
+  const filteredPredictions = useMemo(() => {
+    const base = selectedStation
+      ? railPredictions.filter((p) => p.LocationCode === selectedStation.Code)
+      : railPredictions.slice(0, 30);
+    return base.filter((p) => !p.Line || linePreferences[p.Line] !== false);
+  }, [railPredictions, selectedStation, linePreferences]);
 
   return (
     <div className="space-y-4">
-      {/* Mode toggle + refresh */}
+      {/* Mode toggle + settings + refresh */}
       <div className="flex items-center justify-between">
-        <div className="flex gap-2">
+        <div className="flex items-center gap-2">
           <Button
             variant={mode === "rail" ? "default" : "outline"}
             size="sm"
@@ -184,6 +210,17 @@ export const PublicTransit = ({ onStationSelect }: PublicTransitProps) => {
           >
             <Bus className="w-4 h-4" /> Metrobus
           </Button>
+
+          {mode === "rail" && (
+            <>
+              <LineFilterDrawer preferences={linePreferences} onChange={handlePrefsChange} />
+              {filtersActive && (
+                <Badge variant="secondary" className="text-[10px] gap-1 px-2 py-0.5">
+                  <Filter className="w-3 h-3" /> Filters Active
+                </Badge>
+              )}
+            </>
+          )}
         </div>
         <div className="flex items-center gap-2">
           <span className="text-[10px] text-muted-foreground">
@@ -217,6 +254,10 @@ export const PublicTransit = ({ onStationSelect }: PublicTransitProps) => {
             <div className="space-y-2 max-h-[400px] overflow-y-auto pr-1">
               {loading ? (
                 <p className="text-sm text-muted-foreground text-center py-4">Loading stations…</p>
+              ) : filteredStations.length === 0 ? (
+                <p className="text-sm text-muted-foreground text-center py-4">
+                  No stations match{filtersActive ? " (check your line filters)" : ""}.
+                </p>
               ) : (
                 filteredStations.slice(0, 50).map((station) => (
                   <Card
@@ -233,10 +274,13 @@ export const PublicTransit = ({ onStationSelect }: PublicTransitProps) => {
                         <span className="text-sm font-medium text-foreground">{station.Name}</span>
                       </div>
                       <div className="flex items-center gap-1">
-                        {lineCodes(station).map((lc) => (
+                        {getLineCodes(station).map((lc) => (
                           <div
                             key={lc}
-                            className="w-4 h-4 rounded-full flex items-center justify-center"
+                            className={cn(
+                              "w-4 h-4 rounded-full flex items-center justify-center",
+                              linePreferences[lc] === false && "opacity-30"
+                            )}
                             style={{ backgroundColor: lineColor(lc) }}
                           >
                             <span className="text-[8px] font-bold text-white">{lc.charAt(0)}</span>
@@ -263,9 +307,11 @@ export const PublicTransit = ({ onStationSelect }: PublicTransitProps) => {
                 </Badge>
               </div>
 
-              {stationPredictions.length === 0 ? (
+              {filteredPredictions.length === 0 ? (
                 <p className="text-sm text-muted-foreground text-center py-6">
-                  {selectedStation ? "No upcoming trains at this station." : "Select a station to view predictions."}
+                  {selectedStation
+                    ? `No upcoming trains${filtersActive ? " (some lines filtered)" : ""}.`
+                    : "Select a station to view predictions."}
                 </p>
               ) : (
                 <div className="border border-border rounded-lg overflow-hidden">
@@ -279,7 +325,7 @@ export const PublicTransit = ({ onStationSelect }: PublicTransitProps) => {
                       </tr>
                     </thead>
                     <tbody>
-                      {stationPredictions.map((p, i) => (
+                      {filteredPredictions.map((p, i) => (
                         <tr key={i} className="border-t border-border">
                           <td className="px-3 py-2">
                             <Badge
