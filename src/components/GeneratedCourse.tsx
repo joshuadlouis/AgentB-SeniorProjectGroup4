@@ -503,6 +503,9 @@ function ChapterContent({
             </Button>
           </div>
         </div>
+
+        {/* Content Feedback */}
+        <ContentFeedbackWidget contentId={chapter.id} topic={chapter.topic} />
       </TabsContent>
 
       {/* Quiz */}
