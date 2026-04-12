@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef, useCallback, useState } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import type { ShuttleRoute } from "@/data/shuttleData";
@@ -8,38 +8,80 @@ interface TransitMapProps {
   selectedRouteId: string | null;
 }
 
+// OSRM public demo server for routing
+async function fetchOSRMRoute(coords: [number, number][]): Promise<[number, number][]> {
+  if (coords.length < 2) return coords;
+  const coordStr = coords.map(([lat, lng]) => `${lng},${lat}`).join(";");
+  const url = `https://router.project-osrm.org/route/v1/driving/${coordStr}?overview=full&geometries=geojson`;
+  try {
+    const res = await fetch(url);
+    const data = await res.json();
+    if (data.code === "Ok" && data.routes?.[0]) {
+      return data.routes[0].geometry.coordinates.map(
+        ([lng, lat]: [number, number]) => [lat, lng] as [number, number]
+      );
+    }
+  } catch (e) {
+    console.warn("OSRM routing failed, falling back to straight lines", e);
+  }
+  return coords;
+}
+
+function createMajorIcon(color: string) {
+  return L.divIcon({
+    className: "major-stop-marker",
+    html: `<div style="
+      width:20px;height:20px;border-radius:4px;
+      background:${color};border:3px solid white;
+      box-shadow:0 2px 6px rgba(0,0,0,0.35);
+      display:flex;align-items:center;justify-content:center;
+    "><div style="width:6px;height:6px;border-radius:50%;background:white;"></div></div>`,
+    iconSize: [20, 20],
+    iconAnchor: [10, 10],
+  });
+}
+
+function createMinorIcon(color: string) {
+  return L.divIcon({
+    className: "minor-stop-marker",
+    html: `<div style="
+      width:12px;height:12px;border-radius:50%;
+      background:${color};border:2px solid white;
+      box-shadow:0 1px 4px rgba(0,0,0,0.3);
+    "></div>`,
+    iconSize: [12, 12],
+    iconAnchor: [6, 6],
+  });
+}
+
 export const TransitMap = ({ routes, selectedRouteId }: TransitMapProps) => {
   const mapRef = useRef<L.Map | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const layersRef = useRef<L.LayerGroup>(L.layerGroup());
+  const [routeCache, setRouteCache] = useState<Record<string, [number, number][]>>({});
 
   // Initialize map once
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
-
     const map = L.map(containerRef.current, {
       center: [38.9225, -77.0210],
       zoom: 14,
       scrollWheelZoom: true,
     });
-
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
     }).addTo(map);
-
     layersRef.current.addTo(map);
     mapRef.current = map;
-
     return () => {
       map.remove();
       mapRef.current = null;
     };
   }, []);
 
-  const drawStops = useCallback(() => {
+  const drawRoutes = useCallback(async () => {
     const map = mapRef.current;
     if (!map) return;
-
     layersRef.current.clearLayers();
 
     const visibleRoutes = selectedRouteId
@@ -48,48 +90,62 @@ export const TransitMap = ({ routes, selectedRouteId }: TransitMapProps) => {
 
     const allPoints: [number, number][] = [];
 
-    visibleRoutes.forEach((route) => {
-      const coords: [number, number][] = route.stops.map((s) => [s.lat, s.lng]);
-      allPoints.push(...coords);
+    for (const route of visibleRoutes) {
+      const stopCoords: [number, number][] = route.stops.map((s) => [s.lat, s.lng]);
+      allPoints.push(...stopCoords);
 
-      // Draw polyline connecting stops
-      if (coords.length >= 2) {
-        const polyline = L.polyline(coords, {
+      // Get OSRM route (cached)
+      const cacheKey = route.id;
+      let routePath = routeCache[cacheKey];
+      if (!routePath && stopCoords.length >= 2) {
+        routePath = await fetchOSRMRoute(stopCoords);
+        setRouteCache((prev) => ({ ...prev, [cacheKey]: routePath! }));
+      }
+
+      // Draw polyline
+      const pathCoords = routePath && routePath.length > 0 ? routePath : stopCoords;
+      if (pathCoords.length >= 2) {
+        const polyline = L.polyline(pathCoords, {
           color: route.color,
           weight: selectedRouteId === route.id ? 5 : 3,
-          opacity: 0.8,
-          dashArray: selectedRouteId && selectedRouteId !== route.id ? "6,8" : undefined,
+          opacity: 0.85,
         });
         layersRef.current.addLayer(polyline);
       }
 
       // Draw stop markers
-      route.stops.forEach((stop, i) => {
-        const icon = L.divIcon({
-          className: "custom-marker",
-          html: `<div style="width:${i === 0 ? 16 : 12}px;height:${i === 0 ? 16 : 12}px;border-radius:50%;background:${route.color};border:2px solid white;box-shadow:0 1px 4px rgba(0,0,0,0.3);"></div>`,
-          iconSize: [i === 0 ? 16 : 12, i === 0 ? 16 : 12],
-          iconAnchor: [i === 0 ? 8 : 6, i === 0 ? 8 : 6],
-        });
+      route.stops.forEach((stop) => {
+        const icon = stop.isMajor
+          ? createMajorIcon(route.color)
+          : createMinorIcon(route.color);
 
         const marker = L.marker([stop.lat, stop.lng], { icon });
         marker.bindPopup(
-          `<div style="font-size:13px"><strong>${stop.name}</strong><br/><span style="color:#888">${route.name} · +${stop.offsetMinutes} min</span></div>`
+          `<div style="font-size:13px">
+            <strong>${stop.name}</strong>
+            ${stop.isMajor ? ' <span style="color:#003A70;font-size:10px;">★ Major</span>' : ""}
+            <br/><span style="color:#888;font-size:11px">${route.name}</span>
+            <br/><span style="color:#aaa;font-size:10px">${stop.address}</span>
+          </div>`
         );
         layersRef.current.addLayer(marker);
       });
-    });
+    }
 
-    // Fit bounds
+    // Fly to bounds
     if (allPoints.length > 0) {
       const bounds = L.latLngBounds(allPoints);
-      map.fitBounds(bounds, { padding: [40, 40] });
+      if (selectedRouteId) {
+        map.flyToBounds(bounds, { padding: [50, 50], duration: 0.8 });
+      } else {
+        map.fitBounds(bounds, { padding: [40, 40] });
+      }
     }
-  }, [routes, selectedRouteId]);
+  }, [routes, selectedRouteId, routeCache]);
 
   useEffect(() => {
-    drawStops();
-  }, [drawStops]);
+    drawRoutes();
+  }, [drawRoutes]);
 
   return (
     <div
