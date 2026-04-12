@@ -11,7 +11,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { X, ChevronRight, BookOpen, ClipboardCheck, CalendarDays, MapPin, Bus, MessageCircle } from "lucide-react";
+import { X, ChevronRight, RotateCcw, BookOpen, ClipboardCheck, CalendarDays, MapPin, Bus, MessageCircle } from "lucide-react";
 import agentBIcon from "@/assets/AgentBIconPurple.png";
 
 interface Tutorial {
@@ -23,8 +23,6 @@ interface Tutorial {
 
 interface TutorialStep {
   message: string;
-  actionLabel?: string;
-  onAction?: () => void;
   allowSkip?: boolean;
 }
 
@@ -39,67 +37,55 @@ const tutorials: Tutorial[] = [
     id: "syllabus",
     title: "Upload a Syllabus",
     icon: <BookOpen className="w-4 h-4" />,
-    steps: [
-      {
-        message: "Hey there! 🎓 Let's start by uploading a syllabus. This helps me personalize your learning experience and track your courses! Scroll down to the Course Hub and expand 'Class Syllabi' to upload one.",
-        allowSkip: true,
-      },
-    ],
+    steps: [{
+      message: "Hey there! 🎓 Let's start by uploading a syllabus. This helps me personalize your learning experience and track your courses! Scroll down to the Course Hub and expand 'Class Syllabi' to upload one.",
+      allowSkip: true,
+    }],
   },
   {
     id: "test-reminders",
     title: "Add a Test Reminder",
     icon: <ClipboardCheck className="w-4 h-4" />,
-    steps: [
-      {
-        message: "Great move! 📝 Now let's set up a test reminder so you never miss an exam. Check out the 'Test Reminders' widget near the top of your dashboard — you can add upcoming tests there!",
-        allowSkip: true,
-      },
-    ],
+    steps: [{
+      message: "Great move! 📝 Now let's set up a test reminder so you never miss an exam. Check out the 'Test Reminders' widget near the top of your dashboard — you can add upcoming tests there!",
+      allowSkip: true,
+    }],
   },
   {
     id: "assignments",
     title: "Track Assignments",
     icon: <CalendarDays className="w-4 h-4" />,
-    steps: [
-      {
-        message: "Nice! 📅 You can populate your 'Upcoming Assignments' by heading to your Personal Calendar and adding assignment due dates. Everything syncs automatically!",
-        allowSkip: true,
-      },
-    ],
+    steps: [{
+      message: "Nice! 📅 You can populate your 'Upcoming Assignments' by heading to your Personal Calendar and adding assignment due dates. Everything syncs automatically!",
+      allowSkip: true,
+    }],
   },
   {
     id: "campus-resources",
     title: "Explore Campus Resources",
     icon: <MapPin className="w-4 h-4" />,
-    steps: [
-      {
-        message: "Let me show you some handy campus tools! 🗺️ You've got quick access to the Campus Map, Safety & Resources (including Title IX info and emergency contacts), and Dining information — all right here on your dashboard. Try opening one!",
-        allowSkip: true,
-      },
-    ],
+    steps: [{
+      message: "Let me show you some handy campus tools! 🗺️ You've got quick access to the Campus Map, Safety & Resources (including Title IX info and emergency contacts), and Dining information — all right here on your dashboard. Try opening one!",
+      allowSkip: true,
+    }],
   },
   {
     id: "transit",
     title: "Navigate Transit & Shuttles",
     icon: <Bus className="w-4 h-4" />,
-    steps: [
-      {
-        message: "Getting around is easy! 🚌 Open 'Transit & Shuttles' to see campus shuttle routes. You can switch between 'Campus Shuttles' and 'Public Transit' tabs to view metro lines and nearby stations too!",
-        allowSkip: true,
-      },
-    ],
+    steps: [{
+      message: "Getting around is easy! 🚌 Open 'Transit & Shuttles' to see campus shuttle routes. You can switch between 'Campus Shuttles' and 'Public Transit' tabs to view metro lines and nearby stations too!",
+      allowSkip: true,
+    }],
   },
   {
     id: "agentb-chat",
     title: "Chat with AgentB",
     icon: <MessageCircle className="w-4 h-4" />,
-    steps: [
-      {
-        message: "And last but not least — you can always ask me anything! 💬 Whether it's a study question, campus info, or help with an assignment, I'm here 24/7. Try sending me a message!",
-        allowSkip: true,
-      },
-    ],
+    steps: [{
+      message: "And last but not least — you can always ask me anything! 💬 Whether it's a study question, campus info, or help with an assignment, I'm here 24/7. Try sending me a message!",
+      allowSkip: true,
+    }],
   },
 ];
 
@@ -107,39 +93,23 @@ export const SiteTutorialGuide = ({ onDismiss, onOpenChat, onNavigate }: SiteTut
   const [selectedTutorial, setSelectedTutorial] = useState<string | null>(null);
   const [completedTutorials, setCompletedTutorials] = useState<Set<string>>(new Set());
   const [showSkipConfirm, setShowSkipConfirm] = useState(false);
+  const [showCloseConfirm, setShowCloseConfirm] = useState(false);
 
   const allCompleted = completedTutorials.size === tutorials.length;
 
   const handleCompleteTutorial = (id: string) => {
-    setCompletedTutorials((prev) => {
-      const next = new Set(prev);
-      next.add(id);
-      return next;
-    });
+    const next = new Set(completedTutorials);
+    next.add(id);
+    setCompletedTutorials(next);
     setSelectedTutorial(null);
   };
 
-  const activeTutorial = tutorials.find((t) => t.id === selectedTutorial);
+  const handleReviewTutorial = (id: string) => {
+    setSelectedTutorial(id);
+  };
 
-  if (allCompleted) {
-    return (
-      <Card className="relative p-5 border-primary/30 bg-gradient-to-r from-primary/5 via-background to-primary/5">
-        <div className="flex items-center gap-4">
-          <img src={agentBIcon} alt="AgentB" className="w-12 h-12 rounded-xl object-cover" />
-          <div className="flex-1">
-            <div className="relative bg-card border border-border rounded-2xl rounded-bl-md p-4 shadow-sm">
-              <p className="text-sm text-foreground">
-                🎉 You're all set! You've completed all the tutorials. If you ever need help, just ask me anytime using the chat bar at the bottom. Good luck with your studies!
-              </p>
-            </div>
-          </div>
-          <Button variant="ghost" size="sm" onClick={onDismiss}>
-            Done
-          </Button>
-        </div>
-      </Card>
-    );
-  }
+  const activeTutorial = tutorials.find((t) => t.id === selectedTutorial);
+  const isReviewing = activeTutorial ? completedTutorials.has(activeTutorial.id) : false;
 
   return (
     <>
@@ -160,7 +130,9 @@ export const SiteTutorialGuide = ({ onDismiss, onOpenChat, onNavigate }: SiteTut
               <img src={agentBIcon} alt="AgentB" className="w-12 h-12 rounded-xl object-cover" />
               <div className="relative bg-card border border-border rounded-2xl rounded-bl-md p-4 shadow-sm flex-1 mr-6">
                 <p className="text-sm text-foreground">
-                  👋 Welcome! I'm AgentB, your campus companion. Let me show you around! Pick a tutorial below to get started.
+                  {allCompleted
+                    ? "🎉 You've reviewed all the tutorials! Feel free to revisit any of them below, or close this widget when you're ready."
+                    : "👋 Welcome! I'm AgentB, your campus companion. Let me show you around! Pick a tutorial below to get started."}
                 </p>
               </div>
             </div>
@@ -171,18 +143,19 @@ export const SiteTutorialGuide = ({ onDismiss, onOpenChat, onNavigate }: SiteTut
                 return (
                   <button
                     key={tutorial.id}
-                    onClick={() => !done && setSelectedTutorial(tutorial.id)}
-                    disabled={done}
+                    onClick={() => done ? handleReviewTutorial(tutorial.id) : setSelectedTutorial(tutorial.id)}
                     className={`flex items-center gap-2 p-3 rounded-lg border text-left text-sm transition-colors ${
                       done
-                        ? "bg-muted/50 border-border text-muted-foreground line-through"
+                        ? "bg-muted/30 border-border text-muted-foreground hover:bg-muted/50 hover:border-primary/30"
                         : "border-border hover:border-primary/50 hover:bg-primary/5"
                     }`}
                   >
                     <span className="shrink-0">{tutorial.icon}</span>
-                    <span className="flex-1 font-medium">{tutorial.title}</span>
+                    <span className={`flex-1 font-medium ${done ? "" : ""}`}>{tutorial.title}</span>
                     {done ? (
-                      <span className="text-xs text-primary">✓</span>
+                      <span className="flex items-center gap-1 text-xs text-primary">
+                        ✓ <RotateCcw className="w-3 h-3" />
+                      </span>
                     ) : (
                       <ChevronRight className="w-3 h-3 text-muted-foreground" />
                     )}
@@ -190,6 +163,23 @@ export const SiteTutorialGuide = ({ onDismiss, onOpenChat, onNavigate }: SiteTut
                 );
               })}
             </div>
+
+            {/* All completed — close prompt */}
+            {allCompleted && (
+              <div className="pl-16 pt-2 border-t border-border mt-2">
+                <p className="text-sm text-muted-foreground mb-3">
+                  All tutorials completed! Would you like to close this widget?
+                </p>
+                <div className="flex items-center gap-2">
+                  <Button size="sm" variant="outline" onClick={() => {}}>
+                    No
+                  </Button>
+                  <Button size="sm" onClick={() => setShowCloseConfirm(true)}>
+                    Yes
+                  </Button>
+                </div>
+              </div>
+            )}
           </div>
         ) : (
           /* Active tutorial speech bubble */
@@ -205,19 +195,29 @@ export const SiteTutorialGuide = ({ onDismiss, onOpenChat, onNavigate }: SiteTut
             </div>
 
             <div className="flex items-center gap-2 pl-16">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handleCompleteTutorial(activeTutorial.id)}
-              >
-                {activeTutorial.steps[0].allowSkip ? "Maybe Later" : "Got it!"}
-              </Button>
-              <Button
-                size="sm"
-                onClick={() => handleCompleteTutorial(activeTutorial.id)}
-              >
-                Got it!
-              </Button>
+              {isReviewing ? (
+                <Button size="sm" onClick={() => setSelectedTutorial(null)}>
+                  Back to Tutorials
+                </Button>
+              ) : (
+                <>
+                  {activeTutorial.steps[0].allowSkip && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleCompleteTutorial(activeTutorial.id)}
+                    >
+                      Maybe Later
+                    </Button>
+                  )}
+                  <Button
+                    size="sm"
+                    onClick={() => handleCompleteTutorial(activeTutorial.id)}
+                  >
+                    Got it!
+                  </Button>
+                </>
+              )}
             </div>
           </div>
         )}
@@ -235,6 +235,22 @@ export const SiteTutorialGuide = ({ onDismiss, onOpenChat, onNavigate }: SiteTut
           <AlertDialogFooter>
             <AlertDialogCancel>Keep Learning</AlertDialogCancel>
             <AlertDialogAction onClick={onDismiss}>Skip Tutorials</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Close widget confirmation dialog */}
+      <AlertDialog open={showCloseConfirm} onOpenChange={setShowCloseConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Close tutorial widget?</AlertDialogTitle>
+            <AlertDialogDescription>
+              The tutorial guide will be removed from your dashboard. You can always explore features on your own or ask AgentB for help anytime!
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Keep It</AlertDialogCancel>
+            <AlertDialogAction onClick={onDismiss}>Close Widget</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
