@@ -132,7 +132,8 @@ export const PlacementQuiz = ({ learningStyles, onQuizComplete, refreshTrigger, 
       );
 
       if (!response.ok) {
-        throw new Error("Failed to generate quiz");
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.error || "Failed to generate quiz");
       }
 
       const data = await response.json();
@@ -150,7 +151,7 @@ export const PlacementQuiz = ({ learningStyles, onQuizComplete, refreshTrigger, 
       console.error("Quiz generation error:", error);
       toast({
         title: "Generation Failed",
-        description: "Failed to generate placement quiz. Please try again.",
+        description: error instanceof Error ? error.message : "Failed to generate placement quiz. Please try again.",
         variant: "destructive",
       });
     } finally {

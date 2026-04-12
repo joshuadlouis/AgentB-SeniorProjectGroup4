@@ -108,6 +108,23 @@ ALGORITHMIC FAIRNESS DIRECTIVES (MANDATORY):
 - If generating scenarios, rotate cultural contexts and avoid Western-centric defaults
 - Mathematical and scientific content must use universal notation standards`;
 
+    // Helper: build a proper error response for AI gateway failures
+    const gatewayErrorResponse = (response: Response, fallbackMsg: string) => {
+      if (response.status === 402) {
+        return new Response(JSON.stringify({ error: "AI credits exhausted. Please add more credits to your Lovable account to continue." }), {
+          status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      if (response.status === 429) {
+        return new Response(JSON.stringify({ error: "Rate limit exceeded. Please try again in a moment." }), {
+          status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      return new Response(JSON.stringify({ error: fallbackMsg }), {
+        status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    };
+
     let systemPrompt = "";
     let useToolCalling = false;
     let toolConfig = null;
@@ -1447,10 +1464,7 @@ When the user asks about their uploaded classes/syllabi, provide targeted help f
       if (!response.ok) {
         const errorText = await response.text();
         console.error("AI gateway error:", response.status, errorText);
-        return new Response(JSON.stringify({ error: "Failed to generate quiz" }), {
-          status: 500,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
+        return gatewayErrorResponse(response, "Failed to generate quiz");
       }
 
       // Read response as text first to handle potential truncation
@@ -1551,10 +1565,7 @@ When the user asks about their uploaded classes/syllabi, provide targeted help f
       });
 
       if (!response.ok) {
-        return new Response(JSON.stringify({ error: "Failed to generate review content" }), {
-          status: 500,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
+        return gatewayErrorResponse(response, "Failed to generate review content");
       }
 
       const data = await response.json();
@@ -1619,10 +1630,7 @@ When the user asks about their uploaded classes/syllabi, provide targeted help f
       });
 
       if (!response.ok) {
-        return new Response(JSON.stringify({ error: "Failed to generate module content" }), {
-          status: 500,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
+        return gatewayErrorResponse(response, "Failed to generate module content");
       }
 
       if (isPractice) {
@@ -1730,10 +1738,7 @@ When the user asks about their uploaded classes/syllabi, provide targeted help f
       if (!response.ok) {
         const errorText = await response.text();
         console.error("AI gateway error:", response.status, errorText);
-        return new Response(JSON.stringify({ error: "Failed to generate content" }), {
-          status: 500,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
+        return gatewayErrorResponse(response, "Failed to generate content");
       }
 
       const data = await response.json();
@@ -1785,10 +1790,7 @@ When the user asks about their uploaded classes/syllabi, provide targeted help f
       });
 
       if (!response.ok) {
-        return new Response(JSON.stringify({ error: `Failed to generate ${requestType} content` }), {
-          status: 500,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
+        return gatewayErrorResponse(response, `Failed to generate ${requestType} content`);
       }
 
       const data = await response.json();
