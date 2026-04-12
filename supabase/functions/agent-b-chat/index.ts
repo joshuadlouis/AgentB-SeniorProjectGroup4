@@ -1464,10 +1464,7 @@ When the user asks about their uploaded classes/syllabi, provide targeted help f
       if (!response.ok) {
         const errorText = await response.text();
         console.error("AI gateway error:", response.status, errorText);
-        return new Response(JSON.stringify({ error: "Failed to generate quiz" }), {
-          status: 500,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
+        return gatewayErrorResponse(response, "Failed to generate quiz");
       }
 
       // Read response as text first to handle potential truncation
@@ -1568,10 +1565,7 @@ When the user asks about their uploaded classes/syllabi, provide targeted help f
       });
 
       if (!response.ok) {
-        return new Response(JSON.stringify({ error: "Failed to generate review content" }), {
-          status: 500,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
+        return gatewayErrorResponse(response, "Failed to generate review content");
       }
 
       const data = await response.json();
@@ -1636,10 +1630,7 @@ When the user asks about their uploaded classes/syllabi, provide targeted help f
       });
 
       if (!response.ok) {
-        return new Response(JSON.stringify({ error: "Failed to generate module content" }), {
-          status: 500,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
+        return gatewayErrorResponse(response, "Failed to generate module content");
       }
 
       if (isPractice) {
@@ -1747,10 +1738,7 @@ When the user asks about their uploaded classes/syllabi, provide targeted help f
       if (!response.ok) {
         const errorText = await response.text();
         console.error("AI gateway error:", response.status, errorText);
-        return new Response(JSON.stringify({ error: "Failed to generate content" }), {
-          status: 500,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
+        return gatewayErrorResponse(response, "Failed to generate content");
       }
 
       const data = await response.json();
@@ -1802,10 +1790,7 @@ When the user asks about their uploaded classes/syllabi, provide targeted help f
       });
 
       if (!response.ok) {
-        return new Response(JSON.stringify({ error: `Failed to generate ${requestType} content` }), {
-          status: 500,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
+        return gatewayErrorResponse(response, `Failed to generate ${requestType} content`);
       }
 
       const data = await response.json();
