@@ -2,12 +2,16 @@ import { useEffect, useRef, useCallback, useState } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import type { ShuttleRoute } from "@/data/shuttleData";
-import { type WmataStation, lineColor } from "@/components/PublicTransit";
+import { type WmataStation, lineColor, getLineCodes } from "@/components/PublicTransit";
+import { WMATA_LINES_GEO } from "@/data/wmataLines";
+import type { LinePreferences } from "@/components/transit/LineFilterDrawer";
 
 interface TransitMapProps {
   routes: ShuttleRoute[];
   selectedRouteId: string | null;
   metroStation?: WmataStation | null;
+  selectedMetroLine?: string | null;
+  linePreferences?: LinePreferences;
 }
 
 // OSRM public demo server for routing
@@ -71,11 +75,12 @@ function createMetroIcon(lineCodes: string[]) {
   });
 }
 
-export const TransitMap = ({ routes, selectedRouteId, metroStation }: TransitMapProps) => {
+export const TransitMap = ({ routes, selectedRouteId, metroStation, selectedMetroLine, linePreferences }: TransitMapProps) => {
   const mapRef = useRef<L.Map | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const layersRef = useRef<L.LayerGroup>(L.layerGroup());
   const metroLayerRef = useRef<L.LayerGroup>(L.layerGroup());
+  const metroLinesLayerRef = useRef<L.LayerGroup>(L.layerGroup());
   const [routeCache, setRouteCache] = useState<Record<string, [number, number][]>>({});
 
   // Initialize map once
@@ -91,6 +96,7 @@ export const TransitMap = ({ routes, selectedRouteId, metroStation }: TransitMap
     }).addTo(map);
     layersRef.current.addTo(map);
     metroLayerRef.current.addTo(map);
+    metroLinesLayerRef.current.addTo(map);
     mapRef.current = map;
     return () => {
       map.remove();
@@ -149,7 +155,7 @@ export const TransitMap = ({ routes, selectedRouteId, metroStation }: TransitMap
     }
 
     // Only fit bounds if no metro station is selected
-    if (!metroStation && allPoints.length > 0) {
+    if (!metroStation && !selectedMetroLine && allPoints.length > 0) {
       const bounds = L.latLngBounds(allPoints);
       if (selectedRouteId) {
         map.flyToBounds(bounds, { padding: [50, 50], duration: 0.8 });
@@ -157,11 +163,40 @@ export const TransitMap = ({ routes, selectedRouteId, metroStation }: TransitMap
         map.fitBounds(bounds, { padding: [40, 40] });
       }
     }
-  }, [routes, selectedRouteId, routeCache, metroStation]);
+  }, [routes, selectedRouteId, routeCache, metroStation, selectedMetroLine]);
 
   useEffect(() => {
     drawRoutes();
   }, [drawRoutes]);
+
+  // Draw metro lines (GeoJSON polylines) filtered by preferences
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    metroLinesLayerRef.current.clearLayers();
+
+    for (const line of WMATA_LINES_GEO) {
+      // Skip if filtered out
+      if (linePreferences && linePreferences[line.code] === false) continue;
+
+      const isHighlighted = selectedMetroLine === line.code;
+      const polyline = L.polyline(line.path, {
+        color: line.color,
+        weight: isHighlighted ? 6 : 3,
+        opacity: selectedMetroLine ? (isHighlighted ? 1 : 0.2) : 0.6,
+      });
+      metroLinesLayerRef.current.addLayer(polyline);
+    }
+
+    // Zoom to fit selected line
+    if (selectedMetroLine) {
+      const lineGeo = WMATA_LINES_GEO.find((l) => l.code === selectedMetroLine);
+      if (lineGeo && lineGeo.path.length > 0) {
+        const bounds = L.latLngBounds(lineGeo.path);
+        map.flyToBounds(bounds, { padding: [50, 50], duration: 0.8 });
+      }
+    }
+  }, [selectedMetroLine, linePreferences]);
 
   // Draw metro station marker
   useEffect(() => {
@@ -170,17 +205,11 @@ export const TransitMap = ({ routes, selectedRouteId, metroStation }: TransitMap
     metroLayerRef.current.clearLayers();
 
     if (metroStation) {
-      const lineCodes = [
-        metroStation.LineCode1,
-        metroStation.LineCode2,
-        metroStation.LineCode3,
-        metroStation.LineCode4,
-      ].filter(Boolean) as string[];
-
-      const icon = createMetroIcon(lineCodes);
+      const codes = getLineCodes(metroStation);
+      const icon = createMetroIcon(codes);
       const marker = L.marker([metroStation.Lat, metroStation.Lon], { icon });
 
-      const lineLabels = lineCodes
+      const lineLabels = codes
         .map((lc) => `<span style="background:${lineColor(lc)};color:white;padding:1px 5px;border-radius:3px;font-size:10px;font-weight:bold;">${lc}</span>`)
         .join(" ");
 
