@@ -6,6 +6,67 @@ import { Card } from "@/components/ui/card";
 import { Loader2, MapPin, Clock, Utensils, ExternalLink } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
+import img1867cafe from "@/assets/dining/1867cafe.avif";
+import imgAnnexCafe from "@/assets/dining/annexcafe.avif";
+import imgBisonBrew from "@/assets/dining/bisonbrew.avif";
+import imgBisonBread from "@/assets/dining/bisonbread.avif";
+import imgPunchout from "@/assets/dining/punchout.avif";
+import imgWtowers from "@/assets/dining/wtowers.avif";
+import img202Market from "@/assets/dining/202market.avif";
+import imgAnnexMarket from "@/assets/dining/annexmarket.avif";
+import imgEvb from "@/assets/dining/evb.avif";
+import imgHalal from "@/assets/dining/halal.avif";
+import imgBlackburnCafe from "@/assets/dining/blackburncafe.avif";
+import imgChickfila from "@/assets/dining/chickfila.avif";
+
+/* Map url_key (or partial name match) → local image */
+const LOCAL_IMAGE_MAP: Record<string, string> = {
+  "1867-cafe": img1867cafe,
+  "bethune-annex-cafe": imgAnnexCafe,
+  "bison-brew": imgBisonBrew,
+  "bison-bread-co": imgBisonBread,
+  "the-drop-at-punchout": imgPunchout,
+  "the-market-at-west-towers": imgWtowers,
+  "202-market": img202Market,
+  "the-market-at-bethune-annex": imgAnnexMarket,
+  "everbowl": imgEvb,
+  "the-halal-shack": imgHalal,
+  "blackburn-cafe": imgBlackburnCafe,
+  "chick-fil-a": imgChickfila,
+};
+
+/* Name-based fallback for when urlKey doesn't match exactly */
+const NAME_IMAGE_MAP: Record<string, string> = {
+  "bison brew": imgBisonBrew,
+  "everbowl": imgEvb,
+  "halal shack": imgHalal,
+  "market at bethune annex": imgAnnexMarket,
+  "market at west tower": imgWtowers,
+  "drop at punchout": imgPunchout,
+  "punchout": imgPunchout,
+  "bison bread": imgBisonBread,
+  "1867": img1867cafe,
+  "annex cafe": imgAnnexCafe,
+  "bethune annex cafe": imgAnnexCafe,
+  "202 market": img202Market,
+  "blackburn": imgBlackburnCafe,
+  "chick-fil-a": imgChickfila,
+  "west towers": imgWtowers,
+};
+
+function resolveImage(loc: { urlKey: string; name: string; imageUrl: string }): string {
+  if (LOCAL_IMAGE_MAP[loc.urlKey]) return LOCAL_IMAGE_MAP[loc.urlKey];
+  // fallback: try matching by normalized name
+  const normalized = loc.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/-+/g, "-");
+  if (LOCAL_IMAGE_MAP[normalized]) return LOCAL_IMAGE_MAP[normalized];
+  // fallback: partial name match
+  const lowerName = loc.name.toLowerCase();
+  for (const [key, img] of Object.entries(NAME_IMAGE_MAP)) {
+    if (lowerName.includes(key)) return img;
+  }
+  return loc.imageUrl;
+}
+
 interface MealPeriod {
   name: string;
   hours: string;
@@ -107,16 +168,19 @@ export function DiningLocations({ open, onOpenChange }: DiningLocationsProps) {
               filtered.map((loc) => (
                 <Card key={loc.name} className="overflow-hidden border-border">
                   <div className="flex flex-col sm:flex-row">
-                    {loc.imageUrl && (
-                      <div className="sm:w-40 sm:min-h-[140px] flex-shrink-0">
-                        <img
-                          src={loc.imageUrl}
-                          alt={loc.name}
-                          className="w-full h-36 sm:h-full object-cover"
-                          loading="lazy"
-                        />
-                      </div>
-                    )}
+                    {(() => {
+                      const imgSrc = resolveImage(loc);
+                      return imgSrc ? (
+                        <div className="sm:w-40 sm:min-h-[140px] flex-shrink-0">
+                          <img
+                            src={imgSrc}
+                            alt={loc.name}
+                            className="w-full h-36 sm:h-full object-cover"
+                            loading="lazy"
+                          />
+                        </div>
+                      ) : null;
+                    })()}
                     <div className="p-4 flex-1 space-y-2">
                       <div className="flex items-start justify-between gap-2">
                         <h3 className="font-semibold text-foreground leading-tight">
