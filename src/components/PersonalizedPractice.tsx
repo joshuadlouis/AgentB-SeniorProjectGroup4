@@ -149,7 +149,7 @@ export const PersonalizedPractice = ({ className, learningStyles }: Personalized
     const { data: { session } } = await supabase.auth.getSession();
     if (session) {
       const problem = problems.find(p => p.id === problemId);
-      await supabase.from("practice_history").insert({
+      const { error: insertError } = await supabase.from("practice_history").insert({
         user_id: session.user.id,
         class_name: className,
         practice_type: "personalized-practice",
@@ -158,6 +158,10 @@ export const PersonalizedPractice = ({ className, learningStyles }: Personalized
         topics_practiced: problem ? [problem.topic] : weakAreas,
         metadata: { bloom_level: problem?.bloom_level, difficulty: problem?.difficulty },
       });
+      if (insertError) {
+        console.error("Failed to save practice history:", insertError);
+        toast({ title: "Warning", description: "Progress saved locally but failed to sync.", variant: "destructive" });
+      }
       track({
         eventType: "exercise_completed",
         className,

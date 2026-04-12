@@ -11,6 +11,7 @@ export const ConsentBanner = () => {
   const { grantBehavioralConsent } = useBehavioralTracking();
   const { toast } = useToast();
 
+  // Don't show for unauthenticated users (hasConsented will be null when no session)
   if (loading || hasConsented !== false) return null;
 
   const handleAccept = async () => {
