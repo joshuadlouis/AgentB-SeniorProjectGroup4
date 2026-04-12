@@ -85,12 +85,11 @@ export function useFlashcards(className: string) {
       .from("flashcard_decks")
       .select("*")
       .eq("is_public", true)
-      .eq("class_name", className)
       .neq("user_id", session.user.id)
       .order("created_at", { ascending: false })
-      .limit(20);
+      .limit(50);
     setCommunityDecks((data as FlashcardDeck[]) || []);
-  }, [className]);
+  }, []);
 
   const fetchCards = useCallback(async (deckId: string) => {
     const { data } = await supabase
