@@ -144,16 +144,19 @@ export function DiningLocations({ open, onOpenChange }: DiningLocationsProps) {
               filtered.map((loc) => (
                 <Card key={loc.name} className="overflow-hidden border-border">
                   <div className="flex flex-col sm:flex-row">
-                    {loc.imageUrl && (
-                      <div className="sm:w-40 sm:min-h-[140px] flex-shrink-0">
-                        <img
-                          src={loc.imageUrl}
-                          alt={loc.name}
-                          className="w-full h-36 sm:h-full object-cover"
-                          loading="lazy"
-                        />
-                      </div>
-                    )}
+                    {(() => {
+                      const imgSrc = resolveImage(loc);
+                      return imgSrc ? (
+                        <div className="sm:w-40 sm:min-h-[140px] flex-shrink-0">
+                          <img
+                            src={imgSrc}
+                            alt={loc.name}
+                            className="w-full h-36 sm:h-full object-cover"
+                            loading="lazy"
+                          />
+                        </div>
+                      ) : null;
+                    })()}
                     <div className="p-4 flex-1 space-y-2">
                       <div className="flex items-start justify-between gap-2">
                         <h3 className="font-semibold text-foreground leading-tight">
