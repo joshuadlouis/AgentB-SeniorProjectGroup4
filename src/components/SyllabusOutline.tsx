@@ -134,37 +134,53 @@ export const SyllabusOutline = ({
     if (!session) return;
 
     const events: { title: string; date: string; type: string }[] = [];
-    const now = new Date();
-    // Estimate semester start as current or next Monday
-    const semesterStart = new Date(now);
-    semesterStart.setDate(semesterStart.getDate() - semesterStart.getDay() + 1);
-    if (semesterStart < now) semesterStart.setDate(semesterStart.getDate() - 7); // go back to start of current week
+
+    // Check if any entries have actual dates from the syllabus
+    const hasActualDates = Array.isArray(weeklySchedule) && weeklySchedule.some((w: any) => w.date);
 
     if (Array.isArray(weeklySchedule)) {
+      // Fallback: estimate semester start for entries without actual dates
+      const now = new Date();
+      const semesterStart = new Date(now);
+      semesterStart.setDate(semesterStart.getDate() - semesterStart.getDay() + 1);
+      if (semesterStart < now) semesterStart.setDate(semesterStart.getDate() - 7);
+
       weeklySchedule.forEach((week: any) => {
         const weekNum = parseInt(week.week) || 0;
         if (weekNum <= 0) return;
-        const weekDate = new Date(semesterStart);
-        weekDate.setDate(weekDate.getDate() + (weekNum - 1) * 7);
-        const dateStr = weekDate.toISOString().split("T")[0];
 
-        // Detect event types from topic/details
-        const combined = `${week.topic || ""} ${week.details || ""}`.toLowerCase();
-        if (combined.includes("midterm")) {
-          events.push({ title: `${className}: Midterm`, date: dateStr, type: "midterm" });
-        } else if (combined.includes("final")) {
-          events.push({ title: `${className}: Final Exam`, date: dateStr, type: "final" });
-        } else if (combined.includes("quiz")) {
-          events.push({ title: `${className}: Quiz - ${week.topic}`, date: dateStr, type: "quiz" });
-        } else if (combined.includes("exam") || combined.includes("test")) {
-          events.push({ title: `${className}: ${week.topic}`, date: dateStr, type: "test" });
-        } else if (combined.includes("lab") || combined.includes("due") || combined.includes("assignment") || combined.includes("homework")) {
-          events.push({ title: `${className}: ${week.topic}`, date: dateStr, type: "homework" });
+        // Use actual date from syllabus if available, otherwise estimate
+        let dateStr: string;
+        if (week.date && /^\d{4}-\d{2}-\d{2}$/.test(week.date)) {
+          dateStr = week.date;
+        } else {
+          const weekDate = new Date(semesterStart);
+          weekDate.setDate(weekDate.getDate() + (weekNum - 1) * 7);
+          dateStr = weekDate.toISOString().split("T")[0];
         }
-        // Always add a study topic marker
-        if (!events.find(e => e.date === dateStr)) {
-          events.push({ title: `${className}: ${week.topic}`, date: dateStr, type: "other" });
+
+        // Use AI-extracted eventType if available, otherwise detect from text
+        let eventType = week.eventType || "";
+        if (!eventType) {
+          const combined = `${week.topic || ""} ${week.details || ""}`.toLowerCase();
+          if (combined.includes("midterm")) eventType = "midterm";
+          else if (combined.includes("final")) eventType = "final";
+          else if (combined.includes("quiz")) eventType = "quiz";
+          else if (combined.includes("exam") || combined.includes("test")) eventType = "exam";
+          else if (combined.includes("lab") || combined.includes("due") || combined.includes("assignment") || combined.includes("homework")) eventType = "homework";
+          else if (combined.includes("project")) eventType = "project";
+          else if (combined.includes("presentation")) eventType = "presentation";
+          else eventType = "other";
         }
+
+        // Build event title based on type
+        let title = `${className}: ${week.topic}`;
+        if (eventType === "midterm") title = `${className}: Midterm`;
+        else if (eventType === "final") title = `${className}: Final Exam`;
+        else if (eventType === "quiz") title = `${className}: Quiz - ${week.topic}`;
+        else if (eventType === "exam") title = `${className}: Exam - ${week.topic}`;
+
+        events.push({ title, date: dateStr, type: eventType });
       });
     }
 
@@ -193,9 +209,8 @@ export const SyllabusOutline = ({
     if (addedCount > 0) {
       toast({
         title: "Calendar updated",
-        description: `${addedCount} dates added from syllabus to course calendar`,
+        description: `${addedCount} dates added from syllabus${hasActualDates ? " (using actual dates)" : ""} to course calendar`,
       });
-      // Notify course page to refresh calendar
       window.dispatchEvent(new CustomEvent("calendar-updated", { detail: { className } }));
     }
   };
