@@ -341,7 +341,7 @@ export const CourseHub = ({ refreshTrigger = 0, learningStyleSection, syllabusSe
 
       {/* Syllabus Section — collapsible */}
       {syllabusSection && (
-        <Collapsible className="mb-6 border-t border-border pt-6">
+        <Collapsible data-tutorial-id="syllabi-section" className="mb-6 border-t border-border pt-6">
           <CollapsibleTrigger className="flex items-center justify-between w-full group">
             <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
               Class Syllabi
