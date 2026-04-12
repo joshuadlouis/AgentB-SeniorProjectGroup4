@@ -253,16 +253,16 @@ export const SyllabusOutline = ({
   }
 
   return (
-    <Card className="p-4 mt-3 border-primary/20 bg-primary/5">
-      <div className="flex items-center gap-2 mb-3">
-        <Sparkles className="w-4 h-4 text-primary" />
-        <h4 className="font-semibold text-sm text-foreground">Course Outline</h4>
-        <Badge variant="secondary" className="text-xs ml-auto">
+    <Card className="p-4 mt-3 border-primary/20 bg-primary/5 overflow-hidden">
+      <div className="flex items-center gap-2 mb-3 min-w-0">
+        <Sparkles className="w-4 h-4 text-primary shrink-0" />
+        <h4 className="font-semibold text-sm text-foreground truncate">Course Outline</h4>
+        <Badge variant="secondary" className="text-xs ml-auto shrink-0">
           Parsed {new Date(parsedAt!).toLocaleDateString()}
         </Badge>
       </div>
 
-      <Accordion type="multiple" className="space-y-1">
+      <Accordion type="multiple" className="space-y-1 min-w-0">
         {courseDescription && (
           <AccordionItem value="description" className="border-border/50">
             <AccordionTrigger className="text-sm py-2 hover:no-underline">
@@ -271,8 +271,8 @@ export const SyllabusOutline = ({
                 Course Description
               </span>
             </AccordionTrigger>
-            <AccordionContent className="text-sm text-muted-foreground pb-3">
-              {courseDescription}
+            <AccordionContent className="text-sm text-muted-foreground pb-3 break-words overflow-hidden">
+              <p className="whitespace-pre-wrap break-words">{courseDescription}</p>
             </AccordionContent>
           </AccordionItem>
         )}
@@ -285,12 +285,12 @@ export const SyllabusOutline = ({
                 Learning Objectives ({learningObjectives.length})
               </span>
             </AccordionTrigger>
-            <AccordionContent className="pb-3">
+            <AccordionContent className="pb-3 overflow-hidden">
               <ul className="space-y-1.5">
                 {learningObjectives.map((obj, i) => (
-                  <li key={i} className="text-sm text-muted-foreground flex gap-2">
+                  <li key={i} className="text-sm text-muted-foreground flex gap-2 min-w-0">
                     <span className="text-primary font-medium shrink-0">{i + 1}.</span>
-                    {obj}
+                    <span className="break-words min-w-0">{obj}</span>
                   </li>
                 ))}
               </ul>
@@ -306,17 +306,17 @@ export const SyllabusOutline = ({
                 Weekly Schedule ({weeklySchedule.length} weeks)
               </span>
             </AccordionTrigger>
-            <AccordionContent className="pb-3">
+            <AccordionContent className="pb-3 overflow-hidden">
               <div className="space-y-2">
                 {weeklySchedule.map((week: any, i: number) => (
-                  <div key={i} className="flex gap-3 text-sm">
+                  <div key={i} className="flex gap-3 text-sm min-w-0">
                     <Badge variant="outline" className="shrink-0 h-6">
                       Wk {week.week}
                     </Badge>
-                    <div>
-                      <p className="font-medium text-foreground">{week.topic}</p>
+                    <div className="min-w-0">
+                      <p className="font-medium text-foreground break-words">{week.topic}</p>
                       {week.details && (
-                        <p className="text-xs text-muted-foreground">{week.details}</p>
+                        <p className="text-xs text-muted-foreground break-words">{week.details}</p>
                       )}
                     </div>
                   </div>
@@ -334,12 +334,12 @@ export const SyllabusOutline = ({
                 Grading Policy
               </span>
             </AccordionTrigger>
-            <AccordionContent className="pb-3">
+            <AccordionContent className="pb-3 overflow-hidden">
               <div className="space-y-1.5">
                 {gradingPolicy.map((item: any, i: number) => (
-                  <div key={i} className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">{item.component}</span>
-                    <span className="font-medium text-foreground">{item.weight}</span>
+                  <div key={i} className="flex justify-between text-sm gap-2 min-w-0">
+                    <span className="text-muted-foreground break-words min-w-0">{item.component}</span>
+                    <span className="font-medium text-foreground shrink-0">{item.weight}</span>
                   </div>
                 ))}
               </div>
@@ -355,12 +355,12 @@ export const SyllabusOutline = ({
                 Required Materials ({requiredMaterials.length})
               </span>
             </AccordionTrigger>
-            <AccordionContent className="pb-3">
+            <AccordionContent className="pb-3 overflow-hidden">
               <ul className="space-y-1">
                 {requiredMaterials.map((mat, i) => (
-                  <li key={i} className="text-sm text-muted-foreground flex gap-2">
-                    <span className="text-primary">•</span>
-                    {mat}
+                  <li key={i} className="text-sm text-muted-foreground flex gap-2 min-w-0">
+                    <span className="text-primary shrink-0">•</span>
+                    <span className="break-words min-w-0">{mat}</span>
                   </li>
                 ))}
               </ul>
