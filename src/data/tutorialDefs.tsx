@@ -6,8 +6,11 @@ export interface TutorialStep {
   targetId?: string;
   openCollapsible?: string;
   actionLabel?: string;
+  /** Navigate to this route BEFORE showing this step (step renders on destination page) */
   navigateTo?: string;
   openChat?: boolean;
+  /** If true, this is a completion step — shows "Finished with Tutorial" */
+  isFinished?: boolean;
 }
 
 export interface TutorialDef {
@@ -42,6 +45,10 @@ export const tutorialDefs: TutorialDef[] = [
         targetId: "course-hub",
         actionLabel: "View Course",
       },
+      {
+        message: "🎉 Finished with Tutorial! You now know how to upload syllabi and explore your courses. You can revisit this anytime from the tutorial menu.",
+        isFinished: true,
+      },
     ],
   },
   {
@@ -58,6 +65,10 @@ export const tutorialDefs: TutorialDef[] = [
         targetId: "test-reminders",
         actionLabel: "Add a Test",
       },
+      {
+        message: "🎉 Finished with Tutorial! You're all set to track your exams. You can revisit this anytime from the tutorial menu.",
+        isFinished: true,
+      },
     ],
   },
   {
@@ -70,10 +81,18 @@ export const tutorialDefs: TutorialDef[] = [
         targetId: "upcoming-assignments",
       },
       {
-        message: "To add assignments, head to your Personal Calendar and create events with the 'assignment' type. They'll automatically appear here! Want to open the calendar?",
+        message: "To add assignments, head to your Personal Calendar and create events with the 'assignment' type. They'll automatically appear here! Ready to open the calendar?",
         targetId: "upcoming-assignments",
         actionLabel: "Open Calendar",
+      },
+      {
+        message: "Welcome to your Personal Calendar! 📆 From here you can create new events and assignments using the form. Try adding an event or click 'Maybe Later' to continue.",
         navigateTo: "/calendar",
+        actionLabel: "Add an Event",
+      },
+      {
+        message: "🎉 Finished with Tutorial! Your assignments will now appear in the Upcoming Assignments widget. You can revisit this anytime from the tutorial menu.",
+        isFinished: true,
       },
     ],
   },
@@ -83,26 +102,43 @@ export const tutorialDefs: TutorialDef[] = [
     icon: <MapPin className="w-4 h-4" />,
     steps: [
       {
-        message: "Let me show you some handy campus tools! 🗺️ Scroll down to find Campus Map, Safety & Resources, and Dining information.",
+        message: "Step 1: Let me show you some handy campus tools! 🗺️ Scroll down to find Campus Map, Safety & Resources, and Dining information.",
         targetId: "campus-resources-grid",
       },
       {
-        message: "Try opening the Campus Map to see campus buildings and navigation!",
+        message: "Step 2: Let's open the Campus Map to see campus buildings and navigation!",
         targetId: "campus-map-card",
         actionLabel: "Open Map",
-        navigateTo: "/campus-map",
       },
       {
-        message: "The Safety & Resources section has emergency contacts, Title IX info, and support services.",
+        message: "Step 3: Here's the Campus Map! You can explore buildings and navigate around campus. Let's head back and check out Safety & Resources next.",
+        navigateTo: "/campus-map",
+        actionLabel: "Next",
+      },
+      {
+        message: "Step 4: The Safety & Resources section has emergency contacts, Title IX info, and support services. Let's take a look!",
+        navigateTo: "/",
         targetId: "safety-card",
         actionLabel: "Open Safety",
-        navigateTo: "/safety-resources",
       },
       {
-        message: "Check out Dining for meal plans, menus, hours, and dining hall locations!",
+        message: "Step 5: Here are your Safety & Resources! Emergency contacts, Title IX information, and support services are all here. Now let's check out Dining!",
+        navigateTo: "/safety-resources",
+        actionLabel: "Next",
+      },
+      {
+        message: "Step 6: Check out Dining for meal plans, menus, hours, and dining hall locations!",
+        navigateTo: "/",
         targetId: "dining-card",
-        actionLabel: "Open Dining",
+        actionLabel: "View Dining",
+      },
+      {
+        message: "Step 7: Here's the Dining page! Browse dining locations, meal plans, menus, and hours.",
         navigateTo: "/dining",
+      },
+      {
+        message: "🎉 Finished with Tutorial! You now know where to find Campus Map, Safety & Resources, and Dining. You can revisit this anytime from the tutorial menu.",
+        isFinished: true,
       },
     ],
   },
@@ -116,10 +152,17 @@ export const tutorialDefs: TutorialDef[] = [
         targetId: "transit-card",
       },
       {
-        message: "Open Transit to see campus shuttle routes. Once there, you can switch between 'Campus Shuttles' and 'Public Transit' tabs to view metro lines and nearby stations!",
+        message: "Ready to see campus shuttle routes? Click below to open Transit!",
         targetId: "transit-card",
         actionLabel: "Open Transit",
+      },
+      {
+        message: "Welcome to Transit! 🚌 Here you can see campus shuttle routes. Try switching between the 'Campus Shuttles' and 'Public Transit' tabs to view metro lines and nearby stations!",
         navigateTo: "/transit",
+      },
+      {
+        message: "🎉 Finished with Tutorial! You now know how to find shuttle routes and public transit info. You can revisit this anytime from the tutorial menu.",
+        isFinished: true,
       },
     ],
   },
@@ -137,6 +180,10 @@ export const tutorialDefs: TutorialDef[] = [
         targetId: "agentb-card",
         actionLabel: "Chat with AgentB",
         openChat: true,
+      },
+      {
+        message: "🎉 Finished with Tutorial! Remember, I'm always here to help. You can revisit this anytime from the tutorial menu.",
+        isFinished: true,
       },
     ],
   },

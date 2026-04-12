@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
@@ -10,8 +10,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { ArrowLeft } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { ArrowLeft, CheckCircle2 } from "lucide-react";
+import { useNavigate, useLocation } from "react-router-dom";
 import agentBIcon from "@/assets/AgentBIconPurple.png";
 import { useTutorial } from "@/contexts/TutorialContext";
 import { tutorialDefs } from "@/data/tutorialDefs";
@@ -39,17 +39,37 @@ const openCollapsibleSection = (targetId: string) => {
 /** Fixed bottom overlay shown during an active tutorial — renders globally via App.tsx */
 export const TutorialStepOverlay = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const {
     showTutorial, activeTutorialId, stepIndex,
     nextStep, exitTutorial, backToMenu, onOpenChat,
   } = useTutorial();
   const [showExitConfirm, setShowExitConfirm] = useState(false);
+  const hasNavigatedRef = useRef(false);
 
   const tutorial = tutorialDefs.find((t) => t.id === activeTutorialId);
   const step = tutorial?.steps[stepIndex];
   const isLastStep = tutorial ? stepIndex >= tutorial.steps.length - 1 : false;
 
-  // Scroll to & highlight target whenever step changes
+  // Handle navigation for steps that have navigateTo — navigate when step changes
+  useEffect(() => {
+    if (!step?.navigateTo) {
+      hasNavigatedRef.current = false;
+      return;
+    }
+
+    // Check if we're already on the target page
+    if (location.pathname === step.navigateTo) {
+      hasNavigatedRef.current = true;
+      return;
+    }
+
+    // Navigate to the target page
+    hasNavigatedRef.current = false;
+    navigate(step.navigateTo);
+  }, [activeTutorialId, stepIndex, step?.navigateTo]);
+
+  // Scroll to & highlight target whenever step changes or page loads
   useEffect(() => {
     if (!step?.targetId) return;
 
@@ -60,18 +80,18 @@ export const TutorialStepOverlay = () => {
     const timeout = setTimeout(() => {
       clearHighlights();
       scrollToAndHighlight(step.targetId!);
-    }, 400);
+    }, 500);
 
     return () => {
       clearTimeout(timeout);
       clearHighlights();
     };
-  }, [activeTutorialId, stepIndex, step]);
+  }, [activeTutorialId, stepIndex, step, location.pathname]);
 
   if (!showTutorial || !tutorial || !step) return null;
 
   const handleNext = () => {
-    if (step.navigateTo) navigate(step.navigateTo);
+    // For steps with openChat, trigger chat
     if (step.openChat) onOpenChat();
 
     if (isLastStep) {
@@ -89,6 +109,11 @@ export const TutorialStepOverlay = () => {
     setShowExitConfirm(false);
     exitTutorial();
   };
+
+  // Determine button label
+  let buttonLabel = step.actionLabel || "Next";
+  if (step.isFinished) buttonLabel = "Done";
+  if (isLastStep && !step.isFinished) buttonLabel = "Finish";
 
   return (
     <>
@@ -140,17 +165,26 @@ export const TutorialStepOverlay = () => {
           <div className="flex items-start gap-3">
             <img src={agentBIcon} alt="AgentB" className="w-10 h-10 rounded-xl object-cover shrink-0" />
             <div className="flex-1 min-w-0">
-              <div className="bg-muted/50 border border-border rounded-2xl rounded-bl-md px-4 py-3">
-                <p className="text-xs font-semibold text-primary mb-0.5">{tutorial.title}</p>
+              <div className={`border rounded-2xl rounded-bl-md px-4 py-3 ${
+                step.isFinished
+                  ? "bg-primary/10 border-primary/30"
+                  : "bg-muted/50 border-border"
+              }`}>
+                <p className="text-xs font-semibold text-primary mb-0.5 flex items-center gap-1.5">
+                  {step.isFinished && <CheckCircle2 className="w-3.5 h-3.5" />}
+                  {tutorial.title}
+                </p>
                 <p className="text-sm text-foreground">{step.message}</p>
               </div>
             </div>
             <div className="flex items-center gap-2 shrink-0 self-center">
-              <Button variant="outline" size="sm" onClick={handleMaybeLater}>
-                Maybe Later
-              </Button>
+              {!step.isFinished && (
+                <Button variant="outline" size="sm" onClick={handleMaybeLater}>
+                  Maybe Later
+                </Button>
+              )}
               <Button size="sm" onClick={handleNext}>
-                {step.actionLabel || (isLastStep ? "Finish" : "Next")}
+                {buttonLabel}
               </Button>
             </div>
           </div>
