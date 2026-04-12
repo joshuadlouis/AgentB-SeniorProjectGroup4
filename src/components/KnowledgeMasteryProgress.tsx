@@ -25,35 +25,6 @@ const levelConfig: Record<string, { color: string; bg: string; label: string }> 
   mastered: { color: "bg-green-500", bg: "bg-green-50 dark:bg-green-950/20", label: "Mastered" },
 };
 
-const MasteryDot = ({ item }: { item: KnowledgeMasteryItem }) => {
-  const config = levelConfig[item.mastery_level] || levelConfig.not_started;
-
-  return (
-    <TooltipProvider delayDuration={200}>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <div
-            className={cn(
-              "w-4 h-4 rounded-full border-2 border-background shadow-sm transition-all cursor-pointer hover:scale-125",
-              config.color
-            )}
-          />
-        </TooltipTrigger>
-        <TooltipContent side="top" className="max-w-[250px]">
-          <p className="text-xs font-medium">{item.component.objective}</p>
-          <div className="flex items-center gap-2 mt-1">
-            <Badge variant="outline" className="text-[10px]">{config.label}</Badge>
-            <span className="text-[10px] text-muted-foreground">{item.mastery_score}%</span>
-            {item.attempts > 0 && (
-              <span className="text-[10px] text-muted-foreground">{item.attempts} attempts</span>
-            )}
-          </div>
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
-  );
-};
-
 const TopicGroup = ({ topic, items }: { topic: string; items: KnowledgeMasteryItem[] }) => {
   const [expanded, setExpanded] = useState(false);
   const groupAvg = items.length > 0
@@ -76,11 +47,6 @@ const TopicGroup = ({ topic, items }: { topic: string; items: KnowledgeMasteryIt
           </span>
         </div>
         <div className="flex items-center gap-2 flex-shrink-0">
-          <div className="flex gap-0.5">
-            {items.map(item => (
-              <MasteryDot key={item.component.id} item={item} />
-            ))}
-          </div>
           <span className="text-xs font-semibold w-8 text-right">{groupAvg}%</span>
         </div>
       </button>
@@ -145,7 +111,7 @@ export const KnowledgeMasteryProgress = ({ className }: Props) => {
           <div>
             <h3 className="text-lg font-semibold text-foreground">Learning Objective Mastery</h3>
             <p className="text-xs text-muted-foreground">
-              Each dot represents a specific skill or knowledge component
+              Track your progress on each knowledge component
             </p>
           </div>
         </div>
@@ -185,11 +151,33 @@ export const KnowledgeMasteryProgress = ({ className }: Props) => {
             </div>
           </div>
 
-          {/* Dot overview */}
-          <div className="flex flex-wrap gap-1 p-3 rounded-lg bg-muted/30">
-            {mastery.items.map(item => (
-              <MasteryDot key={item.component.id} item={item} />
-            ))}
+          {/* Compact objective list instead of dots */}
+          <div className="space-y-1 p-3 rounded-lg bg-muted/30 max-h-[200px] overflow-y-auto">
+            {mastery.items.map(item => {
+              const config = levelConfig[item.mastery_level] || levelConfig.not_started;
+              return (
+                <TooltipProvider key={item.component.id} delayDuration={200}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className="flex items-center gap-2 py-1 px-2 rounded hover:bg-muted/50 transition-colors">
+                        <div className={cn("w-2 h-2 rounded-full flex-shrink-0", config.color)} />
+                        <span className="text-xs truncate flex-1 text-foreground">{item.component.objective}</span>
+                        <span className="text-[10px] text-muted-foreground flex-shrink-0">{item.mastery_score}%</span>
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent side="top" className="max-w-[250px]">
+                      <p className="text-xs font-medium">{item.component.objective}</p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <Badge variant="outline" className="text-[10px]">{config.label}</Badge>
+                        {item.attempts > 0 && (
+                          <span className="text-[10px] text-muted-foreground">{item.attempts} attempts</span>
+                        )}
+                      </div>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              );
+            })}
           </div>
 
           {/* Topic groups */}

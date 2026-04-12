@@ -1,9 +1,15 @@
 import { useState, useEffect, useCallback } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
 import { BookMarked, CheckCircle2, AlertTriangle, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils";
 
 interface TopicProgress {
   topic: string;
@@ -43,7 +49,6 @@ export const ChapterBreakdowns = ({ className }: ChapterBreakdownsProps) => {
   const loadTopicProgress = async () => {
     setLoading(true);
     try {
-      // Get learning objectives and weekly schedule from parsed syllabus
       const { data: syllabus } = await supabase
         .from("syllabi")
         .select("learning_objectives, weekly_schedule")
@@ -52,13 +57,11 @@ export const ChapterBreakdowns = ({ className }: ChapterBreakdownsProps) => {
         .limit(1)
         .maybeSingle();
 
-      // Get practice history for this course
       const { data: practiceData } = await supabase
         .from("practice_history")
         .select("practice_type, score, total, topics_practiced")
         .eq("class_name", className);
 
-      // Get quiz results for this course
       const { data: quizResults } = await supabase
         .from("quiz_results")
         .select("strong_areas, weak_areas, score, total_questions")
@@ -67,7 +70,6 @@ export const ChapterBreakdowns = ({ className }: ChapterBreakdownsProps) => {
         .limit(1)
         .maybeSingle();
 
-      // Extract topics from syllabus
       const syllabusTopics: string[] = [];
 
       if (syllabus?.learning_objectives) {
@@ -91,16 +93,13 @@ export const ChapterBreakdowns = ({ className }: ChapterBreakdownsProps) => {
         return;
       }
 
-      // Build per-topic progress from practice history
       const topicMap = new Map<string, { quizScores: number[]; exerciseScores: number[]; attempts: number }>();
-
       syllabusTopics.forEach((t) => topicMap.set(t, { quizScores: [], exerciseScores: [], attempts: 0 }));
 
       if (practiceData) {
         for (const record of practiceData) {
           const practiced = record.topics_practiced || [];
           for (const topic of practiced) {
-            // Match to closest syllabus topic
             const match = syllabusTopics.find(
               (st) => st.toLowerCase().includes(topic.toLowerCase()) || topic.toLowerCase().includes(st.toLowerCase())
             );
@@ -120,7 +119,6 @@ export const ChapterBreakdowns = ({ className }: ChapterBreakdownsProps) => {
         }
       }
 
-      // Factor in placement quiz strong/weak areas
       if (quizResults) {
         for (const strong of quizResults.strong_areas || []) {
           const match = syllabusTopics.find(
@@ -152,16 +150,9 @@ export const ChapterBreakdowns = ({ className }: ChapterBreakdownsProps) => {
           ? Math.round((avgQuiz * data.quizScores.length + avgExercise * data.exerciseScores.length) / totalScores)
           : 0;
 
-        return {
-          topic,
-          quizScore: Math.round(avgQuiz),
-          exerciseScore: Math.round(avgExercise),
-          totalAttempts: data.attempts,
-          overallProgress: overall,
-        };
+        return { topic, quizScore: Math.round(avgQuiz), exerciseScore: Math.round(avgExercise), totalAttempts: data.attempts, overallProgress: overall };
       });
 
-      // Sort: lowest progress first
       result.sort((a, b) => a.overallProgress - b.overallProgress);
       setTopics(result);
     } catch (err) {
@@ -199,6 +190,13 @@ export const ChapterBreakdowns = ({ className }: ChapterBreakdownsProps) => {
     );
   }
 
+  const getProgressColor = (p: number) => {
+    if (p >= 70) return "bg-green-500";
+    if (p >= 40) return "bg-amber-500";
+    if (p > 0) return "bg-primary";
+    return "bg-muted";
+  };
+
   return (
     <Card className="p-6 border-border shadow-[var(--shadow-soft)]">
       <div className="flex items-center justify-between mb-6">
@@ -213,40 +211,39 @@ export const ChapterBreakdowns = ({ className }: ChapterBreakdownsProps) => {
         </div>
       </div>
 
-      <div className="space-y-3">
+      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2">
         {topics.map((t, i) => (
-          <div key={i} className="p-3 rounded-lg bg-muted/30 border border-border">
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-2 min-w-0">
-                {t.overallProgress >= 70 ? (
-                  <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0" />
-                ) : t.overallProgress > 0 ? (
-                  <AlertTriangle className="w-4 h-4 text-amber-500 flex-shrink-0" />
-                ) : (
-                  <BookMarked className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-                )}
-                <span className="text-sm font-medium text-foreground truncate">{t.topic}</span>
-              </div>
-              <div className="flex items-center gap-2 flex-shrink-0">
-                {t.totalAttempts > 0 && (
-                  <span className="text-xs text-muted-foreground">{t.totalAttempts} practice{t.totalAttempts !== 1 ? "s" : ""}</span>
-                )}
-                <Badge
-                  variant="secondary"
-                  className={`text-xs ${
+          <TooltipProvider key={i} delayDuration={150}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div
+                  className={cn(
+                    "aspect-square rounded-lg border p-2 flex flex-col items-center justify-center text-center cursor-pointer transition-all hover:shadow-md hover:scale-105",
                     t.overallProgress >= 70
-                      ? "bg-green-500/10 text-green-600"
-                      : t.overallProgress >= 40
-                      ? "bg-amber-500/10 text-amber-600"
-                      : "bg-muted text-muted-foreground"
-                  }`}
+                      ? "border-green-500/30 bg-green-500/5"
+                      : t.overallProgress > 0
+                      ? "border-amber-500/30 bg-amber-500/5"
+                      : "border-border bg-card"
+                  )}
                 >
-                  {t.overallProgress}%
-                </Badge>
-              </div>
-            </div>
-            <Progress value={t.overallProgress} className="h-1.5" />
-          </div>
+                  <div className={cn("w-3 h-3 rounded-full mb-1.5 flex-shrink-0", getProgressColor(t.overallProgress))} />
+                  <span className="text-[10px] font-medium text-foreground leading-tight line-clamp-3">
+                    {t.topic.length > 40 ? t.topic.slice(0, 37) + "…" : t.topic}
+                  </span>
+                  <span className="text-[10px] text-muted-foreground mt-1">{t.overallProgress}%</span>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent side="top" className="max-w-[220px]">
+                <p className="text-xs font-medium mb-1">{t.topic}</p>
+                <div className="space-y-0.5 text-[10px] text-muted-foreground">
+                  <p>Progress: {t.overallProgress}%</p>
+                  {t.quizScore > 0 && <p>Quiz Avg: {t.quizScore}%</p>}
+                  {t.exerciseScore > 0 && <p>Exercise Avg: {t.exerciseScore}%</p>}
+                  {t.totalAttempts > 0 && <p>{t.totalAttempts} practice{t.totalAttempts !== 1 ? "s" : ""}</p>}
+                </div>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         ))}
       </div>
     </Card>
