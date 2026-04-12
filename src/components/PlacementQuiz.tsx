@@ -534,12 +534,15 @@ export const PlacementQuiz = ({ learningStyles, onQuizComplete, refreshTrigger, 
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
               <AlertTriangle className="w-5 h-5 text-destructive" />
-              Regenerate Placement Quiz?
+              Retake Placement Quiz?
             </AlertDialogTitle>
             <AlertDialogDescription asChild>
               <div className="space-y-3">
+                <p className="font-medium text-destructive">
+                  Warning: Retaking the placement quiz will reset this entire course page to its original settings.
+                </p>
                 <p>
-                  This will regenerate the placement quiz for <span className="font-medium text-foreground">{className}</span> and <strong className="text-destructive">reset the following</strong>:
+                  You will <strong className="text-destructive">lose all your current progress</strong> for <span className="font-medium text-foreground">{className}</span>, including:
                 </p>
                 <ul className="list-disc pl-5 space-y-1 text-sm">
                   <li>Course progress &amp; focus areas</li>
@@ -548,7 +551,7 @@ export const PlacementQuiz = ({ learningStyles, onQuizComplete, refreshTrigger, 
                   <li>Topic checklist status</li>
                   <li>Study resources &amp; study plan</li>
                 </ul>
-                <p className="text-sm font-medium text-destructive">This action cannot be undone.</p>
+                <p className="text-sm font-medium text-destructive">You will be starting over from scratch. This action cannot be undone.</p>
               </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
