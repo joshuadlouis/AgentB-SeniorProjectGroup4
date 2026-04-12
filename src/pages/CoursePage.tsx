@@ -25,6 +25,7 @@ import { MiniQuiz } from "@/components/MiniQuiz";
 import { InteractiveExercise } from "@/components/InteractiveExercise";
 import { PracticeHistory } from "@/components/PracticeHistory";
 import { AssignmentUpload } from "@/components/AssignmentUpload";
+import { WritingFeedback } from "@/components/WritingFeedback";
 
 import { CourseTextbooks } from "@/components/CourseTextbooks";
 import { BloomTaxonomy } from "@/components/BloomTaxonomy";
@@ -404,6 +405,9 @@ const CoursePage = () => {
 
         {/* Assignment Upload */}
         <AssignmentUpload learningStyles={learningStyles} courseName={decodedClassName} />
+
+        {/* AI Writing Feedback */}
+        <WritingFeedback className={decodedClassName} />
 
         {/* Rubrics & Assignment Examples */}
         <Card className="p-4 border-border">
