@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -145,11 +145,13 @@ const CoursePage = () => {
     if (!session) return;
 
     // Fetch all events related to this course (by description or title)
+    // Escape SQL special characters for ilike pattern
+    const escapedName = decodedClassName.replace(/[%_\\]/g, (c) => `\\${c}`);
     const { data, error } = await supabase
       .from("calendar_events")
       .select("*")
       .eq("user_id", session.user.id)
-      .or(`description.ilike.%${decodedClassName}%,title.ilike.%${decodedClassName}%`)
+      .or(`description.ilike.%${escapedName}%,title.ilike.%${escapedName}%`)
       .order("event_date", { ascending: true });
 
     setEvents(data || []);
@@ -236,7 +238,7 @@ const CoursePage = () => {
   const mastery = useCourseMastery(decodedClassName);
 
   // Ref for scrolling to adaptive learning section
-  const studyPlanRef = useState<HTMLDivElement | null>(null);
+  const studyPlanRef = useRef<HTMLDivElement | null>(null);
 
   const handleNavigateToTopic = (focusAreaId: string) => {
     // Scroll to the structured study plan
