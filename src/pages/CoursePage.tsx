@@ -26,6 +26,7 @@ import { InteractiveExercise } from "@/components/InteractiveExercise";
 import { PracticeHistory } from "@/components/PracticeHistory";
 import { AssignmentUpload } from "@/components/AssignmentUpload";
 import { WritingFeedback } from "@/components/WritingFeedback";
+import { InstructionalAlignment } from "@/components/InstructionalAlignment";
 
 import { CourseTextbooks } from "@/components/CourseTextbooks";
 import { BloomTaxonomy } from "@/components/BloomTaxonomy";
