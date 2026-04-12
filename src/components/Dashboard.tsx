@@ -49,7 +49,7 @@ export const Dashboard = ({ learningStyles, onOpenChat, onRetakeQuiz }: Dashboar
   const [isReadAloudActive, setIsReadAloudActive] = useState(false);
   const mainContentRef = useRef<HTMLElement>(null);
 
-  const { saveProfile } = useProfile();
+  const { profile, saveProfile } = useProfile();
   useStreakTracker();
 
   const handleSignOut = async () => {
@@ -127,7 +127,7 @@ export const Dashboard = ({ learningStyles, onOpenChat, onRetakeQuiz }: Dashboar
       <main ref={mainContentRef} className={`container mx-auto px-4 py-8 space-y-8 ${isReadAloudActive ? "pb-32" : ""}`}>
         {/* Welcome Section */}
         <div className="space-y-4">
-          <h2 className="text-3xl font-bold text-foreground">Welcome back!</h2>
+          <h2 className="text-3xl font-bold text-foreground">Welcome back{profile.first_name ? `, ${profile.first_name}` : ""}!</h2>
           <p className="text-muted-foreground">Your personalized learning dashboard is ready.</p>
         </div>
 
