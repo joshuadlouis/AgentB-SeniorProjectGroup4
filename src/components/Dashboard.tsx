@@ -67,11 +67,25 @@ export const Dashboard = ({ learningStyles, onOpenChat, onRetakeQuiz }: Dashboar
   const [syllabusRefreshTrigger, setSyllabusRefreshTrigger] = useState(0);
   const [isReadAloudActive, setIsReadAloudActive] = useState(false);
   const [bottomBarOpen, setBottomBarOpen] = useState(false);
+  const [isNewUser, setIsNewUser] = useState(false);
 
   const mainContentRef = useRef<HTMLElement>(null);
 
   const { profile, saveProfile } = useProfile();
   useStreakTracker();
+
+  useEffect(() => {
+    const checkNewUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        const createdAt = new Date(session.user.created_at).getTime();
+        const lastSignIn = new Date(session.user.last_sign_in_at || session.user.created_at).getTime();
+        // If last sign-in is within 60 seconds of account creation, it's a first login
+        setIsNewUser(Math.abs(lastSignIn - createdAt) < 60_000);
+      }
+    };
+    checkNewUser();
+  }, []);
 
   const handleSignOut = async () => {
     await saveProfile();
