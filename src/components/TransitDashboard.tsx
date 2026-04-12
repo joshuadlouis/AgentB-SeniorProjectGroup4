@@ -16,6 +16,12 @@ import {
   saveLinePreferences,
 } from "@/components/transit/LineFilterDrawer";
 import {
+  type ShuttlePreferences,
+  loadShuttlePreferences,
+  saveShuttlePreferences,
+  ShuttleFilterDrawer,
+} from "@/components/transit/ShuttleFilterDrawer";
+import {
   SHUTTLE_ROUTES,
   getRouteStatus,
   getNextDepartures,
@@ -226,10 +232,16 @@ export const TransitDashboard = () => {
   const [metroStation, setMetroStation] = useState<WmataStation | null>(null);
   const [selectedMetroLine, setSelectedMetroLine] = useState<string | null>(null);
   const [linePreferences, setLinePreferences] = useState<LinePreferences>(loadLinePreferences);
+  const [shuttlePreferences, setShuttlePreferences] = useState<ShuttlePreferences>(loadShuttlePreferences);
 
   const handlePrefsChange = useCallback((prefs: LinePreferences) => {
     setLinePreferences(prefs);
     saveLinePreferences(prefs);
+  }, []);
+
+  const handleShuttlePrefsChange = useCallback((prefs: ShuttlePreferences) => {
+    setShuttlePreferences(prefs);
+    saveShuttlePreferences(prefs);
   }, []);
 
   useEffect(() => {
@@ -242,14 +254,18 @@ export const TransitDashboard = () => {
     [selectedRouteId]
   );
 
+  const filteredRoutes = useMemo(() => {
+    return SHUTTLE_ROUTES.filter((r) => shuttlePreferences[r.id] !== false);
+  }, [shuttlePreferences]);
+
   const sortedRoutes = useMemo(() => {
     const order: Record<RouteStatus, number> = {
       active: 0, "after-hours": 1, inactive: 2, "weekend-no-service": 3,
     };
-    return [...SHUTTLE_ROUTES].sort(
+    return [...filteredRoutes].sort(
       (a, b) => order[getRouteStatus(a, now)] - order[getRouteStatus(b, now)]
     );
-  }, [now]);
+  }, [now, filteredRoutes]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -272,7 +288,7 @@ export const TransitDashboard = () => {
       <div className="max-w-5xl mx-auto px-4 py-6 space-y-6">
         {/* Map */}
         <TransitMap
-          routes={SHUTTLE_ROUTES}
+          routes={filteredRoutes}
           selectedRouteId={selectedRouteId}
           metroStation={metroStation}
           selectedMetroLine={selectedMetroLine}
@@ -294,9 +310,15 @@ export const TransitDashboard = () => {
           <TabsContent value="shuttles" className="mt-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-3">
-                <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
-                  Shuttle Routes
-                </h2>
+                <div className="flex items-center justify-between">
+                  <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+                    Shuttle Routes
+                  </h2>
+                  <ShuttleFilterDrawer
+                    preferences={shuttlePreferences}
+                    onChange={handleShuttlePrefsChange}
+                  />
+                </div>
                 {sortedRoutes.map((route) => (
                   <RouteCard
                     key={route.id}
