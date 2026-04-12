@@ -1562,6 +1562,42 @@ When the user asks about their uploaded classes/syllabi, provide targeted help f
 
     // Non-streaming response for module content
     if (requestType === "module-content") {
+      const isPractice = moduleType === "practice";
+
+      // For practice modules, use tool calling to guarantee structured JSON output
+      const practiceToolConfig = isPractice ? {
+        tools: [{
+          type: "function",
+          function: {
+            name: "generate_practice_questions",
+            description: "Generate structured practice questions with multiple choice answers",
+            parameters: {
+              type: "object",
+              properties: {
+                questions: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      id: { type: "number" },
+                      question: { type: "string", description: "The problem statement, use LaTeX $ delimiters for math" },
+                      options: { type: "array", items: { type: "string" }, description: "Exactly 4 answer choices" },
+                      correctIndex: { type: "number", description: "Index of the correct option (0-3)" },
+                      explanation: { type: "string", description: "Step-by-step solution" },
+                      hint: { type: "string", description: "Guide thinking without giving away the answer" },
+                      bloom_level: { type: "string", enum: ["recall", "application", "analysis", "evaluation"] }
+                    },
+                    required: ["id", "question", "options", "correctIndex", "explanation", "hint", "bloom_level"]
+                  }
+                }
+              },
+              required: ["questions"]
+            }
+          }
+        }],
+        tool_choice: { type: "function", function: { name: "generate_practice_questions" } }
+      } : {};
+
       const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
         method: "POST",
         headers: {
@@ -1574,11 +1610,57 @@ When the user asks about their uploaded classes/syllabi, provide targeted help f
             { role: "system", content: systemPrompt },
             ...messages,
           ],
+          ...practiceToolConfig,
         }),
       });
 
       if (!response.ok) {
         return new Response(JSON.stringify({ error: "Failed to generate module content" }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      if (isPractice) {
+        // Parse tool call response for practice questions
+        const responseText = await response.text();
+        let data;
+        try {
+          data = JSON.parse(responseText);
+        } catch {
+          console.error("Failed to parse practice response:", responseText.slice(0, 500));
+          return new Response(JSON.stringify({ error: "Failed to parse practice response" }), {
+            status: 500,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+
+        const toolCall = data.choices?.[0]?.message?.tool_calls?.[0];
+        if (toolCall?.function?.arguments) {
+          try {
+            const argsStr = typeof toolCall.function.arguments === 'string'
+              ? toolCall.function.arguments
+              : JSON.stringify(toolCall.function.arguments);
+            const practiceData = JSON.parse(argsStr);
+            // Return the questions array as JSON string content so PracticeRenderer can parse it
+            const questionsArray = practiceData.questions || practiceData;
+            return new Response(JSON.stringify({ content: JSON.stringify(questionsArray) }), {
+              headers: { ...corsHeaders, "Content-Type": "application/json" },
+            });
+          } catch (parseError) {
+            console.error("Failed to parse practice tool call:", parseError);
+          }
+        }
+
+        // Fallback to content field
+        const content = data.choices?.[0]?.message?.content;
+        if (content) {
+          return new Response(JSON.stringify({ content }), {
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+
+        return new Response(JSON.stringify({ error: "No practice data returned" }), {
           status: 500,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
