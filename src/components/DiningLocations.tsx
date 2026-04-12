@@ -151,6 +151,17 @@ export function DiningLocations({ open, onOpenChange }: DiningLocationsProps) {
                           {loc.description}
                         </p>
                       )}
+
+                      {["bethune-annex-cafe", "blackburn-cafe"].includes(loc.urlKey) && (
+                        <a
+                          href={`https://howard.mydininghub.com/en/locations/${loc.urlKey}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 text-xs text-primary hover:underline font-medium"
+                        >
+                          View Today's Menu <ExternalLink className="h-3 w-3" />
+                        </a>
+                      )}
                     </div>
                   </div>
                 </Card>
