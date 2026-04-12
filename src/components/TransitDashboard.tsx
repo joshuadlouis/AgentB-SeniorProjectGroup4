@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,11 @@ import { TransitMap } from "@/components/TransitMap";
 import { PublicTransit, type WmataStation } from "@/components/PublicTransit";
 import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import {
+  type LinePreferences,
+  loadLinePreferences,
+  saveLinePreferences,
+} from "@/components/transit/LineFilterDrawer";
 import {
   SHUTTLE_ROUTES,
   getRouteStatus,
@@ -219,6 +224,13 @@ export const TransitDashboard = () => {
   const [now, setNow] = useState(new Date());
   const [tab, setTab] = useState("shuttles");
   const [metroStation, setMetroStation] = useState<WmataStation | null>(null);
+  const [selectedMetroLine, setSelectedMetroLine] = useState<string | null>(null);
+  const [linePreferences, setLinePreferences] = useState<LinePreferences>(loadLinePreferences);
+
+  const handlePrefsChange = useCallback((prefs: LinePreferences) => {
+    setLinePreferences(prefs);
+    saveLinePreferences(prefs);
+  }, []);
 
   useEffect(() => {
     const id = setInterval(() => setNow(new Date()), 30_000);
@@ -263,10 +275,12 @@ export const TransitDashboard = () => {
           routes={SHUTTLE_ROUTES}
           selectedRouteId={tab === "shuttles" ? selectedRouteId : null}
           metroStation={tab === "public-transit" ? metroStation : null}
+          selectedMetroLine={tab === "public-transit" ? selectedMetroLine : null}
+          linePreferences={tab === "public-transit" ? linePreferences : undefined}
         />
 
         {/* Tabs */}
-        <Tabs value={tab} onValueChange={(v) => { setTab(v); setSelectedRouteId(null); setMetroStation(null); }}>
+        <Tabs value={tab} onValueChange={(v) => { setTab(v); setSelectedRouteId(null); setMetroStation(null); setSelectedMetroLine(null); }}>
           <TabsList className="w-full max-w-sm">
             <TabsTrigger value="shuttles" className="flex-1 gap-1.5">
               <Bus className="w-4 h-4" /> Campus Shuttles
@@ -308,7 +322,12 @@ export const TransitDashboard = () => {
           </TabsContent>
 
           <TabsContent value="public-transit" className="mt-4">
-            <PublicTransit onStationSelect={setMetroStation} />
+            <PublicTransit
+              onStationSelect={setMetroStation}
+              onLineSelect={setSelectedMetroLine}
+              linePreferences={linePreferences}
+              onLinePreferencesChange={handlePrefsChange}
+            />
           </TabsContent>
         </Tabs>
       </div>
