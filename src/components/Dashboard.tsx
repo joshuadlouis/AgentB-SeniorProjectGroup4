@@ -206,7 +206,7 @@ export const Dashboard = ({ learningStyles, onOpenChat, onRetakeQuiz }: Dashboar
             </div>
           }
           syllabusSection={
-            <SyllabusUpload onUploadComplete={() => setSyllabusRefreshTrigger((prev) => prev + 1)} />
+            <SyllabusUpload embedded onUploadComplete={() => setSyllabusRefreshTrigger((prev) => prev + 1)} />
           }
           velocitySection={<LearningVelocityDashboard />}
         />
