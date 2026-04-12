@@ -256,9 +256,7 @@ export const Dashboard = ({ learningStyles, onOpenChat, onRetakeQuiz }: Dashboar
             <p className="text-sm text-muted-foreground mb-4">
               Menus, hours, and dining hall locations
             </p>
-            <Button variant="outline" className="w-full" onClick={() => {
-              toast({ title: "Coming soon", description: "Dining menus will be available soon." });
-            }}>
+            <Button variant="outline" className="w-full" onClick={() => setDiningOpen(true)}>
               See Menus
             </Button>
           </Card>
