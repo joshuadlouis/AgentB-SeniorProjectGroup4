@@ -218,7 +218,7 @@ export const Dashboard = ({ learningStyles, onOpenChat, onRetakeQuiz }: Dashboar
             <p className="text-sm text-muted-foreground mb-4">
               Navigate campus buildings and facilities
             </p>
-            <Button variant="outline" className="w-full">
+            <Button variant="outline" className="w-full" onClick={() => window.open("/Campus_Map.pdf", "_blank")}>
               Open Map
             </Button>
           </Card>
