@@ -119,9 +119,15 @@ export default function ReadAloudDemo() {
     return "";
   }, [toast]);
 
+  const MAX_FILE_SIZE = 3 * 1024 * 1024; // 3 MB
+
   const handleFiles = useCallback(async (files: FileList) => {
     const file = files[0];
     if (!file) return;
+    if (file.size > MAX_FILE_SIZE) {
+      toast({ title: "File too large", description: "Please upload a file smaller than 3 MB.", variant: "destructive" });
+      return;
+    }
     const text = await extractFileText(file);
     if (text) {
       setEditableText(text);
