@@ -105,13 +105,12 @@ export const Dashboard = ({ learningStyles, onOpenChat, onRetakeQuiz }: Dashboar
                     <User className="mr-2 h-4 w-4" />
                     Profile
                   </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleSignOut} className="text-destructive focus:text-destructive">
-                    <LogOut className="mr-2 h-4 w-4" />
-                    Sign Out
-                  </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
+
+              <Button variant="ghost" size="icon" className="h-9 w-9 text-destructive hover:text-destructive" onClick={handleSignOut}>
+                <LogOut className="h-5 w-5" />
+              </Button>
             </div>
           </div>
         </div>
@@ -135,6 +134,12 @@ export const Dashboard = ({ learningStyles, onOpenChat, onRetakeQuiz }: Dashboar
           </h2>
           <p className="text-muted-foreground">Your personalized learning dashboard is ready.</p>
         </div>
+
+        {/* Test Reminders — first widget */}
+        <TestReminders />
+
+        {/* Upcoming Assignments — second widget */}
+        <UpcomingAssignments />
 
         {/* Syllabus Upload */}
         <SyllabusUpload onUploadComplete={() => setSyllabusRefreshTrigger((prev) => prev + 1)} />
@@ -170,12 +175,6 @@ export const Dashboard = ({ learningStyles, onOpenChat, onRetakeQuiz }: Dashboar
             ))}
           </div>
         </Card>
-
-        {/* Test Reminders — above Upcoming Assignments */}
-        <TestReminders />
-
-        {/* Upcoming Assignments */}
-        <UpcomingAssignments />
 
         {/* Main Content Grid */}
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
