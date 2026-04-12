@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, ReactNode } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -27,9 +27,12 @@ const MAX_ACTIVE_COURSES = 3;
 
 interface CourseHubProps {
   refreshTrigger?: number;
+  learningStyleSection?: ReactNode;
+  syllabusSection?: ReactNode;
+  velocitySection?: ReactNode;
 }
 
-export const CourseHub = ({ refreshTrigger = 0 }: CourseHubProps) => {
+export const CourseHub = ({ refreshTrigger = 0, learningStyleSection, syllabusSection, velocitySection }: CourseHubProps) => {
   const [classes, setClasses] = useState<UserClass[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleteTarget, setDeleteTarget] = useState<UserClass | null>(null);
