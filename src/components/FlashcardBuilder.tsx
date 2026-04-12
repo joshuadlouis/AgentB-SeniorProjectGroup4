@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import {
   Layers, Plus, Trash2, Edit2, Play, Sparkles, Loader2, RotateCcw,
-  ChevronRight, BookOpen, Brain,
+  ChevronRight, BookOpen, Brain, Globe, Lock, Copy,
 } from "lucide-react";
 import { useFlashcards, Flashcard } from "@/hooks/useFlashcards";
 import { Progress } from "@/components/ui/progress";
@@ -21,13 +21,15 @@ type Rating = "again" | "hard" | "good" | "easy";
 
 export function FlashcardBuilder({ className }: Props) {
   const {
-    decks, cards, activeDeckId, loading, generating,
+    decks, communityDecks, cards, activeDeckId, loading, generating,
     fetchCards, createDeck, deleteDeck, addCard, updateCard, deleteCard,
     reviewCard, getDueCards, generateFromCourse, setActiveDeckId,
+    togglePublic, copyDeck,
   } = useFlashcards(className);
 
   const [newDeckTitle, setNewDeckTitle] = useState("");
   const [addDeckOpen, setAddDeckOpen] = useState(false);
+  const [showCommunity, setShowCommunity] = useState(false);
   const [addCardOpen, setAddCardOpen] = useState(false);
   const [editCard, setEditCard] = useState<Flashcard | null>(null);
   const [frontText, setFrontText] = useState("");
