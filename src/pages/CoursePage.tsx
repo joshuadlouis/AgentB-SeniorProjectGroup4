@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -238,7 +238,7 @@ const CoursePage = () => {
   const mastery = useCourseMastery(decodedClassName);
 
   // Ref for scrolling to adaptive learning section
-  const studyPlanRef = { current: null as HTMLDivElement | null };
+  const studyPlanRef = useRef<HTMLDivElement | null>(null);
 
   const handleNavigateToTopic = (focusAreaId: string) => {
     // Scroll to the structured study plan
