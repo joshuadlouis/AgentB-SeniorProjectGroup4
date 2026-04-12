@@ -2,9 +2,11 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ChevronDown, ChevronRight, Trash2, Eye, EyeOff, Sparkles, BookOpen, Target } from "lucide-react";
+import { ChevronDown, ChevronRight, Trash2, Eye, EyeOff, Sparkles, BookOpen, Target, Edit2, Save, X } from "lucide-react";
 import type { Rubric, AssignmentExample } from "@/hooks/useRubrics";
 
 const qualityColors: Record<string, string> = {
@@ -24,36 +26,83 @@ interface RubricCardProps {
   examples: AssignmentExample[];
   onDelete: (id: string) => void;
   onToggleStatus: (id: string, status: string) => void;
+  onUpdate?: (id: string, title: string, description: string) => void;
 }
 
-export function RubricCard({ rubric, examples, onDelete, onToggleStatus }: RubricCardProps) {
+export function RubricCard({ rubric, examples, onDelete, onToggleStatus, onUpdate }: RubricCardProps) {
   const [criteriaOpen, setCriteriaOpen] = useState(false);
   const [examplesOpen, setExamplesOpen] = useState(false);
+  const [showAllObjectives, setShowAllObjectives] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [editTitle, setEditTitle] = useState(rubric.title);
+  const [editDescription, setEditDescription] = useState(rubric.description || "");
 
   const status = statusConfig[rubric.status] || statusConfig.draft;
+
+  const handleSave = () => {
+    onUpdate?.(rubric.id, editTitle, editDescription);
+    setEditing(false);
+  };
+
+  const handleCancel = () => {
+    setEditTitle(rubric.title);
+    setEditDescription(rubric.description || "");
+    setEditing(false);
+  };
+
+  const displayedObjectives = showAllObjectives
+    ? rubric.learning_objectives
+    : rubric.learning_objectives?.slice(0, 3);
 
   return (
     <Card className="border-border">
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between gap-2">
           <div className="flex-1">
-            <div className="flex items-center gap-2 flex-wrap">
-              <CardTitle className="text-lg">{rubric.title}</CardTitle>
-              <Badge className={status.className} variant="outline">{status.label}</Badge>
-              {rubric.source === "ai" && (
-                <Badge variant="outline" className="bg-accent/50 text-accent-foreground gap-1">
-                  <Sparkles className="h-3 w-3" /> AI Generated
-                </Badge>
-              )}
-              {rubric.bloom_level && (
-                <Badge variant="outline" className="bg-secondary text-secondary-foreground">
-                  {rubric.bloom_level}
-                </Badge>
-              )}
-            </div>
-            <CardDescription className="mt-1">{rubric.description}</CardDescription>
+            {editing ? (
+              <div className="space-y-2">
+                <Input value={editTitle} onChange={e => setEditTitle(e.target.value)} className="font-semibold" />
+                <Textarea value={editDescription} onChange={e => setEditDescription(e.target.value)} rows={2} placeholder="Description..." />
+                <div className="flex gap-1">
+                  <Button size="sm" onClick={handleSave} className="gap-1">
+                    <Save className="h-3 w-3" /> Save
+                  </Button>
+                  <Button size="sm" variant="ghost" onClick={handleCancel}>
+                    <X className="h-3 w-3" />
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <CardTitle className="text-lg">{rubric.title}</CardTitle>
+                  <Badge className={status.className} variant="outline">{status.label}</Badge>
+                  {rubric.source === "ai" && (
+                    <Badge variant="outline" className="bg-accent/50 text-accent-foreground gap-1">
+                      <Sparkles className="h-3 w-3" /> AI Generated
+                    </Badge>
+                  )}
+                  {rubric.source === "manual" && (
+                    <Badge variant="outline" className="bg-secondary text-secondary-foreground gap-1">
+                      Custom
+                    </Badge>
+                  )}
+                  {rubric.bloom_level && (
+                    <Badge variant="outline" className="bg-secondary text-secondary-foreground">
+                      {rubric.bloom_level}
+                    </Badge>
+                  )}
+                </div>
+                <CardDescription className="mt-1">{rubric.description}</CardDescription>
+              </>
+            )}
           </div>
           <div className="flex gap-1 shrink-0">
+            {onUpdate && !editing && (
+              <Button variant="ghost" size="icon" onClick={() => setEditing(true)} aria-label="Edit rubric">
+                <Edit2 className="h-4 w-4" />
+              </Button>
+            )}
             <Button
               variant="ghost" size="icon"
               onClick={() => onToggleStatus(rubric.id, rubric.status === "published" ? "draft" : "published")}
@@ -68,16 +117,20 @@ export function RubricCard({ rubric, examples, onDelete, onToggleStatus }: Rubri
         </div>
 
         {rubric.learning_objectives?.length > 0 && (
-          <div className="mt-2 flex flex-wrap gap-1">
-            {rubric.learning_objectives.slice(0, 3).map((obj, i) => (
-              <Badge key={i} variant="outline" className="text-xs font-normal max-w-[200px] truncate">
-                <Target className="h-3 w-3 mr-1 shrink-0" />
-                {obj}
-              </Badge>
-            ))}
-            {rubric.learning_objectives.length > 3 && (
-              <Badge variant="outline" className="text-xs">+{rubric.learning_objectives.length - 3} more</Badge>
-            )}
+          <div className="mt-2">
+            <div className="flex flex-wrap gap-1">
+              {displayedObjectives?.map((obj, i) => (
+                <Badge key={i} variant="outline" className="text-xs font-normal max-w-[200px] truncate">
+                  <Target className="h-3 w-3 mr-1 shrink-0" />
+                  {obj}
+                </Badge>
+              ))}
+              {rubric.learning_objectives.length > 3 && (
+                <Button variant="ghost" size="sm" className="h-6 text-xs px-2" onClick={() => setShowAllObjectives(!showAllObjectives)}>
+                  {showAllObjectives ? "Show Less" : `+${rubric.learning_objectives.length - 3} more`}
+                </Button>
+              )}
+            </div>
           </div>
         )}
       </CardHeader>
