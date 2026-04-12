@@ -1048,6 +1048,8 @@ EXTRACTION RULES (CRITICAL — follow exactly):
    - **Evaluate**: evaluate, justify, critique, assess
    - **Create**: design, develop, create, construct
 
+7. **DATE EXTRACTION (CRITICAL)**: If the syllabus contains ACTUAL calendar dates (e.g., "Jan 15", "March 3, 2026", "2/14"), extract them in YYYY-MM-DD format for each weekly schedule entry. Also identify the event type (exam, midterm, final, quiz, homework, lab, project, presentation, lecture, other). If no specific date is stated for a week, leave the date field empty.
+
 Be thorough and precise. Extract exactly what the syllabus states — do not invent information not present in the document.`;
 
       toolConfig = {
@@ -1094,11 +1096,13 @@ Be thorough and precise. Extract exactly what the syllabus states — do not inv
                       properties: {
                         week: { type: "number" },
                         topic: { type: "string" },
-                        details: { type: "string" }
+                        details: { type: "string" },
+                        date: { type: "string", description: "Actual date if stated in the syllabus, in YYYY-MM-DD format. Leave empty if no date is given." },
+                        eventType: { type: "string", enum: ["lecture", "exam", "midterm", "final", "quiz", "homework", "lab", "project", "presentation", "other"], description: "Type of event for this week entry" }
                       },
                       required: ["week", "topic"]
                     },
-                    description: "Week-by-week topic schedule"
+                    description: "Week-by-week topic schedule. Include actual dates from the syllabus when available."
                   },
                   gradingPolicy: {
                     type: "array",
