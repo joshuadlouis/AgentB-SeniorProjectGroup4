@@ -66,7 +66,7 @@ export const Dashboard = ({ learningStyles, onOpenChat, onRetakeQuiz }: Dashboar
   const navigate = useNavigate();
   const { toast } = useToast();
   const [syllabusRefreshTrigger, setSyllabusRefreshTrigger] = useState(0);
-  const [isReadAloudActive, setIsReadAloudActive] = useState(false);
+  
   const [bottomBarOpen, setBottomBarOpen] = useState(false);
   const [isNewUser, setIsNewUser] = useState(false);
 
