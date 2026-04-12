@@ -9,6 +9,8 @@ export interface FlashcardDeck {
   description: string | null;
   card_count: number;
   created_at: string;
+  is_public: boolean;
+  user_id?: string;
 }
 
 export interface Flashcard {
@@ -55,6 +57,7 @@ function sm2(card: Flashcard, rating: Rating): Partial<Flashcard> {
 
 export function useFlashcards(className: string) {
   const [decks, setDecks] = useState<FlashcardDeck[]>([]);
+  const [communityDecks, setCommunityDecks] = useState<FlashcardDeck[]>([]);
   const [cards, setCards] = useState<Flashcard[]>([]);
   const [activeDeckId, setActiveDeckId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -74,6 +77,20 @@ export function useFlashcards(className: string) {
     setLoading(false);
   }, [className]);
 
+  const fetchCommunityDecks = useCallback(async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return;
+    const { data } = await supabase
+      .from("flashcard_decks")
+      .select("*")
+      .eq("is_public", true)
+      .eq("class_name", className)
+      .neq("user_id", session.user.id)
+      .order("created_at", { ascending: false })
+      .limit(20);
+    setCommunityDecks((data as FlashcardDeck[]) || []);
+  }, [className]);
+
   const fetchCards = useCallback(async (deckId: string) => {
     const { data } = await supabase
       .from("flashcards")
@@ -84,7 +101,7 @@ export function useFlashcards(className: string) {
     setActiveDeckId(deckId);
   }, []);
 
-  useEffect(() => { fetchDecks(); }, [fetchDecks]);
+  useEffect(() => { fetchDecks(); fetchCommunityDecks(); }, [fetchDecks, fetchCommunityDecks]);
 
   const createDeck = async (title: string, description?: string) => {
     const { data: { session } } = await supabase.auth.getSession();
@@ -167,9 +184,44 @@ export function useFlashcards(className: string) {
     }
   };
 
+  const togglePublic = async (deckId: string, isPublic: boolean) => {
+    await supabase.from("flashcard_decks").update({ is_public: isPublic }).eq("id", deckId);
+    await fetchDecks();
+    toast({ title: isPublic ? "Deck shared publicly" : "Deck set to private" });
+  };
+
+  const copyDeck = async (deckId: string) => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return;
+
+    // Fetch source deck
+    const { data: srcDeck } = await supabase.from("flashcard_decks").select("*").eq("id", deckId).single();
+    if (!srcDeck) return;
+
+    // Create new deck
+    const { data: newDeck, error } = await supabase
+      .from("flashcard_decks")
+      .insert({ user_id: session.user.id, class_name: className, title: srcDeck.title, description: srcDeck.description })
+      .select()
+      .single();
+    if (error || !newDeck) { toast({ title: "Error", description: "Failed to copy deck", variant: "destructive" }); return; }
+
+    // Copy cards
+    const { data: srcCards } = await supabase.from("flashcards").select("front_text, back_text").eq("deck_id", deckId);
+    if (srcCards && srcCards.length > 0) {
+      await supabase.from("flashcards").insert(
+        srcCards.map((c: any) => ({ deck_id: newDeck.id, user_id: session.user.id, front_text: c.front_text, back_text: c.back_text }))
+      );
+    }
+
+    toast({ title: "Deck copied!", description: `"${srcDeck.title}" added to your decks.` });
+    await fetchDecks();
+  };
+
   return {
-    decks, cards, activeDeckId, loading, generating,
+    decks, communityDecks, cards, activeDeckId, loading, generating,
     fetchCards, createDeck, deleteDeck, addCard, updateCard, deleteCard,
     reviewCard, getDueCards, generateFromCourse, setActiveDeckId,
+    togglePublic, copyDeck,
   };
 }
