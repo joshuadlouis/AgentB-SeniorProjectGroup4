@@ -6,6 +6,43 @@ import { Card } from "@/components/ui/card";
 import { Loader2, MapPin, Clock, Utensils, ExternalLink } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
+import img1867cafe from "@/assets/dining/1867cafe.avif";
+import imgAnnexCafe from "@/assets/dining/annexcafe.avif";
+import imgBisonBrew from "@/assets/dining/bisonbrew.avif";
+import imgBisonBread from "@/assets/dining/bisonbread.avif";
+import imgPunchout from "@/assets/dining/punchout.avif";
+import imgWtowers from "@/assets/dining/wtowers.avif";
+import img202Market from "@/assets/dining/202market.avif";
+import imgAnnexMarket from "@/assets/dining/annexmarket.avif";
+import imgEvb from "@/assets/dining/evb.avif";
+import imgHalal from "@/assets/dining/halal.avif";
+import imgBlackburnCafe from "@/assets/dining/blackburncafe.avif";
+import imgChickfila from "@/assets/dining/chickfila.avif";
+
+/* Map url_key (or partial name match) → local image */
+const LOCAL_IMAGE_MAP: Record<string, string> = {
+  "1867-cafe": img1867cafe,
+  "bethune-annex-cafe": imgAnnexCafe,
+  "bison-brew": imgBisonBrew,
+  "bison-bread-co": imgBisonBread,
+  "the-drop-at-punchout": imgPunchout,
+  "the-market-at-west-towers": imgWtowers,
+  "202-market": img202Market,
+  "the-market-at-bethune-annex": imgAnnexMarket,
+  "everbowl": imgEvb,
+  "the-halal-shack": imgHalal,
+  "blackburn-cafe": imgBlackburnCafe,
+  "chick-fil-a": imgChickfila,
+};
+
+function resolveImage(loc: { urlKey: string; name: string; imageUrl: string }): string {
+  if (LOCAL_IMAGE_MAP[loc.urlKey]) return LOCAL_IMAGE_MAP[loc.urlKey];
+  // fallback: try matching by normalized name
+  const normalized = loc.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/-+/g, "-");
+  if (LOCAL_IMAGE_MAP[normalized]) return LOCAL_IMAGE_MAP[normalized];
+  return loc.imageUrl;
+}
+
 interface MealPeriod {
   name: string;
   hours: string;
