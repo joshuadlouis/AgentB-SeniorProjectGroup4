@@ -19,6 +19,12 @@ import imgBisonBrew from "@/assets/dining/bisonbrew.avif";
 import imgBisonBread from "@/assets/dining/bisonbread.avif";
 import imgPunchout from "@/assets/dining/punchout.avif";
 import imgWTowers from "@/assets/dining/wtowers.avif";
+import img202Market from "@/assets/dining/202market.avif";
+import imgHalal from "@/assets/dining/halal.avif";
+import imgAnnexMarket from "@/assets/dining/annexmarket.avif";
+import imgEVB from "@/assets/dining/evb.avif";
+import imgBlackburnCafe from "@/assets/dining/blackburncafe.avif";
+import imgChickFilA from "@/assets/dining/chickfila.avif";
 
 const DINING_IMAGES: Record<string, string> = {
   "1867-cafe": img1867Cafe,
@@ -27,8 +33,12 @@ const DINING_IMAGES: Record<string, string> = {
   "bison-bread-bakery": imgBisonBread,
   "the-punchout": imgPunchout,
   "west-towers-market": imgWTowers,
-  // alternate urlKey forms
-  "blackburn-cafe": imgAnnexCafe,
+  "202-market": img202Market,
+  "halal-shack": imgHalal,
+  "annex-market": imgAnnexMarket,
+  "evb": imgEVB,
+  "blackburn-cafe": imgBlackburnCafe,
+  "chick-fil-a": imgChickFilA,
 };
 
 interface MealPeriod { name: string; hours: string; }
