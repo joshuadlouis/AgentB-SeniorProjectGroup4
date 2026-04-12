@@ -324,11 +324,19 @@ export const CourseHub = ({ refreshTrigger = 0, learningStyleSection, syllabusSe
         </div>
       )}
 
-      {/* Learning Style Section */}
+      {/* Learning Style Section — collapsible */}
       {learningStyleSection && (
-        <div className="mb-6 pb-6 border-t border-border pt-6">
-          {learningStyleSection}
-        </div>
+        <Collapsible className="mb-6 border-t border-border pt-6">
+          <CollapsibleTrigger className="flex items-center justify-between w-full group">
+            <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+              My Learning Style
+            </h4>
+            <ChevronDown className="w-4 h-4 text-muted-foreground transition-transform group-data-[state=open]:rotate-180" />
+          </CollapsibleTrigger>
+          <CollapsibleContent className="mt-4">
+            {learningStyleSection}
+          </CollapsibleContent>
+        </Collapsible>
       )}
 
       {/* Syllabus Section — collapsible */}

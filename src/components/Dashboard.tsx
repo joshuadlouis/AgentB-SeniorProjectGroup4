@@ -179,10 +179,7 @@ export const Dashboard = ({ learningStyles, onOpenChat, onRetakeQuiz }: Dashboar
           refreshTrigger={syllabusRefreshTrigger}
           learningStyleSection={
             <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-                  Your Learning Style
-                </h4>
+              <div className="flex items-center justify-end">
                 <Button variant="outline" size="sm" onClick={onRetakeQuiz}>
                   Retake Quiz
                 </Button>
