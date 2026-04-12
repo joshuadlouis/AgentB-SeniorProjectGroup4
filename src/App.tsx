@@ -24,6 +24,7 @@ import SafetyResourcesPage from "./pages/SafetyResourcesPage";
 import DiningPage from "./pages/DiningPage";
 import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
+import { SelectionListenTooltip } from "./components/SelectionListenTooltip";
 
 const queryClient = new QueryClient();
 
@@ -56,6 +57,7 @@ const App = () => (
                 <Route path="*" element={<NotFound />} />
               </Routes>
               <TutorialStepOverlay />
+              <SelectionListenTooltip />
             </TutorialProvider>
           </BrowserRouter>
         </TooltipProvider>
