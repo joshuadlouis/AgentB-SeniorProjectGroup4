@@ -90,6 +90,26 @@ export default function Auth() {
           return;
         }
 
+        if (password.length < 8) {
+          toast({
+            title: "Weak password",
+            description: "Password must be at least 8 characters long",
+            variant: "destructive",
+          });
+          setIsLoading(false);
+          return;
+        }
+
+        if (!/[A-Z]/.test(password) || !/[0-9]/.test(password)) {
+          toast({
+            title: "Weak password",
+            description: "Password must contain at least one uppercase letter and one number",
+            variant: "destructive",
+          });
+          setIsLoading(false);
+          return;
+        }
+
         const { data, error } = await supabase.auth.signUp({
           email,
           password,

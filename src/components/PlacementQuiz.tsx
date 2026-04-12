@@ -82,15 +82,15 @@ export const PlacementQuiz = ({ learningStyles, onQuizComplete, refreshTrigger, 
 
   // Auto-generate quiz when on a course-scoped page and syllabus exists
   useEffect(() => {
-    if (isCourseScoped && !autoGenTriggered && syllabi.length > 0 && !completedClasses.includes(className!)) {
+    if (isCourseScoped && !autoGenTriggered && syllabi.length > 0 && !completedClasses.includes(className!) && !isGenerating) {
       const hasSyllabus = syllabi.some(s => s.class_name === className);
-      if (hasSyllabus && questions.length === 0 && !isGenerating) {
+      if (hasSyllabus && questions.length === 0) {
         setAutoGenTriggered(true);
         setSelectedClass(className!);
         generateQuiz(className!);
       }
     }
-  }, [isCourseScoped, syllabi, autoGenTriggered, className, completedClasses]);
+  }, [isCourseScoped, syllabi, autoGenTriggered, className, completedClasses, isGenerating]);
 
   const generateQuiz = async (overrideClass?: string) => {
     const quizClass = overrideClass || selectedClass;
@@ -177,14 +177,15 @@ export const PlacementQuiz = ({ learningStyles, onQuizComplete, refreshTrigger, 
       setSelectedAnswer("");
       setShowResult(false);
     } else {
-      // Quiz completed - calculate results
+      // Quiz completed - use the current answers state which includes the last answer
+      // (handleSubmitAnswer already saved it before this runs)
+      const allAnswers = { ...answers };
       const weakAreas: string[] = [];
       const strongAreas: string[] = [];
       
       questions.forEach((q, idx) => {
-        const userAnswer = answers[idx];
+        const userAnswer = allAnswers[idx];
         const isCorrect = userAnswer === q.correctIndex;
-        // Extract topic from question (first part before colon or first 50 chars)
         const topic = q.question.split(":")[0].slice(0, 50).trim();
         
         if (isCorrect) {
@@ -194,7 +195,14 @@ export const PlacementQuiz = ({ learningStyles, onQuizComplete, refreshTrigger, 
         }
       });
 
-      const finalScore = calculateScore();
+      // Calculate score directly from answers to avoid stale state
+      let finalScore = 0;
+      Object.entries(allAnswers).forEach(([idx, answer]) => {
+        if (questions[parseInt(idx)]?.correctIndex === answer) {
+          finalScore++;
+        }
+      });
+
       const result: QuizResult = {
         className: selectedClass,
         score: finalScore,
