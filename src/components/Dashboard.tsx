@@ -23,7 +23,6 @@ import {
   BookOpen, MessageSquare, Calendar, MapPin, Utensils, Bus, Shield, User, LogOut,
   MessageCircle, BarChart3, Menu, ChevronUp,
 } from "lucide-react";
-import { DashboardReadAloud } from "./DashboardReadAloud";
 import { LearningVelocityDashboard } from "./LearningVelocityDashboard";
 import { SyllabusUpload } from "./SyllabusUpload";
 import { UpcomingAssignments } from "./UpcomingAssignments";
@@ -67,7 +66,7 @@ export const Dashboard = ({ learningStyles, onOpenChat, onRetakeQuiz }: Dashboar
   const navigate = useNavigate();
   const { toast } = useToast();
   const [syllabusRefreshTrigger, setSyllabusRefreshTrigger] = useState(0);
-  const [isReadAloudActive, setIsReadAloudActive] = useState(false);
+  
   const [bottomBarOpen, setBottomBarOpen] = useState(false);
   const [isNewUser, setIsNewUser] = useState(false);
 
@@ -123,11 +122,9 @@ export const Dashboard = ({ learningStyles, onOpenChat, onRetakeQuiz }: Dashboar
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-48">
-                  <DropdownMenuItem
-                    onClick={() => setIsReadAloudActive((v) => !v)}
-                  >
+                  <DropdownMenuItem onClick={() => navigate("/read-aloud")}>
                     <BookOpen className="mr-2 h-4 w-4" />
-                    {isReadAloudActive ? "Stop Listening" : "Listen"}
+                    Read Aloud
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => navigate("/analytics")}>
                     <BarChart3 className="mr-2 h-4 w-4" />
@@ -167,14 +164,6 @@ export const Dashboard = ({ learningStyles, onOpenChat, onRetakeQuiz }: Dashboar
         </div>
       </header>
 
-      {/* Read-aloud controller (hidden but active) */}
-      {isReadAloudActive && (
-        <DashboardReadAloud
-          isActive={isReadAloudActive}
-          onToggle={() => setIsReadAloudActive((v) => !v)}
-          contentRef={mainContentRef}
-        />
-      )}
 
       {/* ── Main Content ────────────────────────────── */}
       <main ref={mainContentRef} className="container mx-auto px-4 py-8 space-y-8">
