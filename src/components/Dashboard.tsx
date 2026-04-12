@@ -245,19 +245,19 @@ export const Dashboard = ({ learningStyles, onOpenChat, onRetakeQuiz }: Dashboar
             </Button>
           </Card>
 
-          {/* Dining Café Times */}
+          {/* Howard University Dining */}
           <Card className="p-6 shadow-[var(--shadow-soft)] border-border hover:shadow-[var(--shadow-medium)] transition-[var(--transition-smooth)]">
             <div className="flex items-center gap-3 mb-4">
               <div className="p-2 rounded-lg bg-secondary/10">
                 <Utensils className="w-6 h-6 text-secondary" />
               </div>
-              <h3 className="text-lg font-semibold text-foreground">Dining Café Times</h3>
+              <h3 className="text-lg font-semibold text-foreground">Howard University Dining</h3>
             </div>
             <p className="text-sm text-muted-foreground mb-4">
-              Menus, hours, and dining hall locations
+              Meal plans, menus, hours, and dining hall locations
             </p>
             <Button variant="outline" className="w-full" onClick={() => navigate("/dining")}>
-              See Menus
+              See Dining Information
             </Button>
           </Card>
 
