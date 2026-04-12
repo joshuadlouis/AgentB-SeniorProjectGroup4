@@ -4,11 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Upload, FileText, Trash2, Loader2 } from "lucide-react";
+import { Upload, FileText, Trash2, Loader2, ChevronDown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { SyllabusOutline } from "./SyllabusOutline";
 import { validateFile, uploadFile, SYLLABUS_VALIDATION } from "@/lib/uploadEngine";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 interface Syllabus {
   id: string;
