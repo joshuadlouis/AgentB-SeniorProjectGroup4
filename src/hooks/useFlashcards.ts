@@ -9,6 +9,8 @@ export interface FlashcardDeck {
   description: string | null;
   card_count: number;
   created_at: string;
+  is_public: boolean;
+  user_id?: string;
 }
 
 export interface Flashcard {
@@ -55,6 +57,7 @@ function sm2(card: Flashcard, rating: Rating): Partial<Flashcard> {
 
 export function useFlashcards(className: string) {
   const [decks, setDecks] = useState<FlashcardDeck[]>([]);
+  const [communityDecks, setCommunityDecks] = useState<FlashcardDeck[]>([]);
   const [cards, setCards] = useState<Flashcard[]>([]);
   const [activeDeckId, setActiveDeckId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -72,6 +75,20 @@ export function useFlashcards(className: string) {
       .order("created_at", { ascending: false });
     setDecks((data as FlashcardDeck[]) || []);
     setLoading(false);
+  }, [className]);
+
+  const fetchCommunityDecks = useCallback(async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return;
+    const { data } = await supabase
+      .from("flashcard_decks")
+      .select("*")
+      .eq("is_public", true)
+      .eq("class_name", className)
+      .neq("user_id", session.user.id)
+      .order("created_at", { ascending: false })
+      .limit(20);
+    setCommunityDecks((data as FlashcardDeck[]) || []);
   }, [className]);
 
   const fetchCards = useCallback(async (deckId: string) => {
