@@ -391,22 +391,7 @@ export const PlacementQuiz = ({ learningStyles, onQuizComplete, refreshTrigger, 
             </p>
             <Progress value={percentage} className="h-3 w-48 mx-auto" />
           </div>
-          <div className="flex justify-center gap-3">
-            <Button variant="outline" onClick={restartQuiz}>
-              <RefreshCw className="w-4 h-4 mr-2" />
-              Retry Quiz
-            </Button>
-            <Button
-              onClick={() => {
-                setQuestions([]);
-                setSelectedClass("");
-                setQuizCompleted(false);
-              }}
-              className="bg-[image:var(--gradient-primary)] hover:opacity-90"
-            >
-              New Quiz
-            </Button>
-          </div>
+          <p className="text-sm text-muted-foreground">Your study plan has been generated based on these results.</p>
         </div>
       ) : (
         // Quiz Questions
