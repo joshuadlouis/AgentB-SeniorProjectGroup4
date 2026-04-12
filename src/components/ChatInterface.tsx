@@ -79,9 +79,11 @@ export const ChatInterface = ({ onClose, learningStyles = [] }: ChatInterfacePro
                   }`}
                 >
                   <div className="text-sm whitespace-pre-wrap prose prose-sm dark:prose-invert max-w-none">
-                    {message.content || (isLoading && message.role === "assistant" ? (
+                    {message.content ? (
+                      message.content
+                    ) : message.role === "assistant" ? (
                       <span className="animate-pulse">Thinking...</span>
-                    ) : null)}
+                    ) : null}
                   </div>
                   <span className={`text-xs mt-1 block ${
                     message.role === "user" ? "text-white/70" : "text-muted-foreground"
