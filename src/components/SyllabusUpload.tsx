@@ -307,12 +307,14 @@ export const SyllabusUpload = ({ onUploadComplete, embedded = false }: SyllabusU
 
   return (
     <Wrapper {...wrapperProps as any}>
-      <div className="flex items-center gap-3 mb-6">
-        <div className="p-2 rounded-lg bg-primary/10">
-          <FileText className="w-6 h-6 text-primary" />
+      {!embedded && (
+        <div className="flex items-center gap-3 mb-6">
+          <div className="p-2 rounded-lg bg-primary/10">
+            <FileText className="w-6 h-6 text-primary" />
+          </div>
+          <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Class Syllabi</h4>
         </div>
-        <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Class Syllabi</h4>
-      </div>
+      )}
 
       {/* Upload Form */}
       <div className="space-y-4 mb-6 p-4 rounded-xl bg-muted/30 border border-border">
