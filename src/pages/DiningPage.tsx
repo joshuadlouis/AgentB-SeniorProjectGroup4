@@ -77,7 +77,7 @@ function LocationsTab() {
               <div className="flex flex-col sm:flex-row">
                 {loc.imageUrl && (
                   <div className="sm:w-40 sm:min-h-[140px] flex-shrink-0">
-                    <img src={loc.imageUrl} alt={loc.name} className="w-full h-36 sm:h-full object-cover" loading="lazy" />
+                    <img src={loc.imageUrl} alt={loc.name} className="w-full h-36 sm:h-full object-cover" loading="lazy" referrerPolicy="no-referrer" crossOrigin="anonymous" />
                   </div>
                 )}
                 <div className="p-4 flex-1 space-y-2">
@@ -89,7 +89,17 @@ function LocationsTab() {
                   </div>
                   {loc.address && <p className="text-xs text-muted-foreground flex items-center gap-1"><MapPin className="h-3 w-3 shrink-0" />{loc.address}</p>}
                   <p className="text-xs text-muted-foreground flex items-center gap-1"><Clock className="h-3 w-3 shrink-0" />Today: {loc.todayHours}</p>
-                  {loc.description && <p className="text-xs text-muted-foreground line-clamp-2">{loc.description}</p>}
+                  {loc.description && (
+                    <p
+                      className="text-xs text-muted-foreground whitespace-pre-line"
+                      dangerouslySetInnerHTML={{
+                        __html: loc.description
+                          .replace(/&eacute;/g, "é")
+                          .replace(/&amp;/g, "&")
+                          .replace(/\n/g, "<br/>")
+                      }}
+                    />
+                  )}
                   {["bethune-annex-cafe", "blackburn-cafe"].includes(loc.urlKey) && (
                     <a href={`https://howard.mydininghub.com/en/locations/${loc.urlKey}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-primary hover:underline font-medium">
                       View Today's Menu <ExternalLink className="h-3 w-3" />
