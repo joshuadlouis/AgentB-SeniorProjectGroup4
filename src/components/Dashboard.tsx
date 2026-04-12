@@ -1,5 +1,6 @@
 import { useState, useRef } from "react";
 import { Card } from "@/components/ui/card";
+import { DiningLocations } from "./DiningLocations";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { 
