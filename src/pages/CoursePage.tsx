@@ -555,6 +555,9 @@ const CoursePage = () => {
         {/* Weekly Performance Report */}
         <WeeklyPerformanceReport className={decodedClassName} />
 
+        {/* Instructional Alignment Check (10.5) */}
+        <InstructionalAlignment className={decodedClassName} />
+
         {/* Bloom's Taxonomy Analysis */}
         <BloomTaxonomy className={decodedClassName} />
 
