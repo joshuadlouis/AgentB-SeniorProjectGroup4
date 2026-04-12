@@ -327,14 +327,19 @@ export default function Profile() {
       return;
     }
 
-    // Fetch universities
+    // Fetch universities — Howard at top
     const { data: uniData } = await supabase
       .from("universities")
       .select("id, name")
       .order("name");
     
     if (uniData) {
-      setUniversities(uniData);
+      const sorted = [...uniData].sort((a, b) => {
+        if (a.name === "Howard University") return -1;
+        if (b.name === "Howard University") return 1;
+        return a.name.localeCompare(b.name);
+      });
+      setUniversities(sorted);
     }
 
     // Fetch classes
@@ -604,8 +609,12 @@ export default function Profile() {
                 </SelectTrigger>
                 <SelectContent>
                   {universities.map((uni) => (
-                    <SelectItem key={uni.id} value={uni.id}>
-                      {uni.name}
+                    <SelectItem
+                      key={uni.id}
+                      value={uni.id}
+                      className={uni.name === "Howard University" ? "font-semibold text-primary" : ""}
+                    >
+                      {uni.name === "Howard University" ? `⭐ ${uni.name}` : uni.name}
                     </SelectItem>
                   ))}
                 </SelectContent>

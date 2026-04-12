@@ -5,14 +5,69 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
 import agentBIcon from "@/assets/AgentBIconHeader.png";
 import { checkLeakedPassword } from "@/lib/checkLeakedPassword";
 
+const HOWARD_NAME = "Howard University";
 
 type AuthView = "login" | "signup" | "forgot";
+
+function TermsAndConditionsDialog() {
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <button type="button" className="text-primary hover:underline font-medium">
+          Terms &amp; Conditions
+        </button>
+      </DialogTrigger>
+      <DialogContent className="max-w-lg max-h-[80vh]">
+        <DialogHeader>
+          <DialogTitle>Terms &amp; Conditions</DialogTitle>
+        </DialogHeader>
+        <ScrollArea className="h-[60vh] pr-4">
+          <div className="space-y-4 text-sm text-muted-foreground">
+            <h3 className="text-foreground font-semibold">1. Acceptance of Terms</h3>
+            <p>By creating an account, you agree to these Terms &amp; Conditions and our Privacy Policy. If you do not agree, you may not use AgentB.</p>
+
+            <h3 className="text-foreground font-semibold">2. Privacy &amp; Compliance</h3>
+            <p>We are committed to protecting your privacy. Your personal data — including name, email, university affiliation, learning styles, and academic content — is stored securely and used solely to provide and improve the AgentB learning experience.</p>
+            <ul className="list-disc ml-5 space-y-1">
+              <li>Data is encrypted in transit and at rest.</li>
+              <li>We comply with FERPA guidelines regarding student educational records.</li>
+              <li>Your data is never sold to third parties.</li>
+              <li>You may request deletion of your account and all associated data at any time from your Profile settings.</li>
+            </ul>
+
+            <h3 className="text-foreground font-semibold">3. Data Tracking Transparency</h3>
+            <p>To personalize your learning experience, AgentB collects and processes the following types of data:</p>
+            <ul className="list-disc ml-5 space-y-1">
+              <li><strong>Learning activity:</strong> Quiz scores, practice history, study module progress, and time spent on topics.</li>
+              <li><strong>Usage analytics:</strong> Page visits, feature usage frequency, and session duration to improve platform performance.</li>
+              <li><strong>Content interactions:</strong> Syllabus uploads, assignment submissions, and flashcard engagement.</li>
+              <li><strong>AI interactions:</strong> Chat messages with AgentB to provide contextual academic support (not shared externally).</li>
+            </ul>
+            <p>You can review and manage your data consent preferences at any time in your Privacy Settings within your Profile.</p>
+
+            <h3 className="text-foreground font-semibold">4. Appropriate Use</h3>
+            <p>You agree to use AgentB for legitimate educational purposes only. You will not attempt to misuse AI-generated content for academic dishonesty or share your account credentials with others.</p>
+
+            <h3 className="text-foreground font-semibold">5. Content Ownership</h3>
+            <p>You retain ownership of all content you upload (syllabi, assignments, notes). AgentB processes this content to provide personalized learning features but does not claim ownership.</p>
+
+            <h3 className="text-foreground font-semibold">6. Changes to Terms</h3>
+            <p>We may update these terms periodically. Continued use of AgentB after changes constitutes acceptance of the updated terms. Material changes will be communicated via email or in-app notification.</p>
+          </div>
+        </ScrollArea>
+      </DialogContent>
+    </Dialog>
+  );
+}
 
 export default function Auth() {
   const [isLoading, setIsLoading] = useState(false);
@@ -22,11 +77,11 @@ export default function Auth() {
   const [fullName, setFullName] = useState("");
   const [universityId, setUniversityId] = useState("");
   const [universities, setUniversities] = useState<{ id: string; name: string }[]>([]);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
   useEffect(() => {
-    // Check if user is already logged in
     const checkUser = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
@@ -35,7 +90,6 @@ export default function Auth() {
     };
     checkUser();
 
-    // Fetch universities
     const fetchUniversities = async () => {
       const { data, error } = await supabase
         .from("universities")
@@ -44,8 +98,14 @@ export default function Auth() {
       
       if (error) {
         console.error("Error fetching universities:", error);
-      } else {
-        setUniversities(data || []);
+      } else if (data) {
+        // Sort Howard University to the top
+        const sorted = [...data].sort((a, b) => {
+          if (a.name === HOWARD_NAME) return -1;
+          if (b.name === HOWARD_NAME) return 1;
+          return a.name.localeCompare(b.name);
+        });
+        setUniversities(sorted);
       }
     };
     fetchUniversities();
@@ -85,6 +145,16 @@ export default function Auth() {
           toast({
             title: "Missing information",
             description: "Please fill in all fields",
+            variant: "destructive",
+          });
+          setIsLoading(false);
+          return;
+        }
+
+        if (!acceptedTerms) {
+          toast({
+            title: "Terms required",
+            description: "You must agree to the Terms & Conditions to create an account.",
             variant: "destructive",
           });
           setIsLoading(false);
@@ -248,8 +318,12 @@ export default function Auth() {
                       </SelectTrigger>
                       <SelectContent>
                         {universities.map((uni) => (
-                          <SelectItem key={uni.id} value={uni.id}>
-                            {uni.name}
+                          <SelectItem
+                            key={uni.id}
+                            value={uni.id}
+                            className={uni.name === HOWARD_NAME ? "font-semibold text-primary" : ""}
+                          >
+                            {uni.name === HOWARD_NAME ? `⭐ ${uni.name}` : uni.name}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -292,10 +366,24 @@ export default function Auth() {
                 />
               </div>
 
+              {view === "signup" && (
+                <div className="flex items-start space-x-2">
+                  <Checkbox
+                    id="terms"
+                    checked={acceptedTerms}
+                    onCheckedChange={(checked) => setAcceptedTerms(checked === true)}
+                    className="mt-0.5"
+                  />
+                  <label htmlFor="terms" className="text-sm text-muted-foreground leading-tight">
+                    I agree to the <TermsAndConditionsDialog /> including Privacy &amp; Compliance policies and data tracking practices.
+                  </label>
+                </div>
+              )}
+
               <Button
                 type="submit"
                 className="w-full bg-[image:var(--gradient-primary)] hover:opacity-90"
-                disabled={isLoading}
+                disabled={isLoading || (view === "signup" && !acceptedTerms)}
               >
                 {isLoading ? (
                   <>
@@ -312,7 +400,7 @@ export default function Auth() {
 
             <div className="mt-6 text-center">
               <button
-                onClick={() => setView(view === "signup" ? "login" : "signup")}
+                onClick={() => { setView(view === "signup" ? "login" : "signup"); setAcceptedTerms(false); }}
                 className="text-primary hover:underline"
               >
                 {view === "signup"
