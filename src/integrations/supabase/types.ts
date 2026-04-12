@@ -284,6 +284,39 @@ export type Database = {
         }
         Relationships: []
       }
+      content_feedback: {
+        Row: {
+          content_id: string
+          created_at: string
+          feedback_text: string | null
+          feedback_type: string
+          id: string
+          rating: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content_id: string
+          created_at?: string
+          feedback_text?: string | null
+          feedback_type?: string
+          id?: string
+          rating: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content_id?: string
+          created_at?: string
+          feedback_text?: string | null
+          feedback_type?: string
+          id?: string
+          rating?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       content_reviews: {
         Row: {
           accuracy_score: number | null
@@ -1529,6 +1562,16 @@ export type Database = {
       backfill_daily_metrics: {
         Args: { p_class_name?: string; p_user_id: string }
         Returns: number
+      }
+      get_low_rated_content: {
+        Args: { p_threshold?: number; p_user_id: string }
+        Returns: {
+          avg_rating: number
+          class_name: string
+          content_id: string
+          feedback_count: number
+          topic: string
+        }[]
       }
     }
     Enums: {
