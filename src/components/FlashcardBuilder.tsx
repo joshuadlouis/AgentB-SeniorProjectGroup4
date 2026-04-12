@@ -257,7 +257,7 @@ export function FlashcardBuilder({ className }: Props) {
       ) : (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <Button variant="ghost" size="sm" onClick={() => { setActiveDeckId(null); setCards([]); }}>
+            <Button variant="ghost" size="sm" onClick={() => { setActiveDeckId(null); }}>
               ← Back to Decks
             </Button>
             <div className="flex gap-2">
