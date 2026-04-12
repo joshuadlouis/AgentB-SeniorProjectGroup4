@@ -9,7 +9,8 @@ type AuditAction =
   | "ai_quiz_generate"
   | "consent_granted"
   | "consent_revoked"
-  | "account_delete";
+  | "account_delete"
+  | "absence_doc_submitted";
 
 export const useAuditLog = () => {
   const log = useCallback(
