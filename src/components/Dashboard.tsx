@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { Card } from "@/components/ui/card";
-import { DiningLocations } from "./DiningLocations";
+
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { 
@@ -48,7 +48,7 @@ export const Dashboard = ({ learningStyles, onOpenChat, onRetakeQuiz }: Dashboar
   const { toast } = useToast();
   const [syllabusRefreshTrigger, setSyllabusRefreshTrigger] = useState(0);
   const [isReadAloudActive, setIsReadAloudActive] = useState(false);
-  const [diningOpen, setDiningOpen] = useState(false);
+  
   const mainContentRef = useRef<HTMLElement>(null);
 
   const { profile, saveProfile } = useProfile();
@@ -256,7 +256,7 @@ export const Dashboard = ({ learningStyles, onOpenChat, onRetakeQuiz }: Dashboar
             <p className="text-sm text-muted-foreground mb-4">
               Menus, hours, and dining hall locations
             </p>
-            <Button variant="outline" className="w-full" onClick={() => setDiningOpen(true)}>
+            <Button variant="outline" className="w-full" onClick={() => navigate("/dining")}>
               See Menus
             </Button>
           </Card>
@@ -299,7 +299,6 @@ export const Dashboard = ({ learningStyles, onOpenChat, onRetakeQuiz }: Dashboar
         </Card>
       </main>
 
-      <DiningLocations open={diningOpen} onOpenChange={setDiningOpen} />
     </div>
   );
 };
