@@ -19,6 +19,7 @@ import NotificationsPage from "./pages/NotificationsPage";
 import AnalyticsPage from "./pages/AnalyticsPage";
 import CampusMapPage from "./pages/CampusMapPage";
 import SafetyResourcesPage from "./pages/SafetyResourcesPage";
+import DiningPage from "./pages/DiningPage";
 import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
 
@@ -45,6 +46,7 @@ const App = () => (
               <Route path="/transit" element={<RequireAuth><TransitPage /></RequireAuth>} />
               <Route path="/notifications" element={<RequireAuth><NotificationsPage /></RequireAuth>} />
               <Route path="/campus-map" element={<RequireAuth><CampusMapPage /></RequireAuth>} />
+              <Route path="/dining" element={<RequireAuth><DiningPage /></RequireAuth>} />
               <Route path="/safety-resources" element={<SafetyResourcesPage />} />
               <Route path="/analytics" element={<RequireAuth><AnalyticsPage /></RequireAuth>} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

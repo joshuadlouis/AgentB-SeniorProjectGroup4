@@ -256,7 +256,7 @@ export const Dashboard = ({ learningStyles, onOpenChat, onRetakeQuiz }: Dashboar
             <p className="text-sm text-muted-foreground mb-4">
               Menus, hours, and dining hall locations
             </p>
-            <Button variant="outline" className="w-full" onClick={() => setDiningOpen(true)}>
+            <Button variant="outline" className="w-full" onClick={() => navigate("/dining")}>
               See Menus
             </Button>
           </Card>
@@ -299,7 +299,6 @@ export const Dashboard = ({ learningStyles, onOpenChat, onRetakeQuiz }: Dashboar
         </Card>
       </main>
 
-      <DiningLocations open={diningOpen} onOpenChange={setDiningOpen} />
     </div>
   );
 };
