@@ -600,6 +600,13 @@ export default function Profile() {
 
             <div className="space-y-2">
               <Label htmlFor="university">University</Label>
+              {profile.university_id && (
+                <div className="flex items-center gap-2 p-3 rounded-lg border border-border bg-muted/30">
+                  <Badge variant="outline" className="text-sm font-medium">
+                    {universities.find(u => u.id === profile.university_id)?.name || "Loading..."}
+                  </Badge>
+                </div>
+              )}
               <Select
                 value={profile.university_id || ""}
                 onValueChange={(value) => updateProfile({ university_id: value })}
