@@ -203,13 +203,16 @@ const CoursePage = () => {
   };
 
   const handleDeleteEvent = async (eventId: string) => {
+    // Optimistically remove from UI
+    setEvents((prev) => prev.filter((e) => e.id !== eventId));
+
     const { error } = await supabase.from("calendar_events").delete().eq("id", eventId);
     if (error) {
+      fetchEvents(); // revert
       toast({ title: "Error", description: "Failed to delete event", variant: "destructive" });
       return;
     }
     toast({ title: "Event deleted" });
-    fetchEvents();
   };
 
   const startEdit = (event: CalendarEvent) => {

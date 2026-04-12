@@ -80,6 +80,29 @@ export const PlacementQuiz = ({ learningStyles, onQuizComplete, refreshTrigger, 
     }
   };
 
+  // Cache key for sessionStorage
+  const cacheKey = `quiz_cache_${className || "global"}`;
+
+  // Try to load cached quiz on mount
+  useEffect(() => {
+    if (isCourseScoped && questions.length === 0) {
+      try {
+        const cached = sessionStorage.getItem(cacheKey);
+        if (cached) {
+          const { questions: cachedQ, timestamp } = JSON.parse(cached);
+          const oneDayMs = 24 * 60 * 60 * 1000;
+          if (Date.now() - timestamp < oneDayMs && cachedQ?.length > 0) {
+            setQuestions(cachedQ);
+            setSelectedClass(className!);
+            return;
+          } else {
+            sessionStorage.removeItem(cacheKey);
+          }
+        }
+      } catch { /* ignore parse errors */ }
+    }
+  }, [isCourseScoped, className]);
+
   // Auto-generate quiz when on a course-scoped page and syllabus exists
   useEffect(() => {
     if (isCourseScoped && !autoGenTriggered && syllabi.length > 0 && !completedClasses.includes(className!) && !isGenerating) {
@@ -140,6 +163,10 @@ export const PlacementQuiz = ({ learningStyles, onQuizComplete, refreshTrigger, 
       
       if (data.questions && Array.isArray(data.questions)) {
         setQuestions(data.questions);
+        // Cache the quiz for 1 day
+        try {
+          sessionStorage.setItem(cacheKey, JSON.stringify({ questions: data.questions, timestamp: Date.now() }));
+        } catch { /* storage full — ignore */ }
         toast({
           title: "Quiz Generated",
           description: `${data.questions.length} questions ready for ${quizClass}!`,
