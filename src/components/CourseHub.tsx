@@ -190,6 +190,20 @@ export const CourseHub = ({ refreshTrigger = 0, learningStyleSection, syllabusSe
         )}
       </div>
 
+      {/* Learning Style Section */}
+      {learningStyleSection && (
+        <div className="mb-6 pb-6 border-b border-border">
+          {learningStyleSection}
+        </div>
+      )}
+
+      {/* Syllabus Section */}
+      {syllabusSection && (
+        <div className="mb-6 pb-6 border-b border-border">
+          {syllabusSection}
+        </div>
+      )}
+
       {/* Active Courses */}
       <div className="space-y-3 mb-6">
         <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
@@ -320,6 +334,13 @@ export const CourseHub = ({ refreshTrigger = 0, learningStyleSection, syllabusSe
               </div>
             ))}
           </div>
+        </div>
+      )}
+
+      {/* Learning Velocity Section */}
+      {velocitySection && (
+        <div className="pt-6 border-t border-border">
+          {velocitySection}
         </div>
       )}
 
