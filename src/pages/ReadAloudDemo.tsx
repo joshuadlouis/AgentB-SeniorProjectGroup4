@@ -92,22 +92,26 @@ export default function ReadAloudDemo() {
 
     if (ext === "docx") {
       toast({ title: "Processing DOCX...", description: "Extracting text content" });
-      const arrayBuffer = await file.arrayBuffer();
-      // DOCX is a zip — extract document.xml text
       try {
-        const { default: JSZip } = await import("jszip" as any).catch(() => ({ default: null }));
-        if (JSZip) {
-          const zip = await JSZip.loadAsync(arrayBuffer);
-          const docXml = await zip.file("word/document.xml")?.async("string");
-          if (docXml) {
-            // Strip XML tags
-            return docXml.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
-          }
+        const arrayBuffer = await file.arrayBuffer();
+        // DOCX files are ZIP archives — use browser Blob + Response to read entries
+        const blob = new Blob([arrayBuffer], { type: "application/zip" });
+        const response = new Response(blob);
+        const text = await response.text();
+        // Look for XML text content between <w:t> tags
+        const matches = text.match(/<w:t[^>]*>([^<]+)<\/w:t>/g);
+        if (matches && matches.length > 0) {
+          const extracted = matches
+            .map(m => m.replace(/<[^>]+>/g, ""))
+            .join(" ")
+            .replace(/\s+/g, " ")
+            .trim();
+          if (extracted.length > 10) return extracted;
         }
       } catch {
-        // Fallback: basic text extraction
+        // Fallback
       }
-      toast({ title: "DOCX Note", description: "For best results, copy-paste the text directly.", variant: "default" });
+      toast({ title: "DOCX Note", description: "For best results with complex .docx files, copy-paste the text directly.", variant: "default" });
       return "";
     }
 
