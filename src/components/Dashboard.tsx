@@ -81,9 +81,7 @@ export const Dashboard = ({ learningStyles, onOpenChat, onRetakeQuiz }: Dashboar
               onClick={() => navigate("/")}
               className="flex items-center gap-3 hover:opacity-80 transition-[var(--transition-smooth)]"
             >
-              <div className="w-10 h-10 rounded-xl bg-[image:var(--gradient-primary)] flex items-center justify-center">
-                <span className="text-white font-bold text-xl">A</span>
-              </div>
+              <img src={agentBHeader} alt="AgentB" className="w-10 h-10 rounded-xl object-cover" />
               <h1 className="text-2xl font-bold text-foreground">AgentB</h1>
             </button>
             <div className="flex items-center gap-3">
