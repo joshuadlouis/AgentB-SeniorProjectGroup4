@@ -196,6 +196,15 @@ export const Dashboard = ({ learningStyles, onOpenChat, onRetakeQuiz }: Dashboar
           <p className="text-muted-foreground">Your personalized learning dashboard is ready.</p>
         </div>
 
+        {/* Site Tutorial Guide */}
+        {showTutorial && (
+          <SiteTutorialGuide
+            onDismiss={handleDismissTutorial}
+            onOpenChat={onOpenChat}
+            onNavigate={(path) => navigate(path)}
+          />
+        )}
+
         {/* Test Reminders — first widget */}
         <TestReminders />
 
