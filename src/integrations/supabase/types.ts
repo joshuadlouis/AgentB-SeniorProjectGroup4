@@ -14,6 +14,60 @@ export type Database = {
   }
   public: {
     Tables: {
+      absence_requests: {
+        Row: {
+          absence_date: string
+          class_name: string
+          created_at: string
+          explanation_text: string | null
+          file_name: string | null
+          file_path: string | null
+          file_size: number | null
+          id: string
+          make_up_details: Json | null
+          notification_draft: string | null
+          professor_email: string | null
+          reason: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          absence_date: string
+          class_name: string
+          created_at?: string
+          explanation_text?: string | null
+          file_name?: string | null
+          file_path?: string | null
+          file_size?: number | null
+          id?: string
+          make_up_details?: Json | null
+          notification_draft?: string | null
+          professor_email?: string | null
+          reason?: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          absence_date?: string
+          class_name?: string
+          created_at?: string
+          explanation_text?: string | null
+          file_name?: string | null
+          file_path?: string | null
+          file_size?: number | null
+          id?: string
+          make_up_details?: Json | null
+          notification_draft?: string | null
+          professor_email?: string | null
+          reason?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       assignment_examples: {
         Row: {
           annotations: Json
