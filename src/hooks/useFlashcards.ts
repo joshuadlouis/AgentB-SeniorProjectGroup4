@@ -101,7 +101,7 @@ export function useFlashcards(className: string) {
     setActiveDeckId(deckId);
   }, []);
 
-  useEffect(() => { fetchDecks(); }, [fetchDecks]);
+  useEffect(() => { fetchDecks(); fetchCommunityDecks(); }, [fetchDecks, fetchCommunityDecks]);
 
   const createDeck = async (title: string, description?: string) => {
     const { data: { session } } = await supabase.auth.getSession();
