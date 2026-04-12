@@ -174,40 +174,42 @@ export const Dashboard = ({ learningStyles, onOpenChat, onRetakeQuiz }: Dashboar
         {/* Today's Classes — third widget */}
         <DailySchedule />
 
-        {/* Syllabus Upload */}
-        <SyllabusUpload onUploadComplete={() => setSyllabusRefreshTrigger((prev) => prev + 1)} />
-
-        {/* Course Hub */}
-        <CourseHub refreshTrigger={syllabusRefreshTrigger} />
-
-        {/* Learning Velocity — below Course Hub */}
-        <LearningVelocityDashboard />
-
-        {/* Learning Styles — below Course Hub */}
-        <Card className="p-6 shadow-[var(--shadow-medium)] border-border">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xl font-semibold text-foreground">Your Learning Style</h3>
-            <Button variant="outline" size="sm" onClick={onRetakeQuiz}>
-              Retake Quiz
-            </Button>
-          </div>
-          <div className="grid gap-4 md:grid-cols-3">
-            {learningStyles.map((style) => (
-              <div
-                key={style}
-                className="p-4 rounded-xl bg-gradient-to-br from-primary/5 to-secondary/5 border border-border"
-              >
-                <div className="flex items-center gap-3 mb-2">
-                  <span className="text-3xl">{styleIcons[style]}</span>
-                  <Badge variant="secondary" className="capitalize">
-                    {style}
-                  </Badge>
-                </div>
-                <p className="text-sm text-muted-foreground">{styleDescriptions[style]}</p>
+        {/* Course Hub — contains Learning Style, Syllabi, Courses, and Velocity */}
+        <CourseHub
+          refreshTrigger={syllabusRefreshTrigger}
+          learningStyleSection={
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+                  Your Learning Style
+                </h4>
+                <Button variant="outline" size="sm" onClick={onRetakeQuiz}>
+                  Retake Quiz
+                </Button>
               </div>
-            ))}
-          </div>
-        </Card>
+              <div className="grid gap-4 md:grid-cols-3">
+                {learningStyles.map((style) => (
+                  <div
+                    key={style}
+                    className="p-4 rounded-xl bg-gradient-to-br from-primary/5 to-secondary/5 border border-border"
+                  >
+                    <div className="flex items-center gap-3 mb-2">
+                      <span className="text-3xl">{styleIcons[style]}</span>
+                      <Badge variant="secondary" className="capitalize">
+                        {style}
+                      </Badge>
+                    </div>
+                    <p className="text-sm text-muted-foreground">{styleDescriptions[style]}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          }
+          syllabusSection={
+            <SyllabusUpload onUploadComplete={() => setSyllabusRefreshTrigger((prev) => prev + 1)} />
+          }
+          velocitySection={<LearningVelocityDashboard />}
+        />
 
         {/* Main Content Grid */}
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
