@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import campusMap from "@/assets/Campus_Map.png";
 
 const CampusMapPage = () => {
   const navigate = useNavigate();
@@ -15,11 +16,11 @@ const CampusMapPage = () => {
           <h1 className="text-xl font-bold text-foreground">Campus Map</h1>
         </div>
       </header>
-      <main className="flex-1">
-        <iframe
-          src="/Campus_Map.pdf"
-          title="Campus Map"
-          className="w-full h-[calc(100vh-73px)] border-0"
+      <main className="flex-1 container mx-auto px-4 py-6">
+        <img
+          src={campusMap}
+          alt="Howard University Main Campus Map"
+          className="w-full h-auto rounded-lg border border-border shadow-md"
         />
       </main>
     </div>
