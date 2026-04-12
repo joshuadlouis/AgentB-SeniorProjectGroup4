@@ -373,15 +373,16 @@ export const SyllabusUpload = ({ onUploadComplete, embedded = false }: SyllabusU
           </div>
         ) : (
           syllabi.map((syllabus) => (
-            <div key={syllabus.id} className="space-y-0">
+            <Collapsible key={syllabus.id}>
               <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50 border border-border">
-                <div className="flex items-center gap-3 min-w-0">
+                <CollapsibleTrigger className="flex items-center gap-3 min-w-0 group flex-1 text-left">
+                  <ChevronDown className="w-4 h-4 text-muted-foreground flex-shrink-0 transition-transform group-data-[state=open]:rotate-180" />
                   <FileText className="w-5 h-5 text-primary flex-shrink-0" />
                   <div className="min-w-0">
                     <p className="font-medium text-foreground truncate">{syllabus.class_name}</p>
                     <p className="text-xs text-muted-foreground truncate">{syllabus.file_name}</p>
                   </div>
-                </div>
+                </CollapsibleTrigger>
                 <div className="flex items-center gap-2 flex-shrink-0">
                   <Badge variant="secondary" className="text-xs">
                     {formatFileSize(syllabus.file_size)}
@@ -415,21 +416,25 @@ export const SyllabusUpload = ({ onUploadComplete, embedded = false }: SyllabusU
                   </Button>
                 </div>
               </div>
-              {syllabus.parsed_at && (
-                <SyllabusOutline
-                  syllabusId={syllabus.id}
-                  className={syllabus.class_name}
-                  filePath={syllabus.file_path}
-                  parsedAt={syllabus.parsed_at}
-                  courseDescription={syllabus.course_description}
-                  learningObjectives={syllabus.learning_objectives}
-                  weeklySchedule={syllabus.weekly_schedule}
-                  gradingPolicy={syllabus.grading_policy}
-                  requiredMaterials={syllabus.required_materials}
-                  onParseComplete={fetchSyllabi}
-                />
-              )}
-            </div>
+              <CollapsibleContent>
+                {syllabus.parsed_at && (
+                  <div className="ml-6 mt-1 border-l-2 border-border pl-4">
+                    <SyllabusOutline
+                      syllabusId={syllabus.id}
+                      className={syllabus.class_name}
+                      filePath={syllabus.file_path}
+                      parsedAt={syllabus.parsed_at}
+                      courseDescription={syllabus.course_description}
+                      learningObjectives={syllabus.learning_objectives}
+                      weeklySchedule={syllabus.weekly_schedule}
+                      gradingPolicy={syllabus.grading_policy}
+                      requiredMaterials={syllabus.required_materials}
+                      onParseComplete={fetchSyllabi}
+                    />
+                  </div>
+                )}
+              </CollapsibleContent>
+            </Collapsible>
           ))
         )}
       </div>
