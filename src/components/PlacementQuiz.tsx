@@ -132,7 +132,8 @@ export const PlacementQuiz = ({ learningStyles, onQuizComplete, refreshTrigger, 
       );
 
       if (!response.ok) {
-        throw new Error("Failed to generate quiz");
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.error || "Failed to generate quiz");
       }
 
       const data = await response.json();
