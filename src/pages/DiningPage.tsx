@@ -95,7 +95,7 @@ function LocationsTab() {
               <div className="flex flex-col sm:flex-row">
                 {loc.imageUrl && (
                   <div className="sm:w-40 sm:min-h-[140px] flex-shrink-0">
-                    <img src={loc.imageUrl} alt={loc.name} className="w-full h-36 sm:h-full object-cover" loading="lazy" referrerPolicy="no-referrer" />
+                    <img src={DINING_IMAGES[loc.urlKey] || loc.imageUrl} alt={loc.name} className="w-full h-36 sm:h-full object-cover" loading="lazy" />
                   </div>
                 )}
                 <div className="p-4 flex-1 space-y-2">
