@@ -16,6 +16,7 @@ import { CourseHub } from "./CourseHub";
 import { TestReminders } from "./TestReminders";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import agentBHeader from "@/assets/AgentBIconHeader.png";
 import { useToast } from "@/hooks/use-toast";
 import { useProfile } from "@/hooks/useProfile";
 
