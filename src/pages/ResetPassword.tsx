@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, CheckCircle2 } from "lucide-react";
+import { checkLeakedPassword } from "@/lib/checkLeakedPassword";
 
 export default function ResetPassword() {
   const [password, setPassword] = useState("");
@@ -58,6 +59,17 @@ export default function ResetPassword() {
 
     setIsLoading(true);
     try {
+      const isLeaked = await checkLeakedPassword(password);
+      if (isLeaked) {
+        toast({
+          title: "Compromised password",
+          description: "This password has appeared in a data breach. Please choose a different one.",
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
+      }
+
       const { error } = await supabase.auth.updateUser({ password });
       if (error) throw error;
 
