@@ -16,6 +16,7 @@ import { MathText } from "@/components/MathText";
 import { LessonRenderer } from "@/components/LessonRenderer";
 import { ContentReview } from "@/components/ContentReview";
 import { BiasAudit } from "@/components/BiasAudit";
+import { ContentFeedbackWidget } from "@/components/ContentFeedbackWidget";
 
 interface CourseChapter {
   id: string;
@@ -502,6 +503,9 @@ function ChapterContent({
             </Button>
           </div>
         </div>
+
+        {/* Content Feedback */}
+        <ContentFeedbackWidget contentId={chapter.id} topic={chapter.topic} />
       </TabsContent>
 
       {/* Quiz */}

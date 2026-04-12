@@ -26,6 +26,7 @@ import { InteractiveExercise } from "@/components/InteractiveExercise";
 import { PracticeHistory } from "@/components/PracticeHistory";
 import { AssignmentUpload } from "@/components/AssignmentUpload";
 import { WritingFeedback } from "@/components/WritingFeedback";
+import { InstructionalAlignment } from "@/components/InstructionalAlignment";
 
 import { CourseTextbooks } from "@/components/CourseTextbooks";
 import { BloomTaxonomy } from "@/components/BloomTaxonomy";
@@ -553,6 +554,9 @@ const CoursePage = () => {
 
         {/* Weekly Performance Report */}
         <WeeklyPerformanceReport className={decodedClassName} />
+
+        {/* Instructional Alignment Check (10.5) */}
+        <InstructionalAlignment className={decodedClassName} />
 
         {/* Bloom's Taxonomy Analysis */}
         <BloomTaxonomy className={decodedClassName} />
