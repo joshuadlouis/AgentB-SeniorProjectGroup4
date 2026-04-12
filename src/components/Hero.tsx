@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight } from "lucide-react";
+import agentBIcon from "@/assets/AgentBIcon.png";
 
 interface HeroProps {
   onGetStarted: () => void;
@@ -20,8 +21,8 @@ export const Hero = ({ onGetStarted }: HeroProps) => {
 
       {/* Content */}
       <div className="relative z-10 max-w-5xl mx-auto text-center space-y-8">
+        <img src={agentBIcon} alt="AgentB mascot" className="w-20 h-20 mx-auto" />
         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-card/80 backdrop-blur-sm shadow-[var(--shadow-soft)] border border-border">
-          <Sparkles className="w-4 h-4 text-accent" />
           <span className="text-sm font-medium text-foreground">Your Personalized Learning Companion</span>
         </div>
 
