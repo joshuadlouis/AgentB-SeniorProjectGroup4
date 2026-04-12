@@ -7,6 +7,7 @@ export interface FlashcardDeck {
   class_name: string;
   title: string;
   description: string | null;
+  subject: string | null;
   card_count: number;
   created_at: string;
   is_public: boolean;
