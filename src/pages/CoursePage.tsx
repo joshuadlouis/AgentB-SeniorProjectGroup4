@@ -44,7 +44,7 @@ import { MicrolearningScheduler } from "@/components/MicrolearningScheduler";
 import { PredictiveCoaching } from "@/components/PredictiveCoaching";
 import { PrerequisiteDiagnostic } from "@/components/PrerequisiteDiagnostic";
 import { OutlineBuilder } from "@/components/OutlineBuilder";
-import { AbsenceDocUpload } from "@/components/AbsenceDocUpload";
+
 import { FlashcardBuilder } from "@/components/FlashcardBuilder";
 import { format, differenceInDays, isPast, isToday } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -586,8 +586,6 @@ const CoursePage = () => {
         {/* Flashcard Builder */}
         <FlashcardBuilder className={decodedClassName} />
 
-        {/* Absence Documentation */}
-        <AbsenceDocUpload className={decodedClassName} />
 
         {/* Practice History */}
         <PracticeHistory className={decodedClassName} />
