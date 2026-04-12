@@ -27,9 +27,10 @@ interface Syllabus {
 
 interface SyllabusUploadProps {
   onUploadComplete?: () => void;
+  embedded?: boolean;
 }
 
-export const SyllabusUpload = ({ onUploadComplete }: SyllabusUploadProps) => {
+export const SyllabusUpload = ({ onUploadComplete, embedded = false }: SyllabusUploadProps) => {
   const [syllabi, setSyllabi] = useState<Syllabus[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [className, setClassName] = useState("");
@@ -300,13 +301,16 @@ export const SyllabusUpload = ({ onUploadComplete }: SyllabusUploadProps) => {
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   };
 
+  const Wrapper = embedded ? "div" : Card;
+  const wrapperProps = embedded ? {} : { className: "p-6 shadow-[var(--shadow-soft)] border-border" };
+
   return (
-    <Card className="p-6 shadow-[var(--shadow-soft)] border-border">
+    <Wrapper {...wrapperProps as any}>
       <div className="flex items-center gap-3 mb-6">
         <div className="p-2 rounded-lg bg-primary/10">
           <FileText className="w-6 h-6 text-primary" />
         </div>
-        <h3 className="text-lg font-semibold text-foreground">Class Syllabi</h3>
+        <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Class Syllabi</h4>
       </div>
 
       {/* Upload Form */}
@@ -428,6 +432,6 @@ export const SyllabusUpload = ({ onUploadComplete }: SyllabusUploadProps) => {
           ))
         )}
       </div>
-    </Card>
+    </Wrapper>
   );
 };

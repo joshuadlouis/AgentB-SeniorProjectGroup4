@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, ReactNode } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -27,9 +27,12 @@ const MAX_ACTIVE_COURSES = 3;
 
 interface CourseHubProps {
   refreshTrigger?: number;
+  learningStyleSection?: ReactNode;
+  syllabusSection?: ReactNode;
+  velocitySection?: ReactNode;
 }
 
-export const CourseHub = ({ refreshTrigger = 0 }: CourseHubProps) => {
+export const CourseHub = ({ refreshTrigger = 0, learningStyleSection, syllabusSection, velocitySection }: CourseHubProps) => {
   const [classes, setClasses] = useState<UserClass[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleteTarget, setDeleteTarget] = useState<UserClass | null>(null);
@@ -187,6 +190,20 @@ export const CourseHub = ({ refreshTrigger = 0 }: CourseHubProps) => {
         )}
       </div>
 
+      {/* Learning Style Section */}
+      {learningStyleSection && (
+        <div className="mb-6 pb-6 border-b border-border">
+          {learningStyleSection}
+        </div>
+      )}
+
+      {/* Syllabus Section */}
+      {syllabusSection && (
+        <div className="mb-6 pb-6 border-b border-border">
+          {syllabusSection}
+        </div>
+      )}
+
       {/* Active Courses */}
       <div className="space-y-3 mb-6">
         <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
@@ -317,6 +334,13 @@ export const CourseHub = ({ refreshTrigger = 0 }: CourseHubProps) => {
               </div>
             ))}
           </div>
+        </div>
+      )}
+
+      {/* Learning Velocity Section */}
+      {velocitySection && (
+        <div className="pt-6 border-t border-border">
+          {velocitySection}
         </div>
       )}
 
