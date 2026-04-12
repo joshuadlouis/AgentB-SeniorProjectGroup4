@@ -108,6 +108,23 @@ ALGORITHMIC FAIRNESS DIRECTIVES (MANDATORY):
 - If generating scenarios, rotate cultural contexts and avoid Western-centric defaults
 - Mathematical and scientific content must use universal notation standards`;
 
+    // Helper: build a proper error response for AI gateway failures
+    const gatewayErrorResponse = (response: Response, fallbackMsg: string) => {
+      if (response.status === 402) {
+        return new Response(JSON.stringify({ error: "AI credits exhausted. Please add more credits to your Lovable account to continue." }), {
+          status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      if (response.status === 429) {
+        return new Response(JSON.stringify({ error: "Rate limit exceeded. Please try again in a moment." }), {
+          status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      return new Response(JSON.stringify({ error: fallbackMsg }), {
+        status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    };
+
     let systemPrompt = "";
     let useToolCalling = false;
     let toolConfig = null;
