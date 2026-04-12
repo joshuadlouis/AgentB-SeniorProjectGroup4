@@ -70,7 +70,7 @@ const TrendArrow = ({ value, suffix = "%" }: { value: number; suffix?: string })
   );
 };
 
-export const LearningVelocityDashboard = () => {
+export const LearningVelocityDashboard = ({ embedded = false }: { embedded?: boolean }) => {
   const { data, loading, loadVelocity, triggerMonitor } = useLearningVelocity();
   const navigate = useNavigate();
 
@@ -93,17 +93,20 @@ export const LearningVelocityDashboard = () => {
   };
 
   if (loading) {
+    const LoadWrapper = embedded ? "div" : Card;
     return (
-      <Card className="p-6 border-border">
+      <LoadWrapper className={embedded ? "" : "p-6 border-border"}>
         <div className="flex items-center justify-center py-12">
           <Loader2 className="w-6 h-6 animate-spin text-primary" />
         </div>
-      </Card>
+      </LoadWrapper>
     );
   }
 
+  const Wrapper = embedded ? "div" : Card;
+
   return (
-    <Card className="p-6 border-border space-y-5">
+    <Wrapper className={embedded ? "space-y-5" : "p-6 border-border space-y-5"}>
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
@@ -345,6 +348,6 @@ export const LearningVelocityDashboard = () => {
           View Alerts <ArrowRight className="w-3 h-3 ml-1" />
         </Button>
       </div>
-    </Card>
+    </Wrapper>
   );
 };
