@@ -76,11 +76,18 @@ export default function Auth() {
         if (error) throw error;
 
         if (data.user) {
-          // Update profile with university
-          await supabase
-            .from("profiles")
-            .update({ university_id: universityId })
-            .eq("id", data.user.id);
+          // Wait briefly for the profile trigger to create the row, then update
+          const updateProfile = async (retries = 3) => {
+            for (let i = 0; i < retries; i++) {
+              const { error: updateError } = await supabase
+                .from("profiles")
+                .update({ university_id: universityId })
+                .eq("id", data.user!.id);
+              if (!updateError) return;
+              await new Promise(r => setTimeout(r, 500 * (i + 1)));
+            }
+          };
+          await updateProfile();
 
           toast({
             title: "Account created!",

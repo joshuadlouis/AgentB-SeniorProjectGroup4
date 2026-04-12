@@ -120,12 +120,6 @@ export const PracticeRenderer = ({ content, onComplete, onRegenerate }: Practice
             Generate Practice Questions
           </Button>
         )}
-        {onComplete && (
-          <Button size="sm" variant="outline" onClick={onComplete}>
-            <CheckCircle2 className="w-4 h-4 mr-1" />
-            Mark Complete Anyway
-          </Button>
-        )}
       </div>
     );
   }
