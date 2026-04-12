@@ -30,6 +30,8 @@ interface PracticeRendererProps {
 
 /** Try to parse practice questions from structured content */
 const parseQuestions = (content: string): PracticeQuestion[] => {
+  if (!content || !content.trim()) return [];
+
   // Try JSON parse first — strip markdown code fences if present
   try {
     let jsonStr = content.trim();
@@ -37,7 +39,16 @@ const parseQuestions = (content: string): PracticeQuestion[] => {
     const fenceMatch = jsonStr.match(/```(?:json)?\s*\n?([\s\S]*?)\n?\s*```/);
     if (fenceMatch) jsonStr = fenceMatch[1].trim();
     const parsed = JSON.parse(jsonStr);
-    if (Array.isArray(parsed)) return parsed;
+    if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+  } catch {}
+
+  // Try to find a JSON array embedded in text (AI sometimes adds text before/after)
+  try {
+    const arrayMatch = content.match(/\[\s*\{[\s\S]*\}\s*\]/);
+    if (arrayMatch) {
+      const parsed = JSON.parse(arrayMatch[0]);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    }
   } catch {}
 
   // Parse markdown-style questions
