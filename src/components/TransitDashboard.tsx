@@ -273,10 +273,11 @@ export const TransitDashboard = () => {
         {/* Map */}
         <TransitMap
           routes={SHUTTLE_ROUTES}
-          selectedRouteId={tab === "shuttles" ? selectedRouteId : null}
-          metroStation={tab === "public-transit" ? metroStation : null}
-          selectedMetroLine={tab === "public-transit" ? selectedMetroLine : null}
-          linePreferences={tab === "public-transit" ? linePreferences : undefined}
+          selectedRouteId={selectedRouteId}
+          metroStation={metroStation}
+          selectedMetroLine={selectedMetroLine}
+          linePreferences={linePreferences}
+          activeTab={tab as 'shuttles' | 'public-transit'}
         />
 
         {/* Tabs */}
