@@ -175,6 +175,10 @@ export function useFlashcards(className: string) {
         body: { class_name: className },
       });
       if (res.error) throw res.error;
+      if (res.data?.error) {
+        toast({ title: "No course content yet", description: "Generate your course content first using the Outline Builder above, then come back to auto-generate flashcards.", variant: "destructive" });
+        return;
+      }
       toast({ title: "Flashcards generated!", description: `Created deck with ${res.data?.count || 0} cards from your course content.` });
       await fetchDecks();
     } catch (e: any) {
