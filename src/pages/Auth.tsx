@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
 import agentBIcon from "@/assets/AgentBIconHeader.png";
+import { checkLeakedPassword } from "@/lib/checkLeakedPassword";
 
 
 type AuthView = "login" | "signup" | "forgot";
@@ -104,6 +105,17 @@ export default function Auth() {
           toast({
             title: "Weak password",
             description: "Password must contain at least one uppercase letter and one number",
+            variant: "destructive",
+          });
+          setIsLoading(false);
+          return;
+        }
+
+        const isLeaked = await checkLeakedPassword(password);
+        if (isLeaked) {
+          toast({
+            title: "Compromised password",
+            description: "This password has appeared in a data breach. Please choose a different one.",
             variant: "destructive",
           });
           setIsLoading(false);
