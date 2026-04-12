@@ -298,6 +298,8 @@ export const Dashboard = ({ learningStyles, onOpenChat, onRetakeQuiz }: Dashboar
           </div>
         </Card>
       </main>
+
+      <DiningLocations open={diningOpen} onOpenChange={setDiningOpen} />
     </div>
   );
 };
