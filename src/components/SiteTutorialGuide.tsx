@@ -14,21 +14,15 @@ import {
 import { X, ChevronRight, RotateCcw, BookOpen, ClipboardCheck, CalendarDays, MapPin, Bus, MessageCircle, ArrowLeft } from "lucide-react";
 import agentBIcon from "@/assets/AgentBIconPurple.png";
 
-/* ── Step definitions for each tutorial ─────────────── */
+/* ── Step definitions ───────────────────────────────── */
 
-export interface TutorialStep {
+interface TutorialStep {
   message: string;
-  /** data-tutorial-id value to scroll to & highlight */
   targetId?: string;
-  /** Open a collapsible section by its data-tutorial-id before highlighting */
   openCollapsible?: string;
-  /** Primary action label (default: "Got it!") */
   actionLabel?: string;
-  /** Show "Maybe Later" button */
   allowSkip?: boolean;
-  /** Navigate to a route */
   navigateTo?: string;
-  /** Open chat */
   openChat?: boolean;
 }
 
@@ -180,14 +174,19 @@ const tutorialDefs: TutorialDef[] = [
   },
 ];
 
-/* ── Highlight overlay for target elements ──────────── */
+/* ── Helpers ─────────────────────────────────────────── */
 
 const scrollToAndHighlight = (targetId: string) => {
   const el = document.querySelector(`[data-tutorial-id="${targetId}"]`);
   if (!el) return;
   el.scrollIntoView({ behavior: "smooth", block: "center" });
   el.classList.add("tutorial-highlight");
-  return () => el.classList.remove("tutorial-highlight");
+};
+
+const clearHighlights = () => {
+  document.querySelectorAll(".tutorial-highlight").forEach((el) => {
+    el.classList.remove("tutorial-highlight");
+  });
 };
 
 const openCollapsibleSection = (targetId: string) => {
@@ -205,33 +204,29 @@ export const SiteTutorialGuide = ({ onDismiss, onOpenChat, onNavigate }: SiteTut
   const [completedTutorials, setCompletedTutorials] = useState<Set<string>>(new Set());
   const [showSkipConfirm, setShowSkipConfirm] = useState(false);
   const [showCloseConfirm, setShowCloseConfirm] = useState(false);
+  const [showMaybeLaterConfirm, setShowMaybeLaterConfirm] = useState(false);
 
   const allCompleted = completedTutorials.size === tutorialDefs.length;
   const activeTutorial = tutorialDefs.find((t) => t.id === selectedTutorial);
   const currentStep = activeTutorial?.steps[stepIndex];
-  const isReviewing = activeTutorial ? completedTutorials.has(activeTutorial.id) : false;
+  const isActive = !!activeTutorial;
 
   // Scroll to & highlight target whenever step changes
   useEffect(() => {
     if (!currentStep?.targetId) return;
 
-    // Open collapsible first if needed
     if (currentStep.openCollapsible) {
       openCollapsibleSection(currentStep.openCollapsible);
     }
 
-    // Small delay to let collapsible open
     const timeout = setTimeout(() => {
-      const cleanup = scrollToAndHighlight(currentStep.targetId!);
-      return cleanup;
+      clearHighlights();
+      scrollToAndHighlight(currentStep.targetId!);
     }, 300);
 
     return () => {
       clearTimeout(timeout);
-      // Remove highlight from all elements
-      document.querySelectorAll(".tutorial-highlight").forEach((el) => {
-        el.classList.remove("tutorial-highlight");
-      });
+      clearHighlights();
     };
   }, [selectedTutorial, stepIndex, currentStep]);
 
@@ -240,32 +235,41 @@ export const SiteTutorialGuide = ({ onDismiss, onOpenChat, onNavigate }: SiteTut
     if (stepIndex < activeTutorial.steps.length - 1) {
       setStepIndex(stepIndex + 1);
     } else {
-      // Complete this tutorial
       setCompletedTutorials((prev) => {
         const next = new Set(prev);
         next.add(activeTutorial.id);
         return next;
       });
+      clearHighlights();
       setSelectedTutorial(null);
       setStepIndex(0);
     }
   }, [activeTutorial, stepIndex]);
 
-  const handleSkipStep = useCallback(() => {
-    handleNextStep();
-  }, [handleNextStep]);
-
   const handleStepAction = useCallback(() => {
     if (!currentStep) return;
-
-    if (currentStep.navigateTo) {
-      onNavigate(currentStep.navigateTo);
-    }
-    if (currentStep.openChat) {
-      onOpenChat();
-    }
+    if (currentStep.navigateTo) onNavigate(currentStep.navigateTo);
+    if (currentStep.openChat) onOpenChat();
     handleNextStep();
   }, [currentStep, onNavigate, onOpenChat, handleNextStep]);
+
+  const handleMaybeLater = useCallback(() => {
+    setShowMaybeLaterConfirm(true);
+  }, []);
+
+  const confirmMaybeLater = useCallback(() => {
+    clearHighlights();
+    if (activeTutorial) {
+      setCompletedTutorials((prev) => {
+        const next = new Set(prev);
+        next.add(activeTutorial.id);
+        return next;
+      });
+    }
+    setSelectedTutorial(null);
+    setStepIndex(0);
+    setShowMaybeLaterConfirm(false);
+  }, [activeTutorial]);
 
   const handleSelectTutorial = (id: string) => {
     setSelectedTutorial(id);
@@ -273,16 +277,14 @@ export const SiteTutorialGuide = ({ onDismiss, onOpenChat, onNavigate }: SiteTut
   };
 
   const handleBackToMenu = () => {
-    document.querySelectorAll(".tutorial-highlight").forEach((el) => {
-      el.classList.remove("tutorial-highlight");
-    });
+    clearHighlights();
     setSelectedTutorial(null);
     setStepIndex(0);
   };
 
   return (
     <>
-      {/* Tutorial highlight styles injected once */}
+      {/* Tutorial highlight styles */}
       <style>{`
         .tutorial-highlight {
           position: relative;
@@ -298,26 +300,25 @@ export const SiteTutorialGuide = ({ onDismiss, onOpenChat, onNavigate }: SiteTut
         }
       `}</style>
 
-      <Card className="relative p-5 border-primary/30 bg-gradient-to-r from-primary/5 via-background to-primary/5">
-        {/* Close button */}
-        <button
-          onClick={() => setShowSkipConfirm(true)}
-          className="absolute top-3 right-3 p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
-          aria-label="Close tutorial"
-        >
-          <X className="w-4 h-4" />
-        </button>
+      {/* ── Inline menu card (shown when no tutorial active) ── */}
+      {!isActive && (
+        <Card className="relative p-5 border-primary/30 bg-gradient-to-r from-primary/5 via-background to-primary/5">
+          <button
+            onClick={() => setShowSkipConfirm(true)}
+            className="absolute top-3 right-3 p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+            aria-label="Close tutorial"
+          >
+            <X className="w-4 h-4" />
+          </button>
 
-        {!activeTutorial ? (
-          /* ── Tutorial selection menu ──────────────── */
           <div className="space-y-4">
             <div className="flex items-center gap-4">
               <img src={agentBIcon} alt="AgentB" className="w-12 h-12 rounded-xl object-cover" />
               <div className="relative bg-card border border-border rounded-2xl rounded-bl-md p-4 shadow-sm flex-1 mr-6">
                 <p className="text-sm text-foreground">
                   {allCompleted
-                    ? "🎉 You've completed all the tutorials! Feel free to revisit any of them below, or close this widget when you're ready."
-                    : "👋 Welcome! I'm AgentB, your campus companion. Let me show you around! Pick a tutorial below — I'll walk you through it step by step."}
+                    ? "🎉 You've completed all the tutorials! Feel free to revisit any below, or close this widget."
+                    : "👋 Welcome! I'm AgentB, your campus companion. Pick a tutorial below — I'll walk you through it step by step."}
                 </p>
               </div>
             </div>
@@ -338,9 +339,7 @@ export const SiteTutorialGuide = ({ onDismiss, onOpenChat, onNavigate }: SiteTut
                     <span className="shrink-0">{tutorial.icon}</span>
                     <span className="flex-1 font-medium">{tutorial.title}</span>
                     {done ? (
-                      <span className="flex items-center gap-1 text-xs text-primary">
-                        ✓ <RotateCcw className="w-3 h-3" />
-                      </span>
+                      <span className="flex items-center gap-1 text-xs text-primary">✓ <RotateCcw className="w-3 h-3" /></span>
                     ) : (
                       <ChevronRight className="w-3 h-3 text-muted-foreground" />
                     )}
@@ -349,67 +348,81 @@ export const SiteTutorialGuide = ({ onDismiss, onOpenChat, onNavigate }: SiteTut
               })}
             </div>
 
-            {/* All completed — close prompt */}
             {allCompleted && (
               <div className="pl-16 pt-2 border-t border-border mt-2">
                 <p className="text-sm text-muted-foreground mb-3">
                   All tutorials completed! Would you like to close this widget?
                 </p>
                 <div className="flex items-center gap-2">
-                  <Button size="sm" variant="outline" onClick={() => {}}>
-                    No
-                  </Button>
-                  <Button size="sm" onClick={() => setShowCloseConfirm(true)}>
-                    Yes
-                  </Button>
+                  <Button size="sm" variant="outline" onClick={() => {}}>No</Button>
+                  <Button size="sm" onClick={() => setShowCloseConfirm(true)}>Yes</Button>
                 </div>
               </div>
             )}
           </div>
-        ) : (
-          /* ── Active step-by-step tutorial ─────────── */
-          <div className="space-y-3">
-            {/* Back button + progress */}
-            <div className="flex items-center justify-between pl-16 mr-6">
+        </Card>
+      )}
+
+      {/* ── Fixed bottom tutorial step bar (shown during active tutorial) ── */}
+      {isActive && activeTutorial && currentStep && (
+        <div className="fixed bottom-0 left-0 right-0 z-[60] border-t border-primary/30 bg-card/95 backdrop-blur-md shadow-[0_-4px_20px_rgba(0,0,0,0.15)]">
+          <div className="container mx-auto px-4 py-4">
+            {/* Top row: back + progress + close */}
+            <div className="flex items-center justify-between mb-3">
               <button
                 onClick={handleBackToMenu}
-                className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
               >
                 <ArrowLeft className="w-3 h-3" />
                 Back to tutorials
               </button>
-              <span className="text-xs text-muted-foreground">
-                Step {stepIndex + 1} of {activeTutorial.steps.length}
-              </span>
-            </div>
-
-            {/* Speech bubble */}
-            <div className="flex items-start gap-4">
-              <img src={agentBIcon} alt="AgentB" className="w-12 h-12 rounded-xl object-cover shrink-0" />
-              <div className="flex-1 mr-6">
-                <div className="relative bg-card border border-border rounded-2xl rounded-bl-md p-4 shadow-sm">
-                  <p className="text-sm font-semibold text-foreground mb-1">{activeTutorial.title}</p>
-                  <p className="text-sm text-muted-foreground">{currentStep?.message}</p>
+              <div className="flex items-center gap-3">
+                <span className="text-xs text-muted-foreground">
+                  Step {stepIndex + 1} of {activeTutorial.steps.length}
+                </span>
+                {/* Progress dots */}
+                <div className="flex items-center gap-1">
+                  {activeTutorial.steps.map((_, i) => (
+                    <div
+                      key={i}
+                      className={`w-1.5 h-1.5 rounded-full transition-colors ${
+                        i <= stepIndex ? "bg-primary" : "bg-muted-foreground/30"
+                      }`}
+                    />
+                  ))}
                 </div>
               </div>
             </div>
 
-            {/* Action buttons */}
-            <div className="flex items-center gap-2 pl-16">
-              {currentStep?.allowSkip && (
-                <Button variant="outline" size="sm" onClick={handleSkipStep}>
+            {/* Speech bubble row */}
+            <div className="flex items-start gap-3">
+              <img src={agentBIcon} alt="AgentB" className="w-10 h-10 rounded-xl object-cover shrink-0" />
+              <div className="flex-1 min-w-0">
+                <div className="bg-muted/50 border border-border rounded-2xl rounded-bl-md px-4 py-3">
+                  <p className="text-xs font-semibold text-primary mb-0.5">{activeTutorial.title}</p>
+                  <p className="text-sm text-foreground">{currentStep.message}</p>
+                </div>
+              </div>
+
+              {/* Action buttons */}
+              <div className="flex items-center gap-2 shrink-0 self-center">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleMaybeLater}
+                >
                   Maybe Later
                 </Button>
-              )}
-              <Button size="sm" onClick={handleStepAction}>
-                {currentStep?.actionLabel || "Got it!"}
-              </Button>
+                <Button size="sm" onClick={handleStepAction}>
+                  {currentStep.actionLabel || "Next"}
+                </Button>
+              </div>
             </div>
           </div>
-        )}
-      </Card>
+        </div>
+      )}
 
-      {/* Skip confirmation */}
+      {/* Skip all confirmation */}
       <AlertDialog open={showSkipConfirm} onOpenChange={setShowSkipConfirm}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -437,6 +450,22 @@ export const SiteTutorialGuide = ({ onDismiss, onOpenChat, onNavigate }: SiteTut
           <AlertDialogFooter>
             <AlertDialogCancel>Keep It</AlertDialogCancel>
             <AlertDialogAction onClick={onDismiss}>Close Widget</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Maybe Later confirmation */}
+      <AlertDialog open={showMaybeLaterConfirm} onOpenChange={setShowMaybeLaterConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Exit this tutorial?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to skip the rest of "{activeTutorial?.title}"? You can always come back to it from the tutorial menu.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Continue Tutorial</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmMaybeLater}>Exit Tutorial</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
