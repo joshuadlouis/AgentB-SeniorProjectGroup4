@@ -542,9 +542,14 @@ export const AssignmentUpload = ({ learningStyles, courseName, onAssignmentParse
                         >
                           <Brain className="w-3 h-3" />
                           <DifficultyBadge level={assignment.difficulty_level} />
-                          <span>IRT b={Number(assignment.irt_parameters.difficulty ?? 0).toFixed(1)}</span>
                           <span>·</span>
-                          <span>{assignment.irt_parameters.bloomLevel}</span>
+                          <span className="capitalize">{assignment.irt_parameters.bloomLevel}</span>
+                          {assignment.irt_parameters.estimatedMinutes && (
+                            <>
+                              <span>·</span>
+                              <span>~{assignment.irt_parameters.estimatedMinutes} min</span>
+                            </>
+                          )}
                           {expandedDifficulty.has(assignment.id) ? (
                             <ChevronUp className="w-3 h-3" />
                           ) : (
@@ -552,34 +557,60 @@ export const AssignmentUpload = ({ learningStyles, courseName, onAssignmentParse
                           )}
                         </button>
                         {expandedDifficulty.has(assignment.id) && (
-                          <div className="mt-2 p-3 rounded-lg bg-muted/30 border border-border text-xs space-y-2">
-                            <div className="grid grid-cols-3 gap-2">
-                              <div>
-                                <span className="text-muted-foreground block">Discrimination (a)</span>
-                                <span className="font-medium text-foreground">{Number(assignment.irt_parameters.discrimination ?? 0).toFixed(2)}</span>
+                          <div className="mt-2 p-3 rounded-lg bg-muted/30 border border-border text-xs space-y-3">
+                            {/* Difficulty meter */}
+                            <div>
+                              <div className="flex items-center justify-between mb-1">
+                                <span className="text-muted-foreground">Overall Difficulty</span>
+                                <span className="font-medium text-foreground capitalize">{assignment.difficulty_level}</span>
                               </div>
-                              <div>
-                                <span className="text-muted-foreground block">Difficulty (b)</span>
-                                <span className="font-medium text-foreground">{Number(assignment.irt_parameters.difficulty ?? 0).toFixed(2)}</span>
-                              </div>
-                              <div>
-                                <span className="text-muted-foreground block">Guessing (c)</span>
-                                <span className="font-medium text-foreground">{Number(assignment.irt_parameters.guessing ?? 0).toFixed(2)}</span>
+                              <div className="w-full h-2 rounded-full bg-muted overflow-hidden">
+                                <div
+                                  className={`h-full rounded-full transition-all ${
+                                    assignment.difficulty_level === 'Advanced' || assignment.difficulty_level === 'advanced'
+                                      ? 'bg-destructive' : assignment.difficulty_level === 'Intermediate' || assignment.difficulty_level === 'intermediate'
+                                      ? 'bg-amber-500' : 'bg-green-500'
+                                  }`}
+                                  style={{ width: `${Math.min(100, Math.max(10, ((Number(assignment.irt_parameters.difficulty ?? 0) + 3) / 6) * 100))}%` }}
+                                />
                               </div>
                             </div>
-                            <div className="grid grid-cols-2 gap-2">
-                              <div>
-                                <span className="text-muted-foreground block">Cognitive Load</span>
-                                <span className="font-medium text-foreground">{assignment.irt_parameters.cognitiveLoad}/10</span>
+                            <div className="grid grid-cols-2 gap-3">
+                              <div className="p-2 rounded-md bg-background border border-border">
+                                <span className="text-muted-foreground block text-[10px] uppercase tracking-wide">Thinking Effort</span>
+                                <div className="flex items-center gap-1 mt-0.5">
+                                  <span className="font-semibold text-foreground">{assignment.irt_parameters.cognitiveLoad}/10</span>
+                                  <div className="flex gap-0.5 ml-1">
+                                    {Array.from({ length: 10 }).map((_, i) => (
+                                      <div key={i} className={`w-1.5 h-3 rounded-sm ${i < (assignment.irt_parameters.cognitiveLoad || 0) ? 'bg-primary' : 'bg-muted'}`} />
+                                    ))}
+                                  </div>
+                                </div>
                               </div>
-                              <div>
-                                <span className="text-muted-foreground block">Est. Time</span>
-                                <span className="font-medium text-foreground">{assignment.irt_parameters.estimatedMinutes} min</span>
+                              <div className="p-2 rounded-md bg-background border border-border">
+                                <span className="text-muted-foreground block text-[10px] uppercase tracking-wide">Est. Time</span>
+                                <span className="font-semibold text-foreground">{assignment.irt_parameters.estimatedMinutes} min</span>
+                              </div>
+                            </div>
+                            <div className="grid grid-cols-2 gap-3">
+                              <div className="p-2 rounded-md bg-background border border-border">
+                                <span className="text-muted-foreground block text-[10px] uppercase tracking-wide">Question Quality</span>
+                                <span className="font-semibold text-foreground">
+                                  {Number(assignment.irt_parameters.discrimination ?? 0) >= 1.5 ? 'Highly Discriminating' :
+                                   Number(assignment.irt_parameters.discrimination ?? 0) >= 0.8 ? 'Good' : 'Fair'}
+                                </span>
+                              </div>
+                              <div className="p-2 rounded-md bg-background border border-border">
+                                <span className="text-muted-foreground block text-[10px] uppercase tracking-wide">Guess Factor</span>
+                                <span className="font-semibold text-foreground">
+                                  {Number(assignment.irt_parameters.guessing ?? 0) <= 0.1 ? 'Very Low' :
+                                   Number(assignment.irt_parameters.guessing ?? 0) <= 0.25 ? 'Low' : 'Moderate'}
+                                </span>
                               </div>
                             </div>
                             {assignment.knowledge_dependencies && assignment.knowledge_dependencies.length > 0 && (
                               <div>
-                                <span className="text-muted-foreground block mb-1">Prerequisites (KST)</span>
+                                <span className="text-muted-foreground block mb-1 text-[10px] uppercase tracking-wide">Prerequisites</span>
                                 <div className="flex flex-wrap gap-1">
                                   {assignment.knowledge_dependencies.map((dep, i) => (
                                     <Badge key={i} variant="outline" className="text-[10px] py-0">{dep}</Badge>
