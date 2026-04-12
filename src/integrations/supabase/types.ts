@@ -849,10 +849,6 @@ export type Database = {
       }
       profiles: {
         Row: {
-          canvas_access_token: string | null
-          canvas_connected_at: string | null
-          canvas_domain: string | null
-          canvas_refresh_token: string | null
           created_at: string | null
           email: string | null
           full_name: string | null
@@ -862,10 +858,6 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
-          canvas_access_token?: string | null
-          canvas_connected_at?: string | null
-          canvas_domain?: string | null
-          canvas_refresh_token?: string | null
           created_at?: string | null
           email?: string | null
           full_name?: string | null
@@ -875,10 +867,6 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
-          canvas_access_token?: string | null
-          canvas_connected_at?: string | null
-          canvas_domain?: string | null
-          canvas_refresh_token?: string | null
           created_at?: string | null
           email?: string | null
           full_name?: string | null
@@ -1496,8 +1484,6 @@ export type Database = {
     Views: {
       profiles_safe: {
         Row: {
-          canvas_connected_at: string | null
-          canvas_domain: string | null
           created_at: string | null
           email: string | null
           full_name: string | null
@@ -1507,8 +1493,6 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
-          canvas_connected_at?: string | null
-          canvas_domain?: string | null
           created_at?: string | null
           email?: string | null
           full_name?: string | null
@@ -1518,8 +1502,6 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
-          canvas_connected_at?: string | null
-          canvas_domain?: string | null
           created_at?: string | null
           email?: string | null
           full_name?: string | null
