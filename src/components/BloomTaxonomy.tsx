@@ -126,7 +126,7 @@ export const BloomTaxonomy = ({ className }: BloomTaxonomyProps) => {
                     <span className="text-xs text-muted-foreground w-10 text-right">{percentage}%</span>
                   </div>
                 </TooltipTrigger>
-                <TooltipContent side="right" className="max-w-sm">
+                <TooltipContent side="right" align="start" sideOffset={8} className="max-w-sm z-[9999]">
                   <p className="font-medium mb-1">{level.level}: {level.description}</p>
                   {level.items.length > 0 ? (
                     <ul className="text-xs space-y-1">
