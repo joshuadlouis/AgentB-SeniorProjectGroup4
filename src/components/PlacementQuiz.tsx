@@ -151,7 +151,7 @@ export const PlacementQuiz = ({ learningStyles, onQuizComplete, refreshTrigger, 
       console.error("Quiz generation error:", error);
       toast({
         title: "Generation Failed",
-        description: "Failed to generate placement quiz. Please try again.",
+        description: error instanceof Error ? error.message : "Failed to generate placement quiz. Please try again.",
         variant: "destructive",
       });
     } finally {
