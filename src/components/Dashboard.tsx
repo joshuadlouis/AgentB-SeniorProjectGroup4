@@ -248,7 +248,7 @@ export const Dashboard = ({ learningStyles, onOpenChat, onRetakeQuiz }: Dashboar
               <div className="p-2 rounded-lg bg-secondary/10">
                 <Calendar className="w-6 h-6 text-secondary" />
               </div>
-              <h3 className="text-lg font-semibold text-foreground">Campus Calendar</h3>
+              <h3 className="text-lg font-semibold text-foreground">Personal Calendar</h3>
             </div>
             <p className="text-sm text-muted-foreground mb-4">
               Academic events, deadlines, and important dates
