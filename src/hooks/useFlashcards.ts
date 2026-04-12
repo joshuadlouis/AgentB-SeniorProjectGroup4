@@ -103,12 +103,12 @@ export function useFlashcards(className: string) {
 
   useEffect(() => { fetchDecks(); fetchCommunityDecks(); }, [fetchDecks, fetchCommunityDecks]);
 
-  const createDeck = async (title: string, description?: string) => {
+  const createDeck = async (title: string, description?: string, subject?: string) => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) return null;
     const { data, error } = await supabase
       .from("flashcard_decks")
-      .insert({ user_id: session.user.id, class_name: className, title, description: description || null })
+      .insert({ user_id: session.user.id, class_name: className, title, description: description || null, subject: subject || className })
       .select()
       .single();
     if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return null; }
