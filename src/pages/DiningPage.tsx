@@ -13,6 +13,24 @@ import { Loader2, MapPin, Clock, Utensils, ExternalLink, ArrowLeft } from "lucid
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 
+import img1867Cafe from "@/assets/dining/1867cafe.avif";
+import imgAnnexCafe from "@/assets/dining/annexcafe.avif";
+import imgBisonBrew from "@/assets/dining/bisonbrew.avif";
+import imgBisonBread from "@/assets/dining/bisonbread.avif";
+import imgPunchout from "@/assets/dining/punchout.avif";
+import imgWTowers from "@/assets/dining/wtowers.avif";
+
+const DINING_IMAGES: Record<string, string> = {
+  "1867-cafe": img1867Cafe,
+  "bethune-annex-cafe": imgAnnexCafe,
+  "bison-brew-coffee-bar": imgBisonBrew,
+  "bison-bread-bakery": imgBisonBread,
+  "the-punchout": imgPunchout,
+  "west-towers-market": imgWTowers,
+  // alternate urlKey forms
+  "blackburn-cafe": imgAnnexCafe,
+};
+
 interface MealPeriod { name: string; hours: string; }
 interface DiningLocation {
   name: string; urlKey: string; address: string;
