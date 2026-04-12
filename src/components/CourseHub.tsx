@@ -4,8 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { 
   GraduationCap, BookOpen, Archive, ArchiveRestore, ChevronRight, 
-  AlertCircle, Loader2, Trash2 
+  AlertCircle, Loader2, Trash2, ChevronDown 
 } from "lucide-react";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
@@ -190,21 +191,7 @@ export const CourseHub = ({ refreshTrigger = 0, learningStyleSection, syllabusSe
         )}
       </div>
 
-      {/* Learning Style Section */}
-      {learningStyleSection && (
-        <div className="mb-6 pb-6 border-b border-border">
-          {learningStyleSection}
-        </div>
-      )}
-
-      {/* Syllabus Section */}
-      {syllabusSection && (
-        <div className="mb-6 pb-6 border-b border-border">
-          {syllabusSection}
-        </div>
-      )}
-
-      {/* Active Courses */}
+      {/* Active Courses — displayed first */}
       <div className="space-y-3 mb-6">
         <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
           Courses
@@ -214,7 +201,7 @@ export const CourseHub = ({ refreshTrigger = 0, learningStyleSection, syllabusSe
             <BookOpen className="w-10 h-10 mx-auto mb-3 text-muted-foreground/50" />
             <p className="text-muted-foreground font-medium">No current courses</p>
             <p className="text-sm text-muted-foreground mt-1">
-              Upload a syllabus above to add a course
+              Upload a syllabus below to add a course
             </p>
           </div>
         ) : (
@@ -280,7 +267,7 @@ export const CourseHub = ({ refreshTrigger = 0, learningStyleSection, syllabusSe
 
       {/* Archived Courses */}
       {archivedCourses.length > 0 && (
-        <div className="pt-6 border-t border-border">
+        <div className="pt-6 border-t border-border mb-6">
           <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">
             Review Old Courses
           </h4>
@@ -337,11 +324,41 @@ export const CourseHub = ({ refreshTrigger = 0, learningStyleSection, syllabusSe
         </div>
       )}
 
-      {/* Learning Velocity Section */}
-      {velocitySection && (
-        <div className="pt-6 border-t border-border">
-          {velocitySection}
+      {/* Learning Style Section */}
+      {learningStyleSection && (
+        <div className="mb-6 pb-6 border-t border-border pt-6">
+          {learningStyleSection}
         </div>
+      )}
+
+      {/* Syllabus Section — collapsible */}
+      {syllabusSection && (
+        <Collapsible className="mb-6 border-t border-border pt-6">
+          <CollapsibleTrigger className="flex items-center justify-between w-full group">
+            <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+              Class Syllabi
+            </h4>
+            <ChevronDown className="w-4 h-4 text-muted-foreground transition-transform group-data-[state=open]:rotate-180" />
+          </CollapsibleTrigger>
+          <CollapsibleContent className="mt-4">
+            {syllabusSection}
+          </CollapsibleContent>
+        </Collapsible>
+      )}
+
+      {/* Learning Velocity Section — collapsible */}
+      {velocitySection && (
+        <Collapsible className="border-t border-border pt-6">
+          <CollapsibleTrigger className="flex items-center justify-between w-full group">
+            <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+              Learning Velocity
+            </h4>
+            <ChevronDown className="w-4 h-4 text-muted-foreground transition-transform group-data-[state=open]:rotate-180" />
+          </CollapsibleTrigger>
+          <CollapsibleContent className="mt-4">
+            {velocitySection}
+          </CollapsibleContent>
+        </Collapsible>
       )}
 
       <AlertDialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>

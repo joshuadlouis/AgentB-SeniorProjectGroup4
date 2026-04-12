@@ -4,11 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Upload, FileText, Trash2, Loader2 } from "lucide-react";
+import { Upload, FileText, Trash2, Loader2, ChevronDown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { SyllabusOutline } from "./SyllabusOutline";
 import { validateFile, uploadFile, SYLLABUS_VALIDATION } from "@/lib/uploadEngine";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 interface Syllabus {
   id: string;
@@ -306,12 +307,14 @@ export const SyllabusUpload = ({ onUploadComplete, embedded = false }: SyllabusU
 
   return (
     <Wrapper {...wrapperProps as any}>
-      <div className="flex items-center gap-3 mb-6">
-        <div className="p-2 rounded-lg bg-primary/10">
-          <FileText className="w-6 h-6 text-primary" />
+      {!embedded && (
+        <div className="flex items-center gap-3 mb-6">
+          <div className="p-2 rounded-lg bg-primary/10">
+            <FileText className="w-6 h-6 text-primary" />
+          </div>
+          <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Class Syllabi</h4>
         </div>
-        <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Class Syllabi</h4>
-      </div>
+      )}
 
       {/* Upload Form */}
       <div className="space-y-4 mb-6 p-4 rounded-xl bg-muted/30 border border-border">
@@ -372,15 +375,16 @@ export const SyllabusUpload = ({ onUploadComplete, embedded = false }: SyllabusU
           </div>
         ) : (
           syllabi.map((syllabus) => (
-            <div key={syllabus.id} className="space-y-0">
+            <Collapsible key={syllabus.id}>
               <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50 border border-border">
-                <div className="flex items-center gap-3 min-w-0">
+                <CollapsibleTrigger className="flex items-center gap-3 min-w-0 group flex-1 text-left">
+                  <ChevronDown className="w-4 h-4 text-muted-foreground flex-shrink-0 transition-transform group-data-[state=open]:rotate-180" />
                   <FileText className="w-5 h-5 text-primary flex-shrink-0" />
                   <div className="min-w-0">
                     <p className="font-medium text-foreground truncate">{syllabus.class_name}</p>
                     <p className="text-xs text-muted-foreground truncate">{syllabus.file_name}</p>
                   </div>
-                </div>
+                </CollapsibleTrigger>
                 <div className="flex items-center gap-2 flex-shrink-0">
                   <Badge variant="secondary" className="text-xs">
                     {formatFileSize(syllabus.file_size)}
@@ -414,21 +418,25 @@ export const SyllabusUpload = ({ onUploadComplete, embedded = false }: SyllabusU
                   </Button>
                 </div>
               </div>
-              {syllabus.parsed_at && (
-                <SyllabusOutline
-                  syllabusId={syllabus.id}
-                  className={syllabus.class_name}
-                  filePath={syllabus.file_path}
-                  parsedAt={syllabus.parsed_at}
-                  courseDescription={syllabus.course_description}
-                  learningObjectives={syllabus.learning_objectives}
-                  weeklySchedule={syllabus.weekly_schedule}
-                  gradingPolicy={syllabus.grading_policy}
-                  requiredMaterials={syllabus.required_materials}
-                  onParseComplete={fetchSyllabi}
-                />
-              )}
-            </div>
+              <CollapsibleContent>
+                {syllabus.parsed_at && (
+                  <div className="ml-6 mt-1 border-l-2 border-border pl-4">
+                    <SyllabusOutline
+                      syllabusId={syllabus.id}
+                      className={syllabus.class_name}
+                      filePath={syllabus.file_path}
+                      parsedAt={syllabus.parsed_at}
+                      courseDescription={syllabus.course_description}
+                      learningObjectives={syllabus.learning_objectives}
+                      weeklySchedule={syllabus.weekly_schedule}
+                      gradingPolicy={syllabus.grading_policy}
+                      requiredMaterials={syllabus.required_materials}
+                      onParseComplete={fetchSyllabi}
+                    />
+                  </div>
+                )}
+              </CollapsibleContent>
+            </Collapsible>
           ))
         )}
       </div>
