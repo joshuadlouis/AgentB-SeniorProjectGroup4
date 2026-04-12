@@ -406,6 +406,9 @@ const CoursePage = () => {
         {/* Assignment Upload */}
         <AssignmentUpload learningStyles={learningStyles} courseName={decodedClassName} />
 
+        {/* AI Writing Feedback */}
+        <WritingFeedback className={decodedClassName} />
+
         {/* Rubrics & Assignment Examples */}
         <Card className="p-4 border-border">
           <div className="flex items-center justify-between">
