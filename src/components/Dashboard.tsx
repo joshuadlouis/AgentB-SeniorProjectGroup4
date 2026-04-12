@@ -255,9 +255,9 @@ export const Dashboard = ({ learningStyles, onOpenChat, onRetakeQuiz }: Dashboar
         </div>
 
         {/* Main Content Grid */}
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div data-tutorial-id="campus-resources-grid" className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {/* Chat with AgentB */}
-          <Card className="p-6 shadow-[var(--shadow-soft)] border-border hover:shadow-[var(--shadow-medium)] transition-[var(--transition-smooth)]">
+          <Card data-tutorial-id="agentb-card" className="p-6 shadow-[var(--shadow-soft)] border-border hover:shadow-[var(--shadow-medium)] transition-[var(--transition-smooth)]">
             <div className="flex items-center gap-3 mb-4">
               <div className="p-2 rounded-lg bg-primary/10">
                 <MessageCircle className="w-6 h-6 text-primary" />
@@ -289,7 +289,7 @@ export const Dashboard = ({ learningStyles, onOpenChat, onRetakeQuiz }: Dashboar
           </Card>
 
           {/* Campus Map */}
-          <Card className="p-6 shadow-[var(--shadow-soft)] border-border hover:shadow-[var(--shadow-medium)] transition-[var(--transition-smooth)]">
+          <Card data-tutorial-id="campus-map-card" className="p-6 shadow-[var(--shadow-soft)] border-border hover:shadow-[var(--shadow-medium)] transition-[var(--transition-smooth)]">
             <div className="flex items-center gap-3 mb-4">
               <div className="p-2 rounded-lg bg-accent/10">
                 <MapPin className="w-6 h-6 text-accent" />
@@ -305,7 +305,7 @@ export const Dashboard = ({ learningStyles, onOpenChat, onRetakeQuiz }: Dashboar
           </Card>
 
           {/* Shuttle & Transit */}
-          <Card className="p-6 shadow-[var(--shadow-soft)] border-border hover:shadow-[var(--shadow-medium)] transition-[var(--transition-smooth)]">
+          <Card data-tutorial-id="transit-card" className="p-6 shadow-[var(--shadow-soft)] border-border hover:shadow-[var(--shadow-medium)] transition-[var(--transition-smooth)]">
             <div className="flex items-center gap-3 mb-4">
               <div className="p-2 rounded-lg bg-primary/10">
                 <Bus className="w-6 h-6 text-primary" />
@@ -321,7 +321,7 @@ export const Dashboard = ({ learningStyles, onOpenChat, onRetakeQuiz }: Dashboar
           </Card>
 
           {/* Howard University Dining */}
-          <Card className="p-6 shadow-[var(--shadow-soft)] border-border hover:shadow-[var(--shadow-medium)] transition-[var(--transition-smooth)]">
+          <Card data-tutorial-id="dining-card" className="p-6 shadow-[var(--shadow-soft)] border-border hover:shadow-[var(--shadow-medium)] transition-[var(--transition-smooth)]">
             <div className="flex items-center gap-3 mb-4">
               <div className="p-2 rounded-lg bg-secondary/10">
                 <Utensils className="w-6 h-6 text-secondary" />
@@ -337,7 +337,7 @@ export const Dashboard = ({ learningStyles, onOpenChat, onRetakeQuiz }: Dashboar
           </Card>
 
           {/* Safety & Title IX */}
-          <Card className="p-6 shadow-[var(--shadow-soft)] border-border hover:shadow-[var(--shadow-medium)] transition-[var(--transition-smooth)]">
+          <Card data-tutorial-id="safety-card" className="p-6 shadow-[var(--shadow-soft)] border-border hover:shadow-[var(--shadow-medium)] transition-[var(--transition-smooth)]">
             <div className="flex items-center gap-3 mb-4">
               <div className="p-2 rounded-lg bg-accent/10">
                 <Shield className="w-6 h-6 text-accent" />
