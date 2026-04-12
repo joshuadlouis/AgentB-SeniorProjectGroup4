@@ -1681,6 +1681,58 @@ When the user asks about their uploaded classes/syllabi, provide targeted help f
       });
     }
 
+    // Non-streaming response for absence notification drafts and make-up options
+    if (requestType === "absence-notification" || requestType === "make-up-options") {
+      const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${LOVABLE_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "google/gemini-2.5-flash",
+          messages: [
+            { role: "system", content: systemPrompt },
+            ...messages,
+          ],
+        }),
+      });
+
+      if (!response.ok) {
+        return new Response(JSON.stringify({ error: `Failed to generate ${requestType} content` }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      const data = await response.json();
+      const content = data.choices?.[0]?.message?.content || "Generation failed.";
+
+      // Save notification draft to absence request if applicable
+      if (requestType === "absence-notification" && absenceData?.requestId && userId && SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY) {
+        const adminClient = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+        await adminClient
+          .from("absence_requests")
+          .update({ notification_draft: content })
+          .eq("id", absenceData.requestId)
+          .eq("user_id", userId);
+      }
+
+      // Save make-up details if applicable
+      if (requestType === "make-up-options" && absenceData?.requestId && userId && SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY) {
+        const adminClient = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+        await adminClient
+          .from("absence_requests")
+          .update({ make_up_details: { suggestions: content, generated_at: new Date().toISOString() } })
+          .eq("id", absenceData.requestId)
+          .eq("user_id", userId);
+      }
+
+      return new Response(JSON.stringify({ content }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     // Standard streaming response for chat
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
