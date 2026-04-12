@@ -305,6 +305,45 @@ export type Database = {
         }
         Relationships: []
       }
+      class_schedule: {
+        Row: {
+          class_name: string
+          created_at: string
+          day_of_week: number
+          end_time: string | null
+          id: string
+          room: string | null
+          source: string
+          start_time: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          class_name: string
+          created_at?: string
+          day_of_week: number
+          end_time?: string | null
+          id?: string
+          room?: string | null
+          source?: string
+          start_time: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          class_name?: string
+          created_at?: string
+          day_of_week?: number
+          end_time?: string | null
+          id?: string
+          room?: string | null
+          source?: string
+          start_time?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       consent_records: {
         Row: {
           consent_type: string

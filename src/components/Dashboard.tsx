@@ -27,6 +27,7 @@ import { DashboardReadAloud } from "./DashboardReadAloud";
 import { LearningVelocityDashboard } from "./LearningVelocityDashboard";
 import { SyllabusUpload } from "./SyllabusUpload";
 import { UpcomingAssignments } from "./UpcomingAssignments";
+import { DailySchedule } from "./DailySchedule";
 import { NotificationBell } from "./NotificationBell";
 import { useStreakTracker } from "@/hooks/useStreakTracker";
 import { CourseHub } from "./CourseHub";
@@ -169,6 +170,9 @@ export const Dashboard = ({ learningStyles, onOpenChat, onRetakeQuiz }: Dashboar
 
         {/* Upcoming Assignments — second widget */}
         <UpcomingAssignments />
+
+        {/* Today's Classes — third widget */}
+        <DailySchedule />
 
         {/* Syllabus Upload */}
         <SyllabusUpload onUploadComplete={() => setSyllabusRefreshTrigger((prev) => prev + 1)} />
