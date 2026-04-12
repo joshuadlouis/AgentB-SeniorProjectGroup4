@@ -49,7 +49,7 @@ export const Dashboard = ({ learningStyles, onOpenChat, onRetakeQuiz }: Dashboar
   const [isReadAloudActive, setIsReadAloudActive] = useState(false);
   const mainContentRef = useRef<HTMLElement>(null);
 
-  const { saveProfile } = useProfile();
+  const { profile, saveProfile } = useProfile();
   useStreakTracker();
 
   const handleSignOut = async () => {
