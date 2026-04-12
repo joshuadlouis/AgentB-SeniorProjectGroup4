@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import {
   Layers, Plus, Trash2, Edit2, Play, Sparkles, Loader2, RotateCcw,
-  ChevronRight, BookOpen, Brain, Globe, Lock, Copy,
+  ChevronRight, BookOpen, Brain, Globe, Lock, Copy, Search,
 } from "lucide-react";
 import { useFlashcards, Flashcard } from "@/hooks/useFlashcards";
 import { Progress } from "@/components/ui/progress";
@@ -28,8 +28,10 @@ export function FlashcardBuilder({ className }: Props) {
   } = useFlashcards(className);
 
   const [newDeckTitle, setNewDeckTitle] = useState("");
+  const [newDeckSubject, setNewDeckSubject] = useState("");
   const [addDeckOpen, setAddDeckOpen] = useState(false);
   const [showCommunity, setShowCommunity] = useState(false);
+  const [communitySearch, setCommunitySearch] = useState("");
   const [addCardOpen, setAddCardOpen] = useState(false);
   const [editCard, setEditCard] = useState<Flashcard | null>(null);
   const [frontText, setFrontText] = useState("");
@@ -42,10 +44,22 @@ export function FlashcardBuilder({ className }: Props) {
   const [flipped, setFlipped] = useState(false);
   const [sessionStats, setSessionStats] = useState({ total: 0, again: 0, hard: 0, good: 0, easy: 0 });
 
+  const filteredCommunityDecks = useMemo(() => {
+    if (!communitySearch.trim()) return communityDecks;
+    const q = communitySearch.toLowerCase();
+    return communityDecks.filter(
+      (d) =>
+        d.title.toLowerCase().includes(q) ||
+        (d.subject && d.subject.toLowerCase().includes(q)) ||
+        d.class_name.toLowerCase().includes(q)
+    );
+  }, [communityDecks, communitySearch]);
+
   const handleCreateDeck = async () => {
     if (!newDeckTitle.trim()) return;
-    await createDeck(newDeckTitle.trim());
+    await createDeck(newDeckTitle.trim(), undefined, newDeckSubject.trim() || undefined);
     setNewDeckTitle("");
+    setNewDeckSubject("");
     setAddDeckOpen(false);
   };
 
@@ -65,7 +79,6 @@ export function FlashcardBuilder({ className }: Props) {
   const startStudy = () => {
     const due = getDueCards(cards);
     if (due.length === 0) {
-      // Study all cards if none are due
       setStudyCards([...cards]);
     } else {
       setStudyCards(due);
@@ -216,6 +229,7 @@ export function FlashcardBuilder({ className }: Props) {
               <DialogHeader><DialogTitle>Create Flashcard Deck</DialogTitle></DialogHeader>
               <div className="space-y-3 pt-2">
                 <Input placeholder="Deck title" value={newDeckTitle} onChange={(e) => setNewDeckTitle(e.target.value)} />
+                <Input placeholder="Subject (e.g. Chemistry, Biology)" value={newDeckSubject} onChange={(e) => setNewDeckSubject(e.target.value)} />
                 <Button className="w-full" onClick={handleCreateDeck}>Create</Button>
               </div>
             </DialogContent>
@@ -255,7 +269,12 @@ export function FlashcardBuilder({ className }: Props) {
                       <BookOpen className="w-4 h-4 text-primary" />
                       <div>
                         <p className="font-medium text-sm">{deck.title}</p>
-                        <p className="text-xs text-muted-foreground">{deck.card_count} cards</p>
+                        <div className="flex items-center gap-2">
+                          <p className="text-xs text-muted-foreground">{deck.card_count} cards</p>
+                          {deck.subject && (
+                            <Badge variant="outline" className="text-[10px] px-1.5 py-0">{deck.subject}</Badge>
+                          )}
+                        </div>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
@@ -276,36 +295,57 @@ export function FlashcardBuilder({ className }: Props) {
               )}
             </div>
           ) : (
-            <div className="space-y-2">
-              {communityDecks.length === 0 ? (
+            <div className="space-y-3">
+              {/* Search bar */}
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search by deck name or subject..."
+                  value={communitySearch}
+                  onChange={(e) => setCommunitySearch(e.target.value)}
+                  className="pl-9"
+                />
+              </div>
+
+              {filteredCommunityDecks.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground">
                   <Globe className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                  <p className="text-sm">No shared decks for this subject yet</p>
+                  <p className="text-sm">
+                    {communitySearch ? "No decks match your search" : "No shared decks available yet"}
+                  </p>
                   <p className="text-xs">Share your own decks to help others!</p>
                 </div>
               ) : (
-                communityDecks.map((deck) => (
-                  <div
-                    key={deck.id}
-                    className="flex items-center justify-between p-3 rounded-lg border border-border hover:border-primary/20 transition-colors"
-                  >
-                    <div className="flex items-center gap-3">
-                      <Globe className="w-4 h-4 text-primary" />
-                      <div>
-                        <p className="font-medium text-sm">{deck.title}</p>
-                        <p className="text-xs text-muted-foreground">{deck.card_count} cards</p>
+                <div className="space-y-2">
+                  {filteredCommunityDecks.map((deck) => (
+                    <div
+                      key={deck.id}
+                      className="flex items-center justify-between p-3 rounded-lg border border-border hover:border-primary/20 transition-colors"
+                    >
+                      <div className="flex items-center gap-3">
+                        <Globe className="w-4 h-4 text-primary" />
+                        <div>
+                          <p className="font-medium text-sm">{deck.title}</p>
+                          <div className="flex items-center gap-2">
+                            <p className="text-xs text-muted-foreground">{deck.card_count} cards</p>
+                            {deck.subject && (
+                              <Badge variant="outline" className="text-[10px] px-1.5 py-0">{deck.subject}</Badge>
+                            )}
+                            <p className="text-xs text-muted-foreground">· {deck.class_name}</p>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Button size="sm" variant="outline" onClick={() => copyDeck(deck.id)}>
+                          <Copy className="w-3 h-3 mr-1" /> Copy
+                        </Button>
+                        <Button size="sm" variant="ghost" onClick={() => fetchCards(deck.id)}>
+                          <Play className="w-3 h-3 mr-1" /> Preview
+                        </Button>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Button size="sm" variant="outline" onClick={() => copyDeck(deck.id)}>
-                        <Copy className="w-3 h-3 mr-1" /> Copy to My Decks
-                      </Button>
-                      <Button size="sm" variant="ghost" onClick={() => fetchCards(deck.id)}>
-                        <Play className="w-3 h-3 mr-1" /> Preview
-                      </Button>
-                    </div>
-                  </div>
-                ))
+                  ))}
+                </div>
               )}
             </div>
           )}
