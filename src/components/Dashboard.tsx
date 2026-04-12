@@ -135,6 +135,12 @@ export const Dashboard = ({ learningStyles, onOpenChat, onRetakeQuiz }: Dashboar
           <p className="text-muted-foreground">Your personalized learning dashboard is ready.</p>
         </div>
 
+        {/* Test Reminders — first widget */}
+        <TestReminders />
+
+        {/* Upcoming Assignments — second widget */}
+        <UpcomingAssignments />
+
         {/* Syllabus Upload */}
         <SyllabusUpload onUploadComplete={() => setSyllabusRefreshTrigger((prev) => prev + 1)} />
 
@@ -169,12 +175,6 @@ export const Dashboard = ({ learningStyles, onOpenChat, onRetakeQuiz }: Dashboar
             ))}
           </div>
         </Card>
-
-        {/* Test Reminders — above Upcoming Assignments */}
-        <TestReminders />
-
-        {/* Upcoming Assignments */}
-        <UpcomingAssignments />
 
         {/* Main Content Grid */}
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
