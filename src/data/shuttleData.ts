@@ -2,8 +2,8 @@
 
 export interface ShuttleStop {
   name: string;
-  latitude: number;
-  longitude: number;
+  lat: number;
+  lng: number;
   /** Offset from first departure in minutes */
   offsetMinutes: number;
 }
