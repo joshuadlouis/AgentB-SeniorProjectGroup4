@@ -206,52 +206,58 @@ export const Dashboard = ({ learningStyles, onOpenChat, onRetakeQuiz }: Dashboar
         )}
 
         {/* Test Reminders — first widget */}
-        <TestReminders />
+        <div data-tutorial-id="test-reminders">
+          <TestReminders />
+        </div>
 
         {/* Upcoming Assignments — second widget */}
-        <UpcomingAssignments />
+        <div data-tutorial-id="upcoming-assignments">
+          <UpcomingAssignments />
+        </div>
 
         {/* Today's Classes — third widget */}
         <DailySchedule />
 
         {/* Course Hub — contains Learning Style, Syllabi, Courses, and Velocity */}
-        <CourseHub
-          refreshTrigger={syllabusRefreshTrigger}
-          learningStyleSection={
-            <div className="space-y-4">
-              <div className="flex items-center justify-end">
-                <Button variant="outline" size="sm" onClick={onRetakeQuiz}>
-                  Retake Quiz
-                </Button>
-              </div>
-              <div className="grid gap-4 md:grid-cols-3">
-                {learningStyles.map((style) => (
-                  <div
-                    key={style}
-                    className="p-4 rounded-xl bg-gradient-to-br from-primary/5 to-secondary/5 border border-border"
-                  >
-                    <div className="flex items-center gap-3 mb-2">
-                      <span className="text-3xl">{styleIcons[style]}</span>
-                      <Badge variant="secondary" className="capitalize">
-                        {style}
-                      </Badge>
+        <div data-tutorial-id="course-hub">
+          <CourseHub
+            refreshTrigger={syllabusRefreshTrigger}
+            learningStyleSection={
+              <div className="space-y-4">
+                <div className="flex items-center justify-end">
+                  <Button variant="outline" size="sm" onClick={onRetakeQuiz}>
+                    Retake Quiz
+                  </Button>
+                </div>
+                <div className="grid gap-4 md:grid-cols-3">
+                  {learningStyles.map((style) => (
+                    <div
+                      key={style}
+                      className="p-4 rounded-xl bg-gradient-to-br from-primary/5 to-secondary/5 border border-border"
+                    >
+                      <div className="flex items-center gap-3 mb-2">
+                        <span className="text-3xl">{styleIcons[style]}</span>
+                        <Badge variant="secondary" className="capitalize">
+                          {style}
+                        </Badge>
+                      </div>
+                      <p className="text-sm text-muted-foreground">{styleDescriptions[style]}</p>
                     </div>
-                    <p className="text-sm text-muted-foreground">{styleDescriptions[style]}</p>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
-          }
-          syllabusSection={
-            <SyllabusUpload embedded onUploadComplete={() => setSyllabusRefreshTrigger((prev) => prev + 1)} />
-          }
-          velocitySection={<LearningVelocityDashboard embedded />}
-        />
+            }
+            syllabusSection={
+              <SyllabusUpload embedded onUploadComplete={() => setSyllabusRefreshTrigger((prev) => prev + 1)} />
+            }
+            velocitySection={<LearningVelocityDashboard embedded />}
+          />
+        </div>
 
         {/* Main Content Grid */}
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div data-tutorial-id="campus-resources-grid" className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {/* Chat with AgentB */}
-          <Card className="p-6 shadow-[var(--shadow-soft)] border-border hover:shadow-[var(--shadow-medium)] transition-[var(--transition-smooth)]">
+          <Card data-tutorial-id="agentb-card" className="p-6 shadow-[var(--shadow-soft)] border-border hover:shadow-[var(--shadow-medium)] transition-[var(--transition-smooth)]">
             <div className="flex items-center gap-3 mb-4">
               <div className="p-2 rounded-lg bg-primary/10">
                 <MessageCircle className="w-6 h-6 text-primary" />
@@ -283,7 +289,7 @@ export const Dashboard = ({ learningStyles, onOpenChat, onRetakeQuiz }: Dashboar
           </Card>
 
           {/* Campus Map */}
-          <Card className="p-6 shadow-[var(--shadow-soft)] border-border hover:shadow-[var(--shadow-medium)] transition-[var(--transition-smooth)]">
+          <Card data-tutorial-id="campus-map-card" className="p-6 shadow-[var(--shadow-soft)] border-border hover:shadow-[var(--shadow-medium)] transition-[var(--transition-smooth)]">
             <div className="flex items-center gap-3 mb-4">
               <div className="p-2 rounded-lg bg-accent/10">
                 <MapPin className="w-6 h-6 text-accent" />
@@ -299,7 +305,7 @@ export const Dashboard = ({ learningStyles, onOpenChat, onRetakeQuiz }: Dashboar
           </Card>
 
           {/* Shuttle & Transit */}
-          <Card className="p-6 shadow-[var(--shadow-soft)] border-border hover:shadow-[var(--shadow-medium)] transition-[var(--transition-smooth)]">
+          <Card data-tutorial-id="transit-card" className="p-6 shadow-[var(--shadow-soft)] border-border hover:shadow-[var(--shadow-medium)] transition-[var(--transition-smooth)]">
             <div className="flex items-center gap-3 mb-4">
               <div className="p-2 rounded-lg bg-primary/10">
                 <Bus className="w-6 h-6 text-primary" />
@@ -315,7 +321,7 @@ export const Dashboard = ({ learningStyles, onOpenChat, onRetakeQuiz }: Dashboar
           </Card>
 
           {/* Howard University Dining */}
-          <Card className="p-6 shadow-[var(--shadow-soft)] border-border hover:shadow-[var(--shadow-medium)] transition-[var(--transition-smooth)]">
+          <Card data-tutorial-id="dining-card" className="p-6 shadow-[var(--shadow-soft)] border-border hover:shadow-[var(--shadow-medium)] transition-[var(--transition-smooth)]">
             <div className="flex items-center gap-3 mb-4">
               <div className="p-2 rounded-lg bg-secondary/10">
                 <Utensils className="w-6 h-6 text-secondary" />
@@ -331,7 +337,7 @@ export const Dashboard = ({ learningStyles, onOpenChat, onRetakeQuiz }: Dashboar
           </Card>
 
           {/* Safety & Title IX */}
-          <Card className="p-6 shadow-[var(--shadow-soft)] border-border hover:shadow-[var(--shadow-medium)] transition-[var(--transition-smooth)]">
+          <Card data-tutorial-id="safety-card" className="p-6 shadow-[var(--shadow-soft)] border-border hover:shadow-[var(--shadow-medium)] transition-[var(--transition-smooth)]">
             <div className="flex items-center gap-3 mb-4">
               <div className="p-2 rounded-lg bg-accent/10">
                 <Shield className="w-6 h-6 text-accent" />

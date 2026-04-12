@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,108 +11,293 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { X, ChevronRight, RotateCcw, BookOpen, ClipboardCheck, CalendarDays, MapPin, Bus, MessageCircle } from "lucide-react";
+import { X, ChevronRight, RotateCcw, BookOpen, ClipboardCheck, CalendarDays, MapPin, Bus, MessageCircle, ArrowLeft } from "lucide-react";
 import agentBIcon from "@/assets/AgentBIconPurple.png";
 
-interface Tutorial {
+/* ── Step definitions for each tutorial ─────────────── */
+
+export interface TutorialStep {
+  message: string;
+  /** data-tutorial-id value to scroll to & highlight */
+  targetId?: string;
+  /** Open a collapsible section by its data-tutorial-id before highlighting */
+  openCollapsible?: string;
+  /** Primary action label (default: "Got it!") */
+  actionLabel?: string;
+  /** Show "Maybe Later" button */
+  allowSkip?: boolean;
+  /** Navigate to a route */
+  navigateTo?: string;
+  /** Open chat */
+  openChat?: boolean;
+}
+
+interface TutorialDef {
   id: string;
   title: string;
   icon: React.ReactNode;
   steps: TutorialStep[];
 }
 
-interface TutorialStep {
-  message: string;
-  allowSkip?: boolean;
-}
-
-interface SiteTutorialGuideProps {
+export interface SiteTutorialGuideProps {
   onDismiss: () => void;
   onOpenChat: () => void;
   onNavigate: (path: string) => void;
 }
 
-const tutorials: Tutorial[] = [
+const tutorialDefs: TutorialDef[] = [
   {
     id: "syllabus",
     title: "Upload a Syllabus",
     icon: <BookOpen className="w-4 h-4" />,
-    steps: [{
-      message: "Hey there! 🎓 Let's start by uploading a syllabus. This helps me personalize your learning experience and track your courses! Scroll down to the Course Hub and expand 'Class Syllabi' to upload one.",
-      allowSkip: true,
-    }],
+    steps: [
+      {
+        message: "Let's start by uploading a syllabus! This helps me personalize your courses. 🎓 I'll take you to the Class Syllabi section now.",
+        targetId: "course-hub",
+        openCollapsible: "syllabi-section",
+      },
+      {
+        message: "Here's the Class Syllabi section! You can drag-and-drop or click to upload your syllabus file. Want to upload one now?",
+        targetId: "syllabi-section",
+        actionLabel: "Upload",
+        allowSkip: true,
+      },
+      {
+        message: "After uploading, you can expand each syllabus to see parsed details like Course Description, Learning Objectives, and Weekly Schedule. Try clicking on a syllabus!",
+        targetId: "syllabi-section",
+        allowSkip: true,
+      },
+      {
+        message: "Now check out the course that was created from your syllabus! Click 'View Course' to explore lessons, quizzes, and study materials.",
+        targetId: "course-hub",
+        actionLabel: "View Course",
+        allowSkip: true,
+      },
+    ],
   },
   {
     id: "test-reminders",
     title: "Add a Test Reminder",
     icon: <ClipboardCheck className="w-4 h-4" />,
-    steps: [{
-      message: "Great move! 📝 Now let's set up a test reminder so you never miss an exam. Check out the 'Test Reminders' widget near the top of your dashboard — you can add upcoming tests there!",
-      allowSkip: true,
-    }],
+    steps: [
+      {
+        message: "Never miss an exam! 📝 Let me take you to the Test Reminders widget where you can add upcoming tests.",
+        targetId: "test-reminders",
+      },
+      {
+        message: "You can add tests manually using the '+' button, or auto-extract test dates from your uploaded syllabi. Want to add a test now?",
+        targetId: "test-reminders",
+        actionLabel: "Add a Test",
+        allowSkip: true,
+      },
+    ],
   },
   {
     id: "assignments",
     title: "Track Assignments",
     icon: <CalendarDays className="w-4 h-4" />,
-    steps: [{
-      message: "Nice! 📅 You can populate your 'Upcoming Assignments' by heading to your Personal Calendar and adding assignment due dates. Everything syncs automatically!",
-      allowSkip: true,
-    }],
+    steps: [
+      {
+        message: "Let's set up your assignments! 📅 You can track due dates through the Upcoming Assignments widget.",
+        targetId: "upcoming-assignments",
+      },
+      {
+        message: "To add assignments, head to your Personal Calendar and create events with the 'assignment' type. They'll automatically appear here! Want to open the calendar?",
+        targetId: "upcoming-assignments",
+        actionLabel: "Open Calendar",
+        navigateTo: "/calendar",
+        allowSkip: true,
+      },
+    ],
   },
   {
     id: "campus-resources",
     title: "Explore Campus Resources",
     icon: <MapPin className="w-4 h-4" />,
-    steps: [{
-      message: "Let me show you some handy campus tools! 🗺️ You've got quick access to the Campus Map, Safety & Resources (including Title IX info and emergency contacts), and Dining information — all right here on your dashboard. Try opening one!",
-      allowSkip: true,
-    }],
+    steps: [
+      {
+        message: "Let me show you some handy campus tools! 🗺️ Scroll down to find Campus Map, Safety & Resources, and Dining information.",
+        targetId: "campus-resources-grid",
+      },
+      {
+        message: "Try opening the Campus Map to see campus buildings and navigation!",
+        targetId: "campus-map-card",
+        actionLabel: "Open Map",
+        navigateTo: "/campus-map",
+        allowSkip: true,
+      },
+      {
+        message: "The Safety & Resources section has emergency contacts, Title IX info, and support services.",
+        targetId: "safety-card",
+        actionLabel: "Open Safety",
+        navigateTo: "/safety-resources",
+        allowSkip: true,
+      },
+      {
+        message: "Check out Dining for meal plans, menus, hours, and dining hall locations!",
+        targetId: "dining-card",
+        actionLabel: "Open Dining",
+        navigateTo: "/dining",
+        allowSkip: true,
+      },
+    ],
   },
   {
     id: "transit",
     title: "Navigate Transit & Shuttles",
     icon: <Bus className="w-4 h-4" />,
-    steps: [{
-      message: "Getting around is easy! 🚌 Open 'Transit & Shuttles' to see campus shuttle routes. You can switch between 'Campus Shuttles' and 'Public Transit' tabs to view metro lines and nearby stations too!",
-      allowSkip: true,
-    }],
+    steps: [
+      {
+        message: "Getting around is easy! 🚌 Let me show you the Transit & Shuttles widget.",
+        targetId: "transit-card",
+      },
+      {
+        message: "Open Transit to see campus shuttle routes. Once there, you can switch between 'Campus Shuttles' and 'Public Transit' tabs to view metro lines and nearby stations!",
+        targetId: "transit-card",
+        actionLabel: "Open Transit",
+        navigateTo: "/transit",
+        allowSkip: true,
+      },
+    ],
   },
   {
     id: "agentb-chat",
     title: "Chat with AgentB",
     icon: <MessageCircle className="w-4 h-4" />,
-    steps: [{
-      message: "And last but not least — you can always ask me anything! 💬 Whether it's a study question, campus info, or help with an assignment, I'm here 24/7. Try sending me a message!",
-      allowSkip: true,
-    }],
+    steps: [
+      {
+        message: "Last but not least — you can always ask me anything! 💬 Whether it's a study question, campus info, or help with assignments, I'm here 24/7.",
+        targetId: "agentb-card",
+      },
+      {
+        message: "Try sending me a message! I can help with explanations, study tips, and more.",
+        targetId: "agentb-card",
+        actionLabel: "Chat with AgentB",
+        openChat: true,
+        allowSkip: true,
+      },
+    ],
   },
 ];
 
+/* ── Highlight overlay for target elements ──────────── */
+
+const scrollToAndHighlight = (targetId: string) => {
+  const el = document.querySelector(`[data-tutorial-id="${targetId}"]`);
+  if (!el) return;
+  el.scrollIntoView({ behavior: "smooth", block: "center" });
+  el.classList.add("tutorial-highlight");
+  return () => el.classList.remove("tutorial-highlight");
+};
+
+const openCollapsibleSection = (targetId: string) => {
+  const trigger = document.querySelector(
+    `[data-tutorial-id="${targetId}"] [data-state="closed"]`
+  ) as HTMLButtonElement | null;
+  if (trigger) trigger.click();
+};
+
+/* ── Main component ─────────────────────────────────── */
+
 export const SiteTutorialGuide = ({ onDismiss, onOpenChat, onNavigate }: SiteTutorialGuideProps) => {
   const [selectedTutorial, setSelectedTutorial] = useState<string | null>(null);
+  const [stepIndex, setStepIndex] = useState(0);
   const [completedTutorials, setCompletedTutorials] = useState<Set<string>>(new Set());
   const [showSkipConfirm, setShowSkipConfirm] = useState(false);
   const [showCloseConfirm, setShowCloseConfirm] = useState(false);
 
-  const allCompleted = completedTutorials.size === tutorials.length;
-
-  const handleCompleteTutorial = (id: string) => {
-    const next = new Set(completedTutorials);
-    next.add(id);
-    setCompletedTutorials(next);
-    setSelectedTutorial(null);
-  };
-
-  const handleReviewTutorial = (id: string) => {
-    setSelectedTutorial(id);
-  };
-
-  const activeTutorial = tutorials.find((t) => t.id === selectedTutorial);
+  const allCompleted = completedTutorials.size === tutorialDefs.length;
+  const activeTutorial = tutorialDefs.find((t) => t.id === selectedTutorial);
+  const currentStep = activeTutorial?.steps[stepIndex];
   const isReviewing = activeTutorial ? completedTutorials.has(activeTutorial.id) : false;
+
+  // Scroll to & highlight target whenever step changes
+  useEffect(() => {
+    if (!currentStep?.targetId) return;
+
+    // Open collapsible first if needed
+    if (currentStep.openCollapsible) {
+      openCollapsibleSection(currentStep.openCollapsible);
+    }
+
+    // Small delay to let collapsible open
+    const timeout = setTimeout(() => {
+      const cleanup = scrollToAndHighlight(currentStep.targetId!);
+      return cleanup;
+    }, 300);
+
+    return () => {
+      clearTimeout(timeout);
+      // Remove highlight from all elements
+      document.querySelectorAll(".tutorial-highlight").forEach((el) => {
+        el.classList.remove("tutorial-highlight");
+      });
+    };
+  }, [selectedTutorial, stepIndex, currentStep]);
+
+  const handleNextStep = useCallback(() => {
+    if (!activeTutorial) return;
+    if (stepIndex < activeTutorial.steps.length - 1) {
+      setStepIndex(stepIndex + 1);
+    } else {
+      // Complete this tutorial
+      setCompletedTutorials((prev) => {
+        const next = new Set(prev);
+        next.add(activeTutorial.id);
+        return next;
+      });
+      setSelectedTutorial(null);
+      setStepIndex(0);
+    }
+  }, [activeTutorial, stepIndex]);
+
+  const handleSkipStep = useCallback(() => {
+    handleNextStep();
+  }, [handleNextStep]);
+
+  const handleStepAction = useCallback(() => {
+    if (!currentStep) return;
+
+    if (currentStep.navigateTo) {
+      onNavigate(currentStep.navigateTo);
+    }
+    if (currentStep.openChat) {
+      onOpenChat();
+    }
+    handleNextStep();
+  }, [currentStep, onNavigate, onOpenChat, handleNextStep]);
+
+  const handleSelectTutorial = (id: string) => {
+    setSelectedTutorial(id);
+    setStepIndex(0);
+  };
+
+  const handleBackToMenu = () => {
+    document.querySelectorAll(".tutorial-highlight").forEach((el) => {
+      el.classList.remove("tutorial-highlight");
+    });
+    setSelectedTutorial(null);
+    setStepIndex(0);
+  };
 
   return (
     <>
+      {/* Tutorial highlight styles injected once */}
+      <style>{`
+        .tutorial-highlight {
+          position: relative;
+          z-index: 10;
+          outline: 2px solid hsl(var(--primary));
+          outline-offset: 4px;
+          border-radius: 12px;
+          animation: tutorial-pulse 2s ease-in-out infinite;
+        }
+        @keyframes tutorial-pulse {
+          0%, 100% { outline-color: hsl(var(--primary)); }
+          50% { outline-color: hsl(var(--primary) / 0.4); }
+        }
+      `}</style>
+
       <Card className="relative p-5 border-primary/30 bg-gradient-to-r from-primary/5 via-background to-primary/5">
         {/* Close button */}
         <button
@@ -124,26 +309,26 @@ export const SiteTutorialGuide = ({ onDismiss, onOpenChat, onNavigate }: SiteTut
         </button>
 
         {!activeTutorial ? (
-          /* Tutorial selection view */
+          /* ── Tutorial selection menu ──────────────── */
           <div className="space-y-4">
             <div className="flex items-center gap-4">
               <img src={agentBIcon} alt="AgentB" className="w-12 h-12 rounded-xl object-cover" />
               <div className="relative bg-card border border-border rounded-2xl rounded-bl-md p-4 shadow-sm flex-1 mr-6">
                 <p className="text-sm text-foreground">
                   {allCompleted
-                    ? "🎉 You've reviewed all the tutorials! Feel free to revisit any of them below, or close this widget when you're ready."
-                    : "👋 Welcome! I'm AgentB, your campus companion. Let me show you around! Pick a tutorial below to get started."}
+                    ? "🎉 You've completed all the tutorials! Feel free to revisit any of them below, or close this widget when you're ready."
+                    : "👋 Welcome! I'm AgentB, your campus companion. Let me show you around! Pick a tutorial below — I'll walk you through it step by step."}
                 </p>
               </div>
             </div>
 
             <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3 pl-16">
-              {tutorials.map((tutorial) => {
+              {tutorialDefs.map((tutorial) => {
                 const done = completedTutorials.has(tutorial.id);
                 return (
                   <button
                     key={tutorial.id}
-                    onClick={() => done ? handleReviewTutorial(tutorial.id) : setSelectedTutorial(tutorial.id)}
+                    onClick={() => handleSelectTutorial(tutorial.id)}
                     className={`flex items-center gap-2 p-3 rounded-lg border text-left text-sm transition-colors ${
                       done
                         ? "bg-muted/30 border-border text-muted-foreground hover:bg-muted/50 hover:border-primary/30"
@@ -151,7 +336,7 @@ export const SiteTutorialGuide = ({ onDismiss, onOpenChat, onNavigate }: SiteTut
                     }`}
                   >
                     <span className="shrink-0">{tutorial.icon}</span>
-                    <span className={`flex-1 font-medium ${done ? "" : ""}`}>{tutorial.title}</span>
+                    <span className="flex-1 font-medium">{tutorial.title}</span>
                     {done ? (
                       <span className="flex items-center gap-1 text-xs text-primary">
                         ✓ <RotateCcw className="w-3 h-3" />
@@ -182,48 +367,49 @@ export const SiteTutorialGuide = ({ onDismiss, onOpenChat, onNavigate }: SiteTut
             )}
           </div>
         ) : (
-          /* Active tutorial speech bubble */
+          /* ── Active step-by-step tutorial ─────────── */
           <div className="space-y-3">
+            {/* Back button + progress */}
+            <div className="flex items-center justify-between pl-16 mr-6">
+              <button
+                onClick={handleBackToMenu}
+                className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <ArrowLeft className="w-3 h-3" />
+                Back to tutorials
+              </button>
+              <span className="text-xs text-muted-foreground">
+                Step {stepIndex + 1} of {activeTutorial.steps.length}
+              </span>
+            </div>
+
+            {/* Speech bubble */}
             <div className="flex items-start gap-4">
               <img src={agentBIcon} alt="AgentB" className="w-12 h-12 rounded-xl object-cover shrink-0" />
               <div className="flex-1 mr-6">
                 <div className="relative bg-card border border-border rounded-2xl rounded-bl-md p-4 shadow-sm">
                   <p className="text-sm font-semibold text-foreground mb-1">{activeTutorial.title}</p>
-                  <p className="text-sm text-muted-foreground">{activeTutorial.steps[0].message}</p>
+                  <p className="text-sm text-muted-foreground">{currentStep?.message}</p>
                 </div>
               </div>
             </div>
 
+            {/* Action buttons */}
             <div className="flex items-center gap-2 pl-16">
-              {isReviewing ? (
-                <Button size="sm" onClick={() => setSelectedTutorial(null)}>
-                  Back to Tutorials
+              {currentStep?.allowSkip && (
+                <Button variant="outline" size="sm" onClick={handleSkipStep}>
+                  Maybe Later
                 </Button>
-              ) : (
-                <>
-                  {activeTutorial.steps[0].allowSkip && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleCompleteTutorial(activeTutorial.id)}
-                    >
-                      Maybe Later
-                    </Button>
-                  )}
-                  <Button
-                    size="sm"
-                    onClick={() => handleCompleteTutorial(activeTutorial.id)}
-                  >
-                    Got it!
-                  </Button>
-                </>
               )}
+              <Button size="sm" onClick={handleStepAction}>
+                {currentStep?.actionLabel || "Got it!"}
+              </Button>
             </div>
           </div>
         )}
       </Card>
 
-      {/* Skip confirmation dialog */}
+      {/* Skip confirmation */}
       <AlertDialog open={showSkipConfirm} onOpenChange={setShowSkipConfirm}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -239,7 +425,7 @@ export const SiteTutorialGuide = ({ onDismiss, onOpenChat, onNavigate }: SiteTut
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Close widget confirmation dialog */}
+      {/* Close widget confirmation */}
       <AlertDialog open={showCloseConfirm} onOpenChange={setShowCloseConfirm}>
         <AlertDialogContent>
           <AlertDialogHeader>
