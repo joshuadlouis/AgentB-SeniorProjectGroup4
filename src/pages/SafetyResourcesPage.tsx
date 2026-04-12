@@ -258,6 +258,137 @@ const sections = [
       </div>
     ),
   },
+  {
+    title: "HU Healthcare: Howard University Hospital & The Student Health Center",
+    content: (
+      <div className="space-y-4 text-sm text-muted-foreground">
+        <p className="font-medium text-foreground">Howard University Student Health Center</p>
+        <p>
+          <a href="http://huhealthcare.com/healthcare/students" target="_blank" rel="noopener noreferrer" className="text-primary underline inline-flex items-center gap-1">
+            huhealthcare.com/healthcare/students <ExternalLink className="h-3 w-3" />
+          </a>
+        </p>
+        <p>2139 Georgia Avenue, NW (corner of W Street and Georgia Avenue), Washington, D.C. 20059</p>
+        <p>Phone: <a href="tel:2028067540" className="text-primary underline">(202) 806-7540</a></p>
+        <p>Hours: Monday – Friday, 8:30 am – 5:00 pm (Closed for lunch 12:30–1:30 pm)</p>
+        <p>
+          To make an appointment online:{" "}
+          <a href="https://patientportal.advancedmd.com/149221/onlinescheduling/existing" target="_blank" rel="noopener noreferrer" className="text-primary underline inline-flex items-center gap-1">
+            Schedule Appointment <ExternalLink className="h-3 w-3" />
+          </a>
+        </p>
+
+        <div className="border-t border-border pt-4">
+          <p className="font-medium text-foreground">Howard University Hospital</p>
+          <p>
+            <a href="http://huhealthcare.com/healthcare/hospital" target="_blank" rel="noopener noreferrer" className="text-primary underline inline-flex items-center gap-1">
+              huhealthcare.com/healthcare/hospital <ExternalLink className="h-3 w-3" />
+            </a>
+          </p>
+          <p>2041 Georgia Avenue, N.W., Washington, D.C. 20060</p>
+          <p>Phone: <a href="tel:2028651131" className="text-primary underline">(202) 865-1131</a></p>
+        </div>
+
+        <div className="border-t border-border pt-4">
+          <p className="font-medium text-foreground">Forensic Examinations</p>
+          <p>Forensic examinations for survivors of sexual assault or dating/domestic violence are provided by District of Columbia Forensic Nurse Examiners (DCFNE):{" "}
+            <a href="https://www.dcfne.org/" target="_blank" rel="noopener noreferrer" className="text-primary underline inline-flex items-center gap-1">
+              dcfne.org <ExternalLink className="h-3 w-3" />
+            </a>
+          </p>
+        </div>
+
+        <div className="border-t border-border pt-4">
+          <p className="font-medium text-foreground">MedStar Washington Hospital Center – 24 hours/7 days a week</p>
+          <p>
+            <a href="https://www.medstarwashington.org/" target="_blank" rel="noopener noreferrer" className="text-primary underline inline-flex items-center gap-1">
+              medstarwashington.org <ExternalLink className="h-3 w-3" />
+            </a>
+          </p>
+          <p>110 Irving St., NW, Washington, D.C. 20010</p>
+          <p>Phone: <a href="tel:2028777000" className="text-primary underline">(202) 877-7000</a> or DC Victim Hotline: <a href="tel:8444435732" className="text-primary underline">(844) 443-5732</a></p>
+          <p className="text-xs italic">*Though based at Medstar, Sexual Assault Nurse Examiners can also travel to other DC hospitals to perform an exam.{" "}
+            <a href="https://static1.squarespace.com/static/5cb617977fdcb821197ec202/t/5d83d0671010f46908ca0302/1568919657067/SANE+exam+process_Eng+%26+Span.pdf" target="_blank" rel="noopener noreferrer" className="text-primary underline inline-flex items-center gap-1">
+              Learn more <ExternalLink className="h-3 w-3" />
+            </a>
+          </p>
+        </div>
+
+        <div className="border-t border-border pt-4">
+          <p className="font-medium text-foreground">DCFNE's Forensic Nursing Clinic – by appointment</p>
+          <p>101 Q St NE, 2nd floor, Washington, D.C. 20002</p>
+          <p>Call <a href="tel:8444435732" className="text-primary underline">844-4HELP-DC (844-443-5732)</a> to schedule.{" "}
+            <a href="https://www.dcfne.org/faq" target="_blank" rel="noopener noreferrer" className="text-primary underline inline-flex items-center gap-1">
+              Learn more <ExternalLink className="h-3 w-3" />
+            </a>
+          </p>
+        </div>
+      </div>
+    ),
+  },
+  {
+    title: "Local, National & International Resources",
+    content: (
+      <div className="space-y-4 text-sm text-muted-foreground">
+        <p className="font-medium text-foreground">Off Campus Resources (Washington, DC)</p>
+        <ul className="space-y-3 pl-4 list-disc">
+          <li>
+            <span className="font-medium text-foreground">DC Rape Crisis Center</span> (<a href="tel:2023337273" className="text-primary underline">202-333-RAPE</a>) – 24-hour hotline, therapeutic services, individual and group counseling, and advocacy.{" "}
+            <a href="https://www.dcrcc.org/" target="_blank" rel="noopener noreferrer" className="text-primary underline inline-flex items-center gap-1">dcrcc.org <ExternalLink className="h-3 w-3" /></a>
+          </li>
+          <li>
+            <span className="font-medium text-foreground">DC Victim Hotline</span> (<a href="tel:8444435732" className="text-primary underline">844-4HELPDC</a>) – Free confidential, around-the-clock information and referrals for victims of all crime in DC.{" "}
+            <a href="https://dcvictim.org/" target="_blank" rel="noopener noreferrer" className="text-primary underline inline-flex items-center gap-1">dcvictim.org <ExternalLink className="h-3 w-3" /></a>
+          </li>
+          <li>
+            <span className="font-medium text-foreground">Network for Victim Recovery of DC (NVRDC)</span> (<a href="tel:2027421727" className="text-primary underline">202-742-1727</a>) – Advocacy, case management, and legal services.{" "}
+            <a href="https://www.nvrdc.org/" target="_blank" rel="noopener noreferrer" className="text-primary underline inline-flex items-center gap-1">nvrdc.org <ExternalLink className="h-3 w-3" /></a>
+          </li>
+          <li>
+            <span className="font-medium text-foreground">Crime Victims Compensation Program</span> (<a href="tel:2028794230" className="text-primary underline">202-879-4230</a>) – Financial assistance and reimbursement for crime-related expenses.{" "}
+            <a href="https://howard.edu/sites/home.howard.edu/files/2024-02/CVCP%20Information%20Brochure.pdf" target="_blank" rel="noopener noreferrer" className="text-primary underline inline-flex items-center gap-1">Info brochure <ExternalLink className="h-3 w-3" /></a>
+          </li>
+        </ul>
+
+        <div className="border-t border-border pt-4">
+          <p className="font-medium text-foreground">Local and National Resources</p>
+          <ul className="space-y-3 pl-4 list-disc">
+            <li>
+              <span className="font-medium text-foreground">Futures Without Violence</span> – Resources addressing violence during the coronavirus pandemic.{" "}
+              <a href="https://www.workplacesrespond.org/page/covid19supportingworkers/#survivorsfamilyfriends" target="_blank" rel="noopener noreferrer" className="text-primary underline inline-flex items-center gap-1">COVID-19 Resource Page <ExternalLink className="h-3 w-3" /></a>
+            </li>
+            <li>
+              <span className="font-medium text-foreground">RAINN</span> – National Sexual Assault Hotline: <a href="tel:18006564673" className="text-primary underline">800-656-HOPE</a> or{" "}
+              <a href="https://hotline.rainn.org" target="_blank" rel="noopener noreferrer" className="text-primary underline">online chat</a>. Learn more at{" "}
+              <a href="https://www.rainn.org/" target="_blank" rel="noopener noreferrer" className="text-primary underline inline-flex items-center gap-1">rainn.org <ExternalLink className="h-3 w-3" /></a>
+            </li>
+            <li>
+              <span className="font-medium text-foreground">National Network to End Domestic Violence (NNEDV)</span> – Additional resources.{" "}
+              <a href="https://nnedv.org/latest_update/resources-response-coronavirus-covid-19/" target="_blank" rel="noopener noreferrer" className="text-primary underline inline-flex items-center gap-1">Learn more <ExternalLink className="h-3 w-3" /></a>
+            </li>
+          </ul>
+        </div>
+
+        <div className="border-t border-border pt-4">
+          <p className="font-medium text-foreground">International Resources</p>
+          <ul className="space-y-3 pl-4 list-disc">
+            <li>
+              <span className="font-medium text-foreground">NO MORE Global Directory</span> – Comprehensive international directory of domestic violence and sexual assault resources in every UN-recognized country.{" "}
+              <a href="https://nomoredirectory.org/" target="_blank" rel="noopener noreferrer" className="text-primary underline inline-flex items-center gap-1">nomoredirectory.org <ExternalLink className="h-3 w-3" /></a>
+            </li>
+            <li>
+              <span className="font-medium text-foreground">United Nations</span> – Helplines by country for people experiencing relationship abuse.{" "}
+              <a href="https://www.unwomen.org/en/what-we-do/ending-violence-against-women/faqs/signs-of-abuse" target="_blank" rel="noopener noreferrer" className="text-primary underline inline-flex items-center gap-1">UN Women <ExternalLink className="h-3 w-3" /></a>
+            </li>
+            <li>
+              <span className="font-medium text-foreground">Pathways to Safety International</span> – Victim advocacy for sexual assault, relationship violence and stalking outside the U.S. Email: <a href="mailto:crisis@pathwaystosafety.org" className="text-primary underline">crisis@pathwaystosafety.org</a> (response within 72 hours).{" "}
+              <a href="https://pathwaystosafety.org/" target="_blank" rel="noopener noreferrer" className="text-primary underline inline-flex items-center gap-1">pathwaystosafety.org <ExternalLink className="h-3 w-3" /></a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    ),
+  },
 ];
 
 const SafetyResourcesPage = () => {
