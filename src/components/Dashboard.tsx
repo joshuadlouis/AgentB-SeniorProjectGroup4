@@ -174,7 +174,9 @@ export const Dashboard = ({ learningStyles, onOpenChat, onRetakeQuiz }: Dashboar
         {/* Welcome Section */}
         <div className="space-y-4">
           <h2 className="text-3xl font-bold text-foreground">
-            Welcome back{profile.first_name ? `, ${profile.first_name}` : ""}!
+            {isNewUser
+              ? `Welcome to Bison Secure${profile.first_name ? `, ${profile.first_name}` : ""}!`
+              : `Welcome back${profile.first_name ? `, ${profile.first_name}` : ""}!`}
           </h2>
           <p className="text-muted-foreground">Your personalized learning dashboard is ready.</p>
         </div>
