@@ -1,10 +1,17 @@
 import { useState, useRef } from "react";
 import { Card } from "@/components/ui/card";
-
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { 
-  BookOpen, MessageSquare, Calendar, MapPin, Utensils, Bus, Shield, User, LogOut, MessageCircle, BarChart3
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  BookOpen, MessageSquare, Calendar, MapPin, Utensils, Bus, Shield, User, LogOut,
+  MessageCircle, BarChart3, Menu, ChevronUp,
 } from "lucide-react";
 import { DashboardReadAloud } from "./DashboardReadAloud";
 import { LearningVelocityDashboard } from "./LearningVelocityDashboard";
@@ -12,7 +19,6 @@ import { SyllabusUpload } from "./SyllabusUpload";
 import { UpcomingAssignments } from "./UpcomingAssignments";
 import { NotificationBell } from "./NotificationBell";
 import { useStreakTracker } from "@/hooks/useStreakTracker";
-
 import { CourseHub } from "./CourseHub";
 import { TestReminders } from "./TestReminders";
 import { useNavigate } from "react-router-dom";
@@ -20,6 +26,7 @@ import { supabase } from "@/integrations/supabase/client";
 import agentBHeader from "@/assets/AgentBIconHeader.png";
 import { useToast } from "@/hooks/use-toast";
 import { useProfile } from "@/hooks/useProfile";
+import { cn } from "@/lib/utils";
 
 interface DashboardProps {
   learningStyles: string[];
@@ -32,7 +39,7 @@ const styleIcons: Record<string, string> = {
   auditory: "👂",
   kinesthetic: "✋",
   reading: "📖",
-  writing: "✍️"
+  writing: "✍️",
 };
 
 const styleDescriptions: Record<string, string> = {
@@ -40,7 +47,7 @@ const styleDescriptions: Record<string, string> = {
   auditory: "Prefer listening to explanations and discussions",
   kinesthetic: "Excel through hands-on practice and doing",
   reading: "Thrive by reading and processing written content",
-  writing: "Learn by taking notes and writing summaries"
+  writing: "Learn by taking notes and writing summaries",
 };
 
 export const Dashboard = ({ learningStyles, onOpenChat, onRetakeQuiz }: DashboardProps) => {
@@ -48,7 +55,8 @@ export const Dashboard = ({ learningStyles, onOpenChat, onRetakeQuiz }: Dashboar
   const { toast } = useToast();
   const [syllabusRefreshTrigger, setSyllabusRefreshTrigger] = useState(0);
   const [isReadAloudActive, setIsReadAloudActive] = useState(false);
-  
+  const [bottomBarOpen, setBottomBarOpen] = useState(false);
+
   const mainContentRef = useRef<HTMLElement>(null);
 
   const { profile, saveProfile } = useProfile();
@@ -56,94 +64,88 @@ export const Dashboard = ({ learningStyles, onOpenChat, onRetakeQuiz }: Dashboar
 
   const handleSignOut = async () => {
     await saveProfile();
-    
     const { error } = await supabase.auth.signOut();
     if (error) {
-      toast({
-        title: "Error",
-        description: "Failed to sign out",
-        variant: "destructive",
-      });
+      toast({ title: "Error", description: "Failed to sign out", variant: "destructive" });
     } else {
-      toast({
-        title: "Signed out",
-        description: "You've been successfully signed out",
-      });
+      toast({ title: "Signed out", description: "You've been successfully signed out" });
       navigate("/auth");
     }
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
+    <div className="min-h-screen bg-background pb-20">
+      {/* ── Header ──────────────────────────────────── */}
       <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4">
+        <div className="container mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
-            <button 
-              onClick={() => navigate("/")}
-              className="flex items-center gap-3 hover:opacity-80 transition-[var(--transition-smooth)]"
-            >
-              <img src={agentBHeader} alt="AgentB" className="w-10 h-10 rounded-xl object-cover" />
-              <h1 className="text-2xl font-bold text-foreground">AgentB</h1>
-            </button>
-            <div className="flex items-center gap-2 flex-wrap justify-end">
+            <h1 className="text-xl font-bold text-foreground">Dashboard</h1>
+
+            <div className="flex items-center gap-2">
               <NotificationBell />
-              <DashboardReadAloud
-                isActive={isReadAloudActive}
-                onToggle={() => setIsReadAloudActive((v) => !v)}
-                contentRef={mainContentRef}
-              />
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => navigate("/analytics")}
-              >
-                <BarChart3 className="mr-2 h-4 w-4" />
-                <span className="hidden sm:inline">Analytics</span>
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => navigate("/profile")}
-              >
-                <User className="mr-2 h-4 w-4" />
-                <span className="hidden sm:inline">Profile</span>
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleSignOut}
-              >
-                <LogOut className="mr-2 h-4 w-4" />
-                <span className="hidden sm:inline">Sign Out</span>
-              </Button>
-              <Button 
-                size="sm"
-                onClick={onOpenChat}
-                className="bg-[image:var(--gradient-primary)] hover:opacity-90"
-              >
-                <MessageSquare className="mr-2 h-4 w-4" />
-                <span className="hidden sm:inline">Chat</span>
-              </Button>
+
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="icon" className="h-9 w-9">
+                    <Menu className="h-5 w-5" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuItem
+                    onClick={() => setIsReadAloudActive((v) => !v)}
+                  >
+                    <BookOpen className="mr-2 h-4 w-4" />
+                    {isReadAloudActive ? "Stop Listening" : "Listen"}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate("/analytics")}>
+                    <BarChart3 className="mr-2 h-4 w-4" />
+                    Analytics
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate("/profile")}>
+                    <User className="mr-2 h-4 w-4" />
+                    Profile
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleSignOut} className="text-destructive focus:text-destructive">
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Sign Out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
         </div>
       </header>
 
-      <main ref={mainContentRef} className={`container mx-auto px-4 py-8 space-y-8 ${isReadAloudActive ? "pb-32" : ""}`}>
+      {/* Read-aloud controller (hidden but active) */}
+      {isReadAloudActive && (
+        <DashboardReadAloud
+          isActive={isReadAloudActive}
+          onToggle={() => setIsReadAloudActive((v) => !v)}
+          contentRef={mainContentRef}
+        />
+      )}
+
+      {/* ── Main Content ────────────────────────────── */}
+      <main ref={mainContentRef} className="container mx-auto px-4 py-8 space-y-8">
         {/* Welcome Section */}
         <div className="space-y-4">
-          <h2 className="text-3xl font-bold text-foreground">Welcome back{profile.first_name ? `, ${profile.first_name}` : ""}!</h2>
+          <h2 className="text-3xl font-bold text-foreground">
+            Welcome back{profile.first_name ? `, ${profile.first_name}` : ""}!
+          </h2>
           <p className="text-muted-foreground">Your personalized learning dashboard is ready.</p>
         </div>
 
-        {/* Learning Velocity Monitor */}
+        {/* Syllabus Upload */}
+        <SyllabusUpload onUploadComplete={() => setSyllabusRefreshTrigger((prev) => prev + 1)} />
+
+        {/* Course Hub */}
+        <CourseHub refreshTrigger={syllabusRefreshTrigger} />
+
+        {/* Learning Velocity — below Course Hub */}
         <LearningVelocityDashboard />
 
-        {/* Upcoming Assignments */}
-        <UpcomingAssignments />
-
-        {/* Learning Styles */}
+        {/* Learning Styles — below Course Hub */}
         <Card className="p-6 shadow-[var(--shadow-medium)] border-border">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-xl font-semibold text-foreground">Your Learning Style</h3>
@@ -152,8 +154,8 @@ export const Dashboard = ({ learningStyles, onOpenChat, onRetakeQuiz }: Dashboar
             </Button>
           </div>
           <div className="grid gap-4 md:grid-cols-3">
-            {learningStyles.map(style => (
-              <div 
+            {learningStyles.map((style) => (
+              <div
                 key={style}
                 className="p-4 rounded-xl bg-gradient-to-br from-primary/5 to-secondary/5 border border-border"
               >
@@ -169,15 +171,11 @@ export const Dashboard = ({ learningStyles, onOpenChat, onRetakeQuiz }: Dashboar
           </div>
         </Card>
 
-        {/* Syllabus Upload */}
-        <SyllabusUpload onUploadComplete={() => setSyllabusRefreshTrigger(prev => prev + 1)} />
-
-        {/* Course Hub */}
-        <CourseHub refreshTrigger={syllabusRefreshTrigger} />
-
-
-        {/* Test Reminders */}
+        {/* Test Reminders — above Upcoming Assignments */}
         <TestReminders />
+
+        {/* Upcoming Assignments */}
+        <UpcomingAssignments />
 
         {/* Main Content Grid */}
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -277,28 +275,47 @@ export const Dashboard = ({ learningStyles, onOpenChat, onRetakeQuiz }: Dashboar
             </Button>
           </Card>
         </div>
-
-        {/* AgentB CTA */}
-        <Card className="p-8 bg-[image:var(--gradient-primary)] border-0 text-white shadow-[var(--shadow-elevated)]">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="space-y-2 text-center md:text-left">
-              <h3 className="text-2xl font-bold">Need Help? Ask AgentB!</h3>
-              <p className="text-white/90">
-                Your AI assistant is here 24/7 to answer questions, provide reminders, and guide you to resources.
-              </p>
-            </div>
-            <Button 
-              size="lg"
-              onClick={onOpenChat}
-              className="bg-white text-primary hover:bg-white/90 shadow-lg"
-            >
-              <MessageSquare className="mr-2 h-5 w-5" />
-              Start Chatting
-            </Button>
-          </div>
-        </Card>
       </main>
 
+      {/* ── Fixed Bottom AgentB Bar ──────────────────── */}
+      <div className="fixed bottom-0 left-0 right-0 z-50">
+        {/* Expanded panel */}
+        <div
+          className={cn(
+            "bg-card/95 backdrop-blur-md border-t border-border overflow-hidden transition-all duration-300",
+            bottomBarOpen ? "max-h-28 py-3" : "max-h-0 py-0"
+          )}
+        >
+          <div className="container mx-auto px-4 flex items-center justify-center">
+            <Button
+              size="lg"
+              onClick={() => {
+                setBottomBarOpen(false);
+                onOpenChat();
+              }}
+              className="bg-[image:var(--gradient-primary)] hover:opacity-90 gap-2 shadow-lg"
+            >
+              <MessageSquare className="h-5 w-5" />
+              Chat with AgentB
+            </Button>
+          </div>
+        </div>
+
+        {/* Tab bar */}
+        <button
+          onClick={() => setBottomBarOpen((v) => !v)}
+          className="w-full bg-card border-t border-border px-4 py-2.5 flex items-center justify-center gap-3 hover:bg-muted/50 transition-colors"
+        >
+          <img src={agentBHeader} alt="AgentB" className="w-7 h-7 rounded-lg object-cover" />
+          <span className="font-semibold text-sm text-foreground">AgentB</span>
+          <ChevronUp
+            className={cn(
+              "w-4 h-4 text-muted-foreground transition-transform duration-300",
+              bottomBarOpen && "rotate-180"
+            )}
+          />
+        </button>
+      </div>
     </div>
   );
 };
