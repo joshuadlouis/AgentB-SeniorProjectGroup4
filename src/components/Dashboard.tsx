@@ -206,47 +206,53 @@ export const Dashboard = ({ learningStyles, onOpenChat, onRetakeQuiz }: Dashboar
         )}
 
         {/* Test Reminders — first widget */}
-        <TestReminders />
+        <div data-tutorial-id="test-reminders">
+          <TestReminders />
+        </div>
 
         {/* Upcoming Assignments — second widget */}
-        <UpcomingAssignments />
+        <div data-tutorial-id="upcoming-assignments">
+          <UpcomingAssignments />
+        </div>
 
         {/* Today's Classes — third widget */}
         <DailySchedule />
 
         {/* Course Hub — contains Learning Style, Syllabi, Courses, and Velocity */}
-        <CourseHub
-          refreshTrigger={syllabusRefreshTrigger}
-          learningStyleSection={
-            <div className="space-y-4">
-              <div className="flex items-center justify-end">
-                <Button variant="outline" size="sm" onClick={onRetakeQuiz}>
-                  Retake Quiz
-                </Button>
-              </div>
-              <div className="grid gap-4 md:grid-cols-3">
-                {learningStyles.map((style) => (
-                  <div
-                    key={style}
-                    className="p-4 rounded-xl bg-gradient-to-br from-primary/5 to-secondary/5 border border-border"
-                  >
-                    <div className="flex items-center gap-3 mb-2">
-                      <span className="text-3xl">{styleIcons[style]}</span>
-                      <Badge variant="secondary" className="capitalize">
-                        {style}
-                      </Badge>
+        <div data-tutorial-id="course-hub">
+          <CourseHub
+            refreshTrigger={syllabusRefreshTrigger}
+            learningStyleSection={
+              <div className="space-y-4">
+                <div className="flex items-center justify-end">
+                  <Button variant="outline" size="sm" onClick={onRetakeQuiz}>
+                    Retake Quiz
+                  </Button>
+                </div>
+                <div className="grid gap-4 md:grid-cols-3">
+                  {learningStyles.map((style) => (
+                    <div
+                      key={style}
+                      className="p-4 rounded-xl bg-gradient-to-br from-primary/5 to-secondary/5 border border-border"
+                    >
+                      <div className="flex items-center gap-3 mb-2">
+                        <span className="text-3xl">{styleIcons[style]}</span>
+                        <Badge variant="secondary" className="capitalize">
+                          {style}
+                        </Badge>
+                      </div>
+                      <p className="text-sm text-muted-foreground">{styleDescriptions[style]}</p>
                     </div>
-                    <p className="text-sm text-muted-foreground">{styleDescriptions[style]}</p>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
-          }
-          syllabusSection={
-            <SyllabusUpload embedded onUploadComplete={() => setSyllabusRefreshTrigger((prev) => prev + 1)} />
-          }
-          velocitySection={<LearningVelocityDashboard embedded />}
-        />
+            }
+            syllabusSection={
+              <SyllabusUpload embedded onUploadComplete={() => setSyllabusRefreshTrigger((prev) => prev + 1)} />
+            }
+            velocitySection={<LearningVelocityDashboard embedded />}
+          />
+        </div>
 
         {/* Main Content Grid */}
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
