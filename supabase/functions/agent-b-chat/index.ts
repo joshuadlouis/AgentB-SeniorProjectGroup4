@@ -12,7 +12,7 @@ serve(async (req) => {
   }
 
   try {
-    const { messages, learningStyles, requestType, className, quizResult, resourceType, resourceTitle, topic, weakAreas: requestWeakAreas, assignmentId, assignmentTitle, fileUrl, moduleType, moduleTitle, bloomLevel, masteryScore } = await req.json();
+    const { messages, learningStyles, requestType, className, quizResult, resourceType, resourceTitle, topic, weakAreas: requestWeakAreas, assignmentId, assignmentTitle, fileUrl, moduleType, moduleTitle, bloomLevel, masteryScore, absenceData } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
     const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
@@ -1182,6 +1182,119 @@ Format your response as:
 [Provide all answers]
 
 After the quiz, provide a brief study guide based on the topics covered.`;
+    } else if (requestType === "absence-notification") {
+      // Generate professional professor notification email draft
+      const absence = absenceData || {};
+      systemPrompt = `You are AgentB helping a student draft a professional email to notify their professor about an absence.
+
+STUDENT CONTEXT:
+- Class: ${className || "their course"}
+- Absence Date: ${absence.absenceDate || "not specified"}
+- Reason: ${absence.reason || "not specified"}
+- Explanation: ${absence.explanation || "none provided"}
+- Professor Email: ${absence.professorEmail || "not specified"}
+${syllabiContext}
+
+INSTRUCTIONS:
+- Draft a professional, respectful email the student can send to their professor
+- Include: subject line, greeting, clear explanation, any documentation mention, request for make-up work, polite closing
+- Keep it concise but thorough
+- Use a formal academic tone
+- DO NOT fabricate details — only use what the student provided
+- If the student uploaded documentation, mention that documentation is available upon request
+- Format with clear sections: Subject, Body
+- Suggest the student CC their academic advisor if appropriate
+
+OUTPUT FORMAT:
+**Subject:** [email subject]
+
+**Email Body:**
+[full email draft]
+
+**Tips:**
+- [any relevant tips for the student]`;
+
+    } else if (requestType === "make-up-options") {
+      // Suggest syllabus-aware make-up options
+      const absence = absenceData || {};
+
+      // Fetch syllabus grading policy for this class
+      let gradingContext = "";
+      let assignmentContext = "";
+      if (userId && className && SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY) {
+        const adminClient = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+        const { data: syllabus } = await adminClient
+          .from("syllabi")
+          .select("grading_policy, learning_objectives, weekly_schedule")
+          .eq("user_id", userId)
+          .eq("class_name", className)
+          .maybeSingle();
+
+        if (syllabus) {
+          if (syllabus.grading_policy) {
+            gradingContext = `\n\nGRADING POLICY:\n${JSON.stringify(syllabus.grading_policy, null, 2)}`;
+          }
+          if (syllabus.weekly_schedule) {
+            gradingContext += `\n\nWEEKLY SCHEDULE:\n${JSON.stringify(syllabus.weekly_schedule, null, 2)}`;
+          }
+        }
+
+        // Fetch upcoming assignments
+        const { data: assignments } = await adminClient
+          .from("assignments")
+          .select("assignment_title, due_date, difficulty_level")
+          .eq("user_id", userId)
+          .eq("class_name", className)
+          .order("due_date", { ascending: true })
+          .limit(10);
+
+        if (assignments && assignments.length > 0) {
+          assignmentContext = `\n\nUPCOMING ASSIGNMENTS:\n${assignments.map(a =>
+            `- ${a.assignment_title}${a.due_date ? ` (due ${a.due_date})` : ""}${a.difficulty_level ? ` [${a.difficulty_level}]` : ""}`
+          ).join("\n")}`;
+        }
+
+        // Fetch student mastery
+        const { data: focusData } = await adminClient
+          .from("study_focus_areas")
+          .select("topic, quiz_score, quiz_passed")
+          .eq("user_id", userId)
+          .eq("class_name", className);
+
+        if (focusData && focusData.length > 0) {
+          const weak = focusData.filter(f => !f.quiz_passed || (f.quiz_score != null && f.quiz_score < 70));
+          if (weak.length > 0) {
+            assignmentContext += `\n\nSTUDENT WEAK AREAS: ${weak.map(t => t.topic).join(", ")}`;
+          }
+        }
+      }
+
+      systemPrompt = `You are AgentB suggesting make-up work options for a student who missed class.
+
+CLASS: ${className || "the course"}
+ABSENCE DATE: ${absence.absenceDate || "not specified"}
+REASON: ${absence.reason || "not specified"}
+${gradingContext}
+${assignmentContext}
+${learningStyleContext}
+
+${biasGuardrails}
+
+INSTRUCTIONS:
+- Suggest 2-3 specific make-up options based on the syllabus grading policy and upcoming assignments
+- For each option, provide:
+  1. **Option name** (e.g., "Extended deadline", "Alternative assignment", "Extra credit opportunity")
+  2. **Description** of what the student would do
+  3. **Suggested deadline** (reasonable extension based on the absence)
+  4. **How it maps to learning objectives** from the syllabus
+  5. **Estimated time** to complete
+- Consider the student's current mastery level when suggesting difficulty
+- If assignments were due on the absence date, specifically address those
+- Be realistic about what professors typically accept
+- Format each option clearly with headers
+
+If no syllabus data is available, provide generic but reasonable make-up suggestions.`;
+
     } else {
       // Fetch student mastery and bloom data for chat context
       let masteryContext = "";
@@ -1564,6 +1677,58 @@ When the user asks about their uploaded classes/syllabi, provide targeted help f
       }
       
       return new Response(JSON.stringify({ content, cached: false }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Non-streaming response for absence notification drafts and make-up options
+    if (requestType === "absence-notification" || requestType === "make-up-options") {
+      const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${LOVABLE_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "google/gemini-2.5-flash",
+          messages: [
+            { role: "system", content: systemPrompt },
+            ...messages,
+          ],
+        }),
+      });
+
+      if (!response.ok) {
+        return new Response(JSON.stringify({ error: `Failed to generate ${requestType} content` }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      const data = await response.json();
+      const content = data.choices?.[0]?.message?.content || "Generation failed.";
+
+      // Save notification draft to absence request if applicable
+      if (requestType === "absence-notification" && absenceData?.requestId && userId && SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY) {
+        const adminClient = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+        await adminClient
+          .from("absence_requests")
+          .update({ notification_draft: content })
+          .eq("id", absenceData.requestId)
+          .eq("user_id", userId);
+      }
+
+      // Save make-up details if applicable
+      if (requestType === "make-up-options" && absenceData?.requestId && userId && SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY) {
+        const adminClient = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+        await adminClient
+          .from("absence_requests")
+          .update({ make_up_details: { suggestions: content, generated_at: new Date().toISOString() } })
+          .eq("id", absenceData.requestId)
+          .eq("user_id", userId);
+      }
+
+      return new Response(JSON.stringify({ content }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
