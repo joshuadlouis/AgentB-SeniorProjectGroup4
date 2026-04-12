@@ -1,4 +1,4 @@
-import { BookOpen, ClipboardCheck, CalendarDays, MapPin, Bus, MessageCircle } from "lucide-react";
+import { BookOpen, ClipboardCheck, CalendarDays, MapPin, Bus, MessageCircle, Volume2, User } from "lucide-react";
 import React from "react";
 
 export interface TutorialStep {
@@ -183,6 +183,56 @@ export const tutorialDefs: TutorialDef[] = [
       },
       {
         message: "🎉 Finished with Tutorial! Remember, I'm always here to help. You can revisit this anytime from the tutorial menu.",
+        isFinished: true,
+      },
+    ],
+  },
+  {
+    id: "read-aloud",
+    title: "Using Read Aloud",
+    icon: <Volume2 className="w-4 h-4" />,
+    steps: [
+      {
+        message: "Let's explore the Read Aloud feature! 🔊 You can listen to any text in the app. First, try selecting/highlighting any text on this page — a 'Listen' tooltip will appear!",
+      },
+      {
+        message: "You can also open the Read Aloud page directly to paste text, upload documents, or listen to longer content. Let's go there now!",
+        actionLabel: "Open Read Aloud",
+      },
+      {
+        message: "Welcome to the Read Aloud page! 🎧 Here you can paste or type text in the editor, upload .txt/.pdf/.docx files (up to 3 MB), and control playback with the bar at the bottom.",
+        navigateTo: "/read-aloud",
+      },
+      {
+        message: "Try pasting some text or uploading a document, then press Play to hear it read aloud. You can adjust speed and skip forward/backward!",
+      },
+      {
+        message: "🎉 Finished with Tutorial! You now know how to use Read Aloud — highlight text anywhere or visit this page directly. You can revisit this anytime from the tutorial menu.",
+        isFinished: true,
+      },
+    ],
+  },
+  {
+    id: "profile",
+    title: "Accessing Your Profile",
+    icon: <User className="w-4 h-4" />,
+    steps: [
+      {
+        message: "Let's explore your Profile! 👤 This is where you manage your personal info, appearance, and account settings.",
+        actionLabel: "Open Profile",
+      },
+      {
+        message: "Here's your Profile page! At the top you can change your First Name and Last Name, and see your email address.",
+        navigateTo: "/profile",
+      },
+      {
+        message: "Scroll down to find Appearance settings — switch between Light, Dark, and System themes. Below that, you can change your email or password.",
+      },
+      {
+        message: "You can also update your University here. Your learning style preferences and notification settings are all on this page too!",
+      },
+      {
+        message: "🎉 Finished with Tutorial! You now know where to update your name, appearance, email, password, and university. You can revisit this anytime from the tutorial menu.",
         isFinished: true,
       },
     ],
