@@ -308,7 +308,7 @@ export const LearningVelocityDashboard = ({ embedded = false }: { embedded?: boo
                   }
                 >
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-foreground truncate">
+                    <p className="text-sm font-medium text-foreground truncate capitalize">
                       {cs.className}
                     </p>
                     <div className="flex items-center gap-3 mt-1">
