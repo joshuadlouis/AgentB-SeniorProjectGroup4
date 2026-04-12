@@ -44,8 +44,9 @@ serve(async (req) => {
       .order("topic_order", { ascending: true });
 
     if (!content || content.length === 0) {
-      throw new Error(
-        "No course content found. Generate course content first."
+      return new Response(
+        JSON.stringify({ error: "No course content found. Generate course content first." }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
