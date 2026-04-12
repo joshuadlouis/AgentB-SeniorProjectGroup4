@@ -569,6 +569,121 @@ export type Database = {
         }
         Relationships: []
       }
+      flashcard_decks: {
+        Row: {
+          card_count: number
+          class_name: string
+          created_at: string
+          description: string | null
+          id: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          card_count?: number
+          class_name: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          card_count?: number
+          class_name?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      flashcard_reviews: {
+        Row: {
+          flashcard_id: string
+          id: string
+          rating: string
+          reviewed_at: string
+          user_id: string
+        }
+        Insert: {
+          flashcard_id: string
+          id?: string
+          rating: string
+          reviewed_at?: string
+          user_id: string
+        }
+        Update: {
+          flashcard_id?: string
+          id?: string
+          rating?: string
+          reviewed_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "flashcard_reviews_flashcard_id_fkey"
+            columns: ["flashcard_id"]
+            isOneToOne: false
+            referencedRelation: "flashcards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      flashcards: {
+        Row: {
+          back_text: string
+          created_at: string
+          deck_id: string
+          easiness_factor: number
+          front_text: string
+          id: string
+          interval_days: number
+          next_review_at: string
+          repetitions: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          back_text: string
+          created_at?: string
+          deck_id: string
+          easiness_factor?: number
+          front_text: string
+          id?: string
+          interval_days?: number
+          next_review_at?: string
+          repetitions?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          back_text?: string
+          created_at?: string
+          deck_id?: string
+          easiness_factor?: number
+          front_text?: string
+          id?: string
+          interval_days?: number
+          next_review_at?: string
+          repetitions?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "flashcards_deck_id_fkey"
+            columns: ["deck_id"]
+            isOneToOne: false
+            referencedRelation: "flashcard_decks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       generated_resources: {
         Row: {
           content: string
