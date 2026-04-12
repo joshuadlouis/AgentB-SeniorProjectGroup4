@@ -17,7 +17,6 @@ export default function Auth() {
   const [view, setView] = useState<AuthView>("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [universityId, setUniversityId] = useState("");
   const [universities, setUniversities] = useState<{ id: string; name: string }[]>([]);
