@@ -1,0 +1,199 @@
+import { Button } from "@/components/ui/button";
+import { ArrowLeft, Phone, ExternalLink, AlertTriangle } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Card } from "@/components/ui/card";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+
+const sections = [
+  {
+    title: "Emergency Contacts",
+    content: (
+      <div className="space-y-4">
+        <div className="p-4 rounded-lg bg-destructive/10 border border-destructive/20">
+          <div className="flex items-center gap-2 mb-2">
+            <AlertTriangle className="h-5 w-5 text-destructive" />
+            <span className="font-semibold text-destructive">For emergencies, text or dial 911 or (202) 806-7777</span>
+          </div>
+        </div>
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <Phone className="h-4 w-4 text-primary" />
+            <span className="font-medium">Suicide &amp; Crisis Lifeline:</span>
+            <a href="tel:988" className="text-primary underline">988</a>
+          </div>
+          <div>
+            <p className="font-medium">Department of Public Safety</p>
+            <a href="tel:2028061100" className="text-primary underline text-sm">(202) 806-1100</a>
+          </div>
+          <div>
+            <p className="font-medium">Howard University Hospital Security</p>
+            <a href="tel:2028651103" className="text-primary underline text-sm">(202) 865-1103</a>
+          </div>
+        </div>
+      </div>
+    ),
+  },
+  {
+    title: "Policy Prohibiting Sex and Gender-Based Discrimination, Sexual Misconduct and Retaliation (Title IX)",
+    content: (
+      <div className="space-y-3 text-sm text-muted-foreground">
+        <p><span className="font-medium text-foreground">Policy Number:</span> 400-005 Governance, Risk and Compliance</p>
+        <p><span className="font-medium text-foreground">Policy Title:</span> Policy Prohibiting Sex and Gender-Based Discrimination, Sexual Misconduct and Retaliation</p>
+        <p><span className="font-medium text-foreground">Responsible Officers:</span> Provost and Chief Academic Officer; Delegated Responsible Officer: Title IX Director</p>
+        <p><span className="font-medium text-foreground">Responsible Offices:</span> Office of the Provost and Chief Academic Officer; Delegated Responsible Office: Title IX Office</p>
+        <p><span className="font-medium text-foreground">Effective Date:</span> August 14, 2020 (Re-issued January 31, 2025; revised August 1, 2024)</p>
+        <p><span className="font-medium text-foreground">Next Review Date:</span> February 2025</p>
+        <p><span className="font-medium text-foreground">Summary:</span> Howard University is committed to ensuring compliance with federal laws that prohibit sex discrimination as well as applicable state and local laws that prohibit sex and gender-based discrimination, including sexual misconduct such as sexual harassment, sexual assault, dating violence, domestic violence, and stalking. Retaliation against anyone involved in filing an internal report or complaint under this policy is prohibited, will not be tolerated and will be subject to separate sanctions.</p>
+      </div>
+    ),
+  },
+  {
+    title: "Title IX Incident Report Form",
+    content: (
+      <div className="space-y-3 text-sm">
+        <div className="p-4 rounded-lg bg-destructive/10 border border-destructive/20">
+          <p className="text-destructive font-medium text-xs">TO REPORT AN EMERGENCY OR INCIDENT THAT POSES AN IMMINENT RISK OF HARM, BEFORE COMPLETING THIS FORM, CALL HU DEPARTMENT OF PUBLIC SAFETY AT 202-806-7777, LOCAL POLICE AT 911 OR SUICIDE AND CRISIS LIFELINE AT 988.</p>
+        </div>
+        <a
+          href="https://cm.maxient.com/reportingform.php?HowardUniv&layout_id=90"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 text-primary underline font-medium"
+        >
+          <ExternalLink className="h-4 w-4" />
+          Open Incident Report Form
+        </a>
+      </div>
+    ),
+  },
+  {
+    title: "HU Dept. Of Public Safety (DPS) & DC Metropolitan Police Dept. (MPD)",
+    content: (
+      <div className="space-y-4 text-sm text-muted-foreground">
+        <p>Victims/survivors of sexual misconduct and sexual violence may contact the Howard University Department of Public Safety (DPS) and/or the Metropolitan Police Department (MPD) in order to report such incidents to law enforcement.</p>
+        <div>
+          <p className="font-medium text-foreground">Howard University Department of Public Safety (DPS)</p>
+          <p>2244 10th Street, N.W., Suite 270, Washington, D.C. 20059</p>
+          <p>Phone: <a href="tel:2028061100" className="text-primary underline">(202) 806-1100</a></p>
+          <p>Emergency: <a href="tel:2028067777" className="text-primary underline">(202) 806-7777</a></p>
+        </div>
+        <div>
+          <p className="font-medium text-foreground">DC Metropolitan Police Department (MPD)</p>
+          <p>1620 V Street, N.W., Washington, D.C. 20009</p>
+          <p>Third District: <a href="tel:2026736815" className="text-primary underline">(202) 673-6815</a></p>
+          <p>Detectives Office: <a href="tel:2026736918" className="text-primary underline">(202) 673-6918</a></p>
+          <p>Emergency: <a href="tel:911" className="text-primary underline">911</a></p>
+        </div>
+      </div>
+    ),
+  },
+  {
+    title: "LGBTQ+ Resources",
+    content: (
+      <div className="space-y-4 text-sm text-muted-foreground">
+        <div>
+          <h4 className="font-semibold text-foreground mb-2">On Campus</h4>
+          <p className="mb-1"><span className="font-medium text-foreground">The Intercultural Affairs & LGBTQ+ Resource Center</span> — <a href="tel:2028066651" className="text-primary underline">(202) 806-6651</a></p>
+          <ul className="list-disc pl-5 space-y-1">
+            <li><span className="font-medium">Support & Advocacy:</span> individualized support on personal, academic, and professional goals</li>
+            <li><span className="font-medium">Education & Awareness:</span> safe spaces and opportunities for dialogue, education, and awareness building</li>
+            <li><span className="font-medium">Community Building:</span> meaningful partnerships and collaborations to nurture a caring and inclusive community</li>
+          </ul>
+          <p className="mt-2">LGBTQ+ Support from the Division of Student Affairs — learn about pronoun usage, LGBTQ+ student organizations, and how to request gender-inclusive housing.</p>
+        </div>
+
+        <div>
+          <h4 className="font-semibold text-foreground mb-2">Off Campus</h4>
+          {[
+            { label: "Health", links: [
+              { url: "https://www.gmhc.org", desc: "AIDS/HIV" },
+              { url: "https://out2enroll.org", desc: "Health insurance & ACA enrollment" },
+              { url: "https://www.glma.org", desc: "Find healthcare providers" },
+              { url: "https://cancer-network.org", desc: "Cancer survivors / those at risk" },
+            ]},
+            { label: "Mental Health", links: [
+              { url: "https://www.helpguide.org/articles/depression/teenagers-guide-to-depression.htm", desc: "Depression" },
+              { url: "https://adaa.org", desc: "Anxiety" },
+              { url: "https://save.org", desc: "Suicide prevention" },
+              { url: "https://suicidepreventionlifeline.org", desc: "Suicide prevention" },
+            ]},
+            { label: "Advocacy / Rights", links: [
+              { url: "https://www.aclu.org/issues/lgbtq-rights", desc: "ACLU" },
+              { url: "https://www.lambdalegal.org", desc: "Lambda Legal" },
+              { url: "https://www.hrc.org", desc: "Human Rights Campaign" },
+              { url: "https://www.nclrights.org", desc: "National Center for Lesbian Rights" },
+            ]},
+            { label: "Identity", links: [
+              { url: "https://bi.org/en", desc: "Bisexual.org" },
+              { url: "https://transequality.org", desc: "National Center for Transgender Equality" },
+              { url: "https://transgenderlawcenter.org", desc: "Transgender Law Center" },
+            ]},
+            { label: "Youth", links: [
+              { url: "https://www.glsen.org/about-us", desc: "GLSEN" },
+              { url: "https://gsanetwork.org", desc: "GSA Network" },
+            ]},
+            { label: "Scholarships", links: [
+              { url: "https://pointfoundation.org/point-apply/application-faqs/", desc: "Point Foundation" },
+              { url: "https://fundforeducationabroad.org/scholarship/rainbow-scholarship/", desc: "Rainbow Scholarship" },
+              { url: "https://www.stonewallfoundation.org/scholarships", desc: "Stonewall Foundation" },
+            ]},
+            { label: "General", links: [
+              { url: "https://www.thetrevorproject.org/resources/category/mental-health/", desc: "Trevor Project" },
+              { url: "https://avp.org", desc: "Violence prevention" },
+              { url: "https://pflag.org/about", desc: "PFLAG — for allies, families, parents" },
+            ]},
+          ].map(category => (
+            <div key={category.label} className="mb-3">
+              <p className="font-medium text-foreground mb-1">{category.label}</p>
+              <ul className="space-y-1 pl-4">
+                {category.links.map(link => (
+                  <li key={link.url}>
+                    <a href={link.url} target="_blank" rel="noopener noreferrer" className="text-primary underline inline-flex items-center gap-1">
+                      {link.desc} <ExternalLink className="h-3 w-3" />
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      </div>
+    ),
+  },
+];
+
+const SafetyResourcesPage = () => {
+  const navigate = useNavigate();
+
+  return (
+    <div className="min-h-screen bg-background">
+      <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
+        <div className="container mx-auto px-4 py-4 flex items-center gap-4">
+          <Button variant="ghost" size="icon" onClick={() => navigate("/")}>
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <h1 className="text-xl font-bold text-foreground">Safety & Resources</h1>
+        </div>
+      </header>
+      <main className="container mx-auto px-4 py-6 max-w-3xl">
+        <Card className="p-6 border-border">
+          <Accordion type="single" collapsible className="w-full">
+            {sections.map((section, i) => (
+              <AccordionItem key={i} value={`item-${i}`}>
+                <AccordionTrigger className="text-left">{section.title}</AccordionTrigger>
+                <AccordionContent>{section.content}</AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+        </Card>
+      </main>
+    </div>
+  );
+};
+
+export default SafetyResourcesPage;

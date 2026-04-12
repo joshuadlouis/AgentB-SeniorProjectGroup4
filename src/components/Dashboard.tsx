@@ -266,7 +266,7 @@ export const Dashboard = ({ learningStyles, onOpenChat, onRetakeQuiz }: Dashboar
             <p className="text-sm text-muted-foreground mb-4">
               Emergency contacts, Title IX, and support services
             </p>
-            <Button variant="outline" className="w-full">
+            <Button variant="outline" className="w-full" onClick={() => navigate("/safety-resources")}>
               Access Resources
             </Button>
           </Card>
