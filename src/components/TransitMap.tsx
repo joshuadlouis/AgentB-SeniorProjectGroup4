@@ -2,10 +2,12 @@ import { useEffect, useRef, useCallback, useState } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import type { ShuttleRoute } from "@/data/shuttleData";
+import { type WmataStation, lineColor } from "@/components/PublicTransit";
 
 interface TransitMapProps {
   routes: ShuttleRoute[];
   selectedRouteId: string | null;
+  metroStation?: WmataStation | null;
 }
 
 // OSRM public demo server for routing
@@ -54,10 +56,26 @@ function createMinorIcon(color: string) {
   });
 }
 
-export const TransitMap = ({ routes, selectedRouteId }: TransitMapProps) => {
+function createMetroIcon(lineCodes: string[]) {
+  const color = lineColor(lineCodes[0] || "");
+  return L.divIcon({
+    className: "metro-station-marker",
+    html: `<div style="
+      width:22px;height:22px;border-radius:50%;
+      background:${color};border:3px solid white;
+      box-shadow:0 2px 8px rgba(0,0,0,0.4);
+      display:flex;align-items:center;justify-content:center;
+    "><div style="width:8px;height:8px;border-radius:50%;background:white;"></div></div>`,
+    iconSize: [22, 22],
+    iconAnchor: [11, 11],
+  });
+}
+
+export const TransitMap = ({ routes, selectedRouteId, metroStation }: TransitMapProps) => {
   const mapRef = useRef<L.Map | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const layersRef = useRef<L.LayerGroup>(L.layerGroup());
+  const metroLayerRef = useRef<L.LayerGroup>(L.layerGroup());
   const [routeCache, setRouteCache] = useState<Record<string, [number, number][]>>({});
 
   // Initialize map once
@@ -72,6 +90,7 @@ export const TransitMap = ({ routes, selectedRouteId }: TransitMapProps) => {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
     }).addTo(map);
     layersRef.current.addTo(map);
+    metroLayerRef.current.addTo(map);
     mapRef.current = map;
     return () => {
       map.remove();
@@ -79,6 +98,7 @@ export const TransitMap = ({ routes, selectedRouteId }: TransitMapProps) => {
     };
   }, []);
 
+  // Draw shuttle routes
   const drawRoutes = useCallback(async () => {
     const map = mapRef.current;
     if (!map) return;
@@ -94,7 +114,6 @@ export const TransitMap = ({ routes, selectedRouteId }: TransitMapProps) => {
       const stopCoords: [number, number][] = route.stops.map((s) => [s.lat, s.lng]);
       allPoints.push(...stopCoords);
 
-      // Get OSRM route (cached)
       const cacheKey = route.id;
       let routePath = routeCache[cacheKey];
       if (!routePath && stopCoords.length >= 2) {
@@ -102,7 +121,6 @@ export const TransitMap = ({ routes, selectedRouteId }: TransitMapProps) => {
         setRouteCache((prev) => ({ ...prev, [cacheKey]: routePath! }));
       }
 
-      // Draw polyline
       const pathCoords = routePath && routePath.length > 0 ? routePath : stopCoords;
       if (pathCoords.length >= 2) {
         const polyline = L.polyline(pathCoords, {
@@ -113,12 +131,10 @@ export const TransitMap = ({ routes, selectedRouteId }: TransitMapProps) => {
         layersRef.current.addLayer(polyline);
       }
 
-      // Draw stop markers
       route.stops.forEach((stop) => {
         const icon = stop.isMajor
           ? createMajorIcon(route.color)
           : createMinorIcon(route.color);
-
         const marker = L.marker([stop.lat, stop.lng], { icon });
         marker.bindPopup(
           `<div style="font-size:13px">
@@ -132,8 +148,8 @@ export const TransitMap = ({ routes, selectedRouteId }: TransitMapProps) => {
       });
     }
 
-    // Fly to bounds
-    if (allPoints.length > 0) {
+    // Only fit bounds if no metro station is selected
+    if (!metroStation && allPoints.length > 0) {
       const bounds = L.latLngBounds(allPoints);
       if (selectedRouteId) {
         map.flyToBounds(bounds, { padding: [50, 50], duration: 0.8 });
@@ -141,11 +157,44 @@ export const TransitMap = ({ routes, selectedRouteId }: TransitMapProps) => {
         map.fitBounds(bounds, { padding: [40, 40] });
       }
     }
-  }, [routes, selectedRouteId, routeCache]);
+  }, [routes, selectedRouteId, routeCache, metroStation]);
 
   useEffect(() => {
     drawRoutes();
   }, [drawRoutes]);
+
+  // Draw metro station marker
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    metroLayerRef.current.clearLayers();
+
+    if (metroStation) {
+      const lineCodes = [
+        metroStation.LineCode1,
+        metroStation.LineCode2,
+        metroStation.LineCode3,
+        metroStation.LineCode4,
+      ].filter(Boolean) as string[];
+
+      const icon = createMetroIcon(lineCodes);
+      const marker = L.marker([metroStation.Lat, metroStation.Lon], { icon });
+
+      const lineLabels = lineCodes
+        .map((lc) => `<span style="background:${lineColor(lc)};color:white;padding:1px 5px;border-radius:3px;font-size:10px;font-weight:bold;">${lc}</span>`)
+        .join(" ");
+
+      marker.bindPopup(
+        `<div style="font-size:13px">
+          <strong>🚇 ${metroStation.Name}</strong>
+          <br/><div style="margin-top:4px">${lineLabels}</div>
+        </div>`
+      ).openPopup();
+
+      metroLayerRef.current.addLayer(marker);
+      map.flyTo([metroStation.Lat, metroStation.Lon], 15, { duration: 0.8 });
+    }
+  }, [metroStation]);
 
   return (
     <div
