@@ -35,11 +35,35 @@ const LOCAL_IMAGE_MAP: Record<string, string> = {
   "chick-fil-a": imgChickfila,
 };
 
+/* Name-based fallback for when urlKey doesn't match exactly */
+const NAME_IMAGE_MAP: Record<string, string> = {
+  "bison brew": imgBisonBrew,
+  "everbowl": imgEvb,
+  "halal shack": imgHalal,
+  "market at bethune annex": imgAnnexMarket,
+  "market at west tower": imgWtowers,
+  "drop at punchout": imgPunchout,
+  "punchout": imgPunchout,
+  "bison bread": imgBisonBread,
+  "1867": img1867cafe,
+  "annex cafe": imgAnnexCafe,
+  "bethune annex cafe": imgAnnexCafe,
+  "202 market": img202Market,
+  "blackburn": imgBlackburnCafe,
+  "chick-fil-a": imgChickfila,
+  "west towers": imgWtowers,
+};
+
 function resolveImage(loc: { urlKey: string; name: string; imageUrl: string }): string {
   if (LOCAL_IMAGE_MAP[loc.urlKey]) return LOCAL_IMAGE_MAP[loc.urlKey];
   // fallback: try matching by normalized name
   const normalized = loc.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/-+/g, "-");
   if (LOCAL_IMAGE_MAP[normalized]) return LOCAL_IMAGE_MAP[normalized];
+  // fallback: partial name match
+  const lowerName = loc.name.toLowerCase();
+  for (const [key, img] of Object.entries(NAME_IMAGE_MAP)) {
+    if (lowerName.includes(key)) return img;
+  }
   return loc.imageUrl;
 }
 
