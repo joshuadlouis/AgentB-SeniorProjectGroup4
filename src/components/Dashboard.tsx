@@ -208,7 +208,7 @@ export const Dashboard = ({ learningStyles, onOpenChat, onRetakeQuiz }: Dashboar
           syllabusSection={
             <SyllabusUpload embedded onUploadComplete={() => setSyllabusRefreshTrigger((prev) => prev + 1)} />
           }
-          velocitySection={<LearningVelocityDashboard />}
+          velocitySection={<LearningVelocityDashboard embedded />}
         />
 
         {/* Main Content Grid */}
