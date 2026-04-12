@@ -4,8 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { 
   GraduationCap, BookOpen, Archive, ArchiveRestore, ChevronRight, 
-  AlertCircle, Loader2, Trash2 
+  AlertCircle, Loader2, Trash2, ChevronDown 
 } from "lucide-react";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
