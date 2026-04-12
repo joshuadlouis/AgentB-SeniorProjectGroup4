@@ -14,8 +14,9 @@ type AuthView = "login" | "signup" | "forgot";
 
 export default function Auth() {
   const [isLoading, setIsLoading] = useState(false);
-  const [isSignUp, setIsSignUp] = useState(false);
+  const [view, setView] = useState<AuthView>("login");
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [universityId, setUniversityId] = useState("");
@@ -49,12 +50,36 @@ export default function Auth() {
     fetchUniversities();
   }, [navigate]);
 
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) {
+      toast({ title: "Email required", description: "Please enter your email address.", variant: "destructive" });
+      return;
+    }
+    setIsLoading(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+      if (error) throw error;
+      toast({
+        title: "Check your email",
+        description: "We've sent a password reset link to your email.",
+      });
+      setView("login");
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      if (isSignUp) {
+      if (view === "signup") {
         if (!fullName || !universityId) {
           toast({
             title: "Missing information",
@@ -79,7 +104,6 @@ export default function Auth() {
         if (error) throw error;
 
         if (data.user) {
-          // Wait briefly for the profile trigger to create the row, then update
           const updateProfile = async (retries = 3) => {
             for (let i = 0; i < retries; i++) {
               const { error: updateError } = await supabase
@@ -134,91 +158,140 @@ export default function Auth() {
         </div>
 
         <h2 className="text-2xl font-semibold text-center mb-6">
-          {isSignUp ? "Create Account" : "Sign In"}
+          {view === "signup" ? "Create Account" : view === "forgot" ? "Reset Password" : "Sign In"}
         </h2>
 
-        <form onSubmit={handleAuth} className="space-y-4">
-          {isSignUp && (
-            <>
+        {view === "forgot" ? (
+          <form onSubmit={handleForgotPassword} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Enter your email address"
+                required
+              />
+            </div>
+            <Button
+              type="submit"
+              className="w-full bg-[image:var(--gradient-primary)] hover:opacity-90"
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Sending...
+                </>
+              ) : (
+                "Send Reset Link"
+              )}
+            </Button>
+            <div className="text-center">
+              <button onClick={() => setView("login")} className="text-primary hover:underline text-sm">
+                Back to Sign In
+              </button>
+            </div>
+          </form>
+        ) : (
+          <>
+            <form onSubmit={handleAuth} className="space-y-4">
+              {view === "signup" && (
+                <>
+                  <div className="space-y-2">
+                    <Label htmlFor="fullName">Full Name</Label>
+                    <Input
+                      id="fullName"
+                      type="text"
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      required
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="university">University</Label>
+                    <Select value={universityId} onValueChange={setUniversityId} required>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select your university" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {universities.map((uni) => (
+                          <SelectItem key={uni.id} value={uni.id}>
+                            {uni.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </>
+              )}
+
               <div className="space-y-2">
-                <Label htmlFor="fullName">Full Name</Label>
+                <Label htmlFor="email">Email</Label>
                 <Input
-                  id="fullName"
-                  type="text"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   required
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="university">University</Label>
-                <Select value={universityId} onValueChange={setUniversityId} required>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select your university" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {universities.map((uni) => (
-                      <SelectItem key={uni.id} value={uni.id}>
-                        {uni.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="password">Password</Label>
+                  {view === "login" && (
+                    <button
+                      type="button"
+                      onClick={() => setView("forgot")}
+                      className="text-xs text-primary hover:underline"
+                    >
+                      Forgot password?
+                    </button>
+                  )}
+                </div>
+                <Input
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  minLength={6}
+                />
               </div>
-            </>
-          )}
 
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </div>
+              <Button
+                type="submit"
+                className="w-full bg-[image:var(--gradient-primary)] hover:opacity-90"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Please wait
+                  </>
+                ) : view === "signup" ? (
+                  "Create Account"
+                ) : (
+                  "Sign In"
+                )}
+              </Button>
+            </form>
 
-          <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </div>
-
-          <Button
-            type="submit"
-            className="w-full bg-[image:var(--gradient-primary)] hover:opacity-90"
-            disabled={isLoading}
-          >
-            {isLoading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Please wait
-              </>
-            ) : isSignUp ? (
-              "Create Account"
-            ) : (
-              "Sign In"
-            )}
-          </Button>
-        </form>
-
-        <div className="mt-6 text-center">
-          <button
-            onClick={() => setIsSignUp(!isSignUp)}
-            className="text-primary hover:underline"
-          >
-            {isSignUp
-              ? "Already have an account? Sign in"
-              : "Don't have an account? Sign up"}
-          </button>
-        </div>
+            <div className="mt-6 text-center">
+              <button
+                onClick={() => setView(view === "signup" ? "login" : "signup")}
+                className="text-primary hover:underline"
+              >
+                {view === "signup"
+                  ? "Already have an account? Sign in"
+                  : "Don't have an account? Sign up"}
+              </button>
+            </div>
+          </>
+        )}
       </Card>
     </div>
   );
