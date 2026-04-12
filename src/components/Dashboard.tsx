@@ -84,7 +84,7 @@ export const Dashboard = ({ learningStyles, onOpenChat, onRetakeQuiz }: Dashboar
               <img src={agentBHeader} alt="AgentB" className="w-10 h-10 rounded-xl object-cover" />
               <h1 className="text-2xl font-bold text-foreground">AgentB</h1>
             </button>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 flex-wrap justify-end">
               <NotificationBell />
               <DashboardReadAloud
                 isActive={isReadAloudActive}
@@ -93,31 +93,35 @@ export const Dashboard = ({ learningStyles, onOpenChat, onRetakeQuiz }: Dashboar
               />
               <Button
                 variant="outline"
+                size="sm"
                 onClick={() => navigate("/analytics")}
               >
                 <BarChart3 className="mr-2 h-4 w-4" />
-                Analytics
+                <span className="hidden sm:inline">Analytics</span>
               </Button>
               <Button
                 variant="outline"
+                size="sm"
                 onClick={() => navigate("/profile")}
               >
                 <User className="mr-2 h-4 w-4" />
-                Profile
+                <span className="hidden sm:inline">Profile</span>
               </Button>
               <Button
                 variant="outline"
+                size="sm"
                 onClick={handleSignOut}
               >
                 <LogOut className="mr-2 h-4 w-4" />
-                Sign Out
+                <span className="hidden sm:inline">Sign Out</span>
               </Button>
               <Button 
+                size="sm"
                 onClick={onOpenChat}
                 className="bg-[image:var(--gradient-primary)] hover:opacity-90"
               >
                 <MessageSquare className="mr-2 h-4 w-4" />
-                Chat
+                <span className="hidden sm:inline">Chat</span>
               </Button>
             </div>
           </div>
@@ -250,7 +254,9 @@ export const Dashboard = ({ learningStyles, onOpenChat, onRetakeQuiz }: Dashboar
             <p className="text-sm text-muted-foreground mb-4">
               Menus, hours, and dining hall locations
             </p>
-            <Button variant="outline" className="w-full">
+            <Button variant="outline" className="w-full" onClick={() => {
+              toast({ title: "Coming soon", description: "Dining menus will be available soon." });
+            }}>
               See Menus
             </Button>
           </Card>
