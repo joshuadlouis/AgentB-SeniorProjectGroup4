@@ -23,7 +23,6 @@ import {
   BookOpen, MessageSquare, Calendar, MapPin, Utensils, Bus, Shield, User, LogOut,
   MessageCircle, BarChart3, Menu, ChevronUp,
 } from "lucide-react";
-import { DashboardReadAloud } from "./DashboardReadAloud";
 import { LearningVelocityDashboard } from "./LearningVelocityDashboard";
 import { SyllabusUpload } from "./SyllabusUpload";
 import { UpcomingAssignments } from "./UpcomingAssignments";
@@ -165,14 +164,6 @@ export const Dashboard = ({ learningStyles, onOpenChat, onRetakeQuiz }: Dashboar
         </div>
       </header>
 
-      {/* Read-aloud controller (hidden but active) */}
-      {isReadAloudActive && (
-        <DashboardReadAloud
-          isActive={isReadAloudActive}
-          onToggle={() => setIsReadAloudActive((v) => !v)}
-          contentRef={mainContentRef}
-        />
-      )}
 
       {/* ── Main Content ────────────────────────────── */}
       <main ref={mainContentRef} className="container mx-auto px-4 py-8 space-y-8">
