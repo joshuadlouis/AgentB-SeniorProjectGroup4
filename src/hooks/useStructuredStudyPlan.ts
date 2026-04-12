@@ -274,10 +274,12 @@ export const useStructuredStudyPlan = (className: string, learningStyles: string
   const loadModuleContent = useCallback(async (module: StudyModule, focusTopic: string, force = false) => {
     if (module.content && !force) return;
 
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return;
-
+    // Set loading state BEFORE any async operations to prevent race condition
+    // where dialog shows "Content not available" briefly
     setLoadingModuleContent(module.id);
+
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) { setLoadingModuleContent(null); return; }
     try {
       const response = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/agent-b-chat`,
