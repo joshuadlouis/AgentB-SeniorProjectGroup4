@@ -211,5 +211,57 @@ export function useRubrics(className: string) {
     }
   }, [fetchRubrics, toast]);
 
-  return { rubrics, examples, loading, generating, generateRubric, deleteRubric, updateRubricStatus, refetch: fetchRubrics };
+  const saveManualRubric = useCallback(async (title: string, description: string, criteria: any[]) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
+
+      const { data: rubric, error: rubricErr } = await supabase
+        .from("rubrics")
+        .insert({
+          user_id: user.id,
+          class_name: className,
+          title,
+          description: description || null,
+          source: "manual",
+          status: "draft",
+          learning_objectives: [],
+        })
+        .select()
+        .single();
+
+      if (rubricErr) throw rubricErr;
+
+      if (criteria.length > 0) {
+        const criteriaRows = criteria.map((c: any, i: number) => ({
+          rubric_id: rubric.id,
+          user_id: user.id,
+          criterion_name: c.criterion_name,
+          description: c.description,
+          weight: c.weight,
+          criterion_order: i,
+          performance_levels: c.performance_levels,
+        }));
+        await supabase.from("rubric_criteria").insert(criteriaRows);
+      }
+
+      toast({ title: "Rubric Created", description: `"${title}" saved as draft.` });
+      await fetchRubrics();
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    }
+  }, [className, fetchRubrics, toast]);
+
+  const updateRubric = useCallback(async (rubricId: string, title: string, description: string) => {
+    try {
+      const { error } = await supabase.from("rubrics").update({ title, description }).eq("id", rubricId);
+      if (error) throw error;
+      toast({ title: "Rubric Updated" });
+      await fetchRubrics();
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    }
+  }, [fetchRubrics, toast]);
+
+  return { rubrics, examples, loading, generating, generateRubric, deleteRubric, updateRubricStatus, saveManualRubric, updateRubric, refetch: fetchRubrics };
 }
