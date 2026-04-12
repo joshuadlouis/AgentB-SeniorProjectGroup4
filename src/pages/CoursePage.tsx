@@ -582,6 +582,9 @@ const CoursePage = () => {
           onClassChange={() => {}}
         />
 
+        {/* Absence Documentation */}
+        <AbsenceDocUpload className={decodedClassName} />
+
         {/* Practice History */}
         <PracticeHistory className={decodedClassName} />
       </main>
