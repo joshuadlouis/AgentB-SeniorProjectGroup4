@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
+import agentBIcon from "@/assets/AgentBIconHeader.png";
 
 
 type AuthView = "login" | "signup" | "forgot";
@@ -150,9 +151,7 @@ export default function Auth() {
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <Card className="w-full max-w-md p-8 shadow-[var(--shadow-elevated)]">
         <div className="flex items-center justify-center gap-3 mb-8">
-          <div className="w-12 h-12 rounded-xl bg-[image:var(--gradient-primary)] flex items-center justify-center">
-            <span className="text-white font-bold text-2xl">A</span>
-          </div>
+          <img src={agentBIcon} alt="AgentB" className="w-12 h-12 rounded-xl object-cover" />
           <h1 className="text-3xl font-bold text-foreground">AgentB</h1>
         </div>
 
