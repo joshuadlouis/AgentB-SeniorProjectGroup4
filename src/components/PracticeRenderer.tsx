@@ -162,35 +162,56 @@ export const PracticeRenderer = ({ content, onComplete, onRegenerate }: Practice
   };
 
   if (isComplete) {
-    const pct = questions.some(q => q.correctIndex !== undefined)
-      ? Math.round((score / questions.filter(q => q.correctIndex !== undefined).length) * 100)
+    const gradedQuestions = questions.filter(q => q.correctIndex !== undefined);
+    const pct = gradedQuestions.length > 0
+      ? Math.round((score / gradedQuestions.length) * 100)
       : null;
+    const passed = pct !== null && pct >= 70;
 
     return (
       <div className="text-center py-6 space-y-4">
         <Trophy className={cn(
           "w-12 h-12 mx-auto",
-          pct !== null && pct >= 80 ? "text-green-500" : pct !== null && pct >= 50 ? "text-amber-500" : "text-primary"
+          passed ? "text-green-500" : pct !== null && pct >= 50 ? "text-amber-500" : "text-destructive"
         )} />
         <div>
-          <h4 className="text-lg font-bold text-foreground">Practice Complete!</h4>
+          <h4 className="text-lg font-bold text-foreground">
+            {passed ? "Practice Complete!" : "Keep Practicing!"}
+          </h4>
           {pct !== null && (
-            <p className="text-2xl font-bold text-primary mt-1">{pct}%</p>
+            <p className={cn("text-2xl font-bold mt-1", passed ? "text-green-500" : "text-destructive")}>{pct}%</p>
           )}
           <p className="text-sm text-muted-foreground mt-1">
-            {questions.length} questions completed
+            {passed
+              ? `${questions.length} questions completed`
+              : `You need at least 70% to mark this complete. You scored ${pct}%.`}
           </p>
         </div>
         <div className="flex justify-center gap-2">
-          <Button variant="outline" size="sm" onClick={handleRestart}>
-            <RotateCcw className="w-4 h-4 mr-1" />
-            Retry
-          </Button>
-          {onComplete && (
-            <Button size="sm" onClick={onComplete}>
-              <CheckCircle2 className="w-4 h-4 mr-1" />
-              Mark Complete
+          {!passed && onRegenerate ? (
+            <Button size="sm" onClick={onRegenerate}>
+              <RotateCcw className="w-4 h-4 mr-1" />
+              Retry with New Questions
             </Button>
+          ) : !passed ? (
+            <Button size="sm" variant="outline" onClick={handleRestart}>
+              <RotateCcw className="w-4 h-4 mr-1" />
+              Retry
+            </Button>
+          ) : null}
+          {passed && (
+            <>
+              <Button variant="outline" size="sm" onClick={handleRestart}>
+                <RotateCcw className="w-4 h-4 mr-1" />
+                Retry
+              </Button>
+              {onComplete && (
+                <Button size="sm" onClick={onComplete}>
+                  <CheckCircle2 className="w-4 h-4 mr-1" />
+                  Mark Complete
+                </Button>
+              )}
+            </>
           )}
         </div>
       </div>
