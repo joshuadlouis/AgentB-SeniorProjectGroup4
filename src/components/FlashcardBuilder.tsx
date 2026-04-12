@@ -225,35 +225,89 @@ export function FlashcardBuilder({ className }: Props) {
 
       {/* Deck list or active deck */}
       {!activeDeckId ? (
-        <div className="space-y-2">
-          {decks.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              <Layers className="w-8 h-8 mx-auto mb-2 opacity-50" />
-              <p className="text-sm">No flashcard decks yet</p>
-              <p className="text-xs">Create a deck or auto-generate from course content</p>
+        <div className="space-y-4">
+          {/* Tab toggle: My Decks / Community */}
+          <div className="flex gap-2">
+            <Button variant={!showCommunity ? "default" : "outline"} size="sm" onClick={() => setShowCommunity(false)}>
+              My Decks ({decks.length})
+            </Button>
+            <Button variant={showCommunity ? "default" : "outline"} size="sm" onClick={() => setShowCommunity(true)}>
+              <Globe className="w-3 h-3 mr-1" /> Community ({communityDecks.length})
+            </Button>
+          </div>
+
+          {!showCommunity ? (
+            <div className="space-y-2">
+              {decks.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  <Layers className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                  <p className="text-sm">No flashcard decks yet</p>
+                  <p className="text-xs">Create a deck or auto-generate from course content</p>
+                </div>
+              ) : (
+                decks.map((deck) => (
+                  <div
+                    key={deck.id}
+                    className="flex items-center justify-between p-3 rounded-lg border border-border hover:border-primary/20 cursor-pointer transition-colors"
+                    onClick={() => fetchCards(deck.id)}
+                  >
+                    <div className="flex items-center gap-3">
+                      <BookOpen className="w-4 h-4 text-primary" />
+                      <div>
+                        <p className="font-medium text-sm">{deck.title}</p>
+                        <p className="text-xs text-muted-foreground">{deck.card_count} cards</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="ghost" size="icon" className="h-7 w-7"
+                        title={deck.is_public ? "Public — click to make private" : "Private — click to share"}
+                        onClick={(e) => { e.stopPropagation(); togglePublic(deck.id, !deck.is_public); }}
+                      >
+                        {deck.is_public ? <Globe className="w-3 h-3 text-primary" /> : <Lock className="w-3 h-3" />}
+                      </Button>
+                      <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={(e) => { e.stopPropagation(); deleteDeck(deck.id); }}>
+                        <Trash2 className="w-3 h-3" />
+                      </Button>
+                      <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           ) : (
-            decks.map((deck) => (
-              <div
-                key={deck.id}
-                className="flex items-center justify-between p-3 rounded-lg border border-border hover:border-primary/20 cursor-pointer transition-colors"
-                onClick={() => fetchCards(deck.id)}
-              >
-                <div className="flex items-center gap-3">
-                  <BookOpen className="w-4 h-4 text-primary" />
-                  <div>
-                    <p className="font-medium text-sm">{deck.title}</p>
-                    <p className="text-xs text-muted-foreground">{deck.card_count} cards</p>
+            <div className="space-y-2">
+              {communityDecks.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  <Globe className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                  <p className="text-sm">No shared decks for this subject yet</p>
+                  <p className="text-xs">Share your own decks to help others!</p>
+                </div>
+              ) : (
+                communityDecks.map((deck) => (
+                  <div
+                    key={deck.id}
+                    className="flex items-center justify-between p-3 rounded-lg border border-border hover:border-primary/20 transition-colors"
+                  >
+                    <div className="flex items-center gap-3">
+                      <Globe className="w-4 h-4 text-primary" />
+                      <div>
+                        <p className="font-medium text-sm">{deck.title}</p>
+                        <p className="text-xs text-muted-foreground">{deck.card_count} cards</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button size="sm" variant="outline" onClick={() => copyDeck(deck.id)}>
+                        <Copy className="w-3 h-3 mr-1" /> Copy to My Decks
+                      </Button>
+                      <Button size="sm" variant="ghost" onClick={() => fetchCards(deck.id)}>
+                        <Play className="w-3 h-3 mr-1" /> Preview
+                      </Button>
+                    </div>
                   </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={(e) => { e.stopPropagation(); deleteDeck(deck.id); }}>
-                    <Trash2 className="w-3 h-3" />
-                  </Button>
-                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
-                </div>
-              </div>
-            ))
+                ))
+              )}
+            </div>
           )}
         </div>
       ) : (
