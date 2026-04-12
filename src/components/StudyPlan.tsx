@@ -299,7 +299,7 @@ export const StudyPlan = ({
           </div>
           <div className="flex flex-wrap gap-2">
             {quizResult.weakAreas.map((area, idx) => (
-              <Badge key={idx} variant="outline" className="bg-amber-500/5 border-amber-500/20 text-amber-600">
+              <Badge key={idx} variant="outline" className="bg-amber-500/5 border-amber-500/20 text-amber-600 whitespace-normal text-left max-w-full">
                 {area}
               </Badge>
             ))}
@@ -334,7 +334,7 @@ export const StudyPlan = ({
               </div>
             ) : (
               <div className="prose prose-sm dark:prose-invert max-w-none">
-                <div className="whitespace-pre-wrap text-foreground">{resourceContent}</div>
+                <div className="whitespace-pre-wrap text-foreground break-words">{resourceContent.replace(/\\n/g, '\n').replace(/\\t/g, '  ').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&#39;/g, "'").replace(/&quot;/g, '"')}</div>
               </div>
             )}
           </ScrollArea>

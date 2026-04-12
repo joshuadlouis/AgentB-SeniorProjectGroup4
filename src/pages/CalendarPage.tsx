@@ -187,12 +187,17 @@ export default function CalendarPage() {
   };
 
   const handleDeleteEvent = async (eventId: string) => {
+    // Optimistically remove the item from UI immediately
+    setEvents((prev) => prev.filter((e) => e.id !== eventId));
+
     const { error } = await supabase
       .from("calendar_events")
       .delete()
       .eq("id", eventId);
 
     if (error) {
+      // Revert on failure
+      fetchEvents();
       toast({
         title: "Error",
         description: "Failed to delete event",
@@ -203,7 +208,6 @@ export default function CalendarPage() {
         title: "Success",
         description: "Event deleted successfully",
       });
-      fetchEvents();
     }
   };
 
