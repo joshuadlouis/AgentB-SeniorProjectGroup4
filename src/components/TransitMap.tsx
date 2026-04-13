@@ -92,23 +92,21 @@ export const TransitMap = ({ routes, selectedRouteId, metroStation, selectedMetr
 
     if (activeTab !== 'shuttles') return;
 
-    const allPoints: [number, number][] = [];
-
     // Always draw polylines for all visible routes
     for (const route of routes) {
       const isSelected = selectedRouteId === route.id;
-      const pathCoords = route.path.length >= 2 ? route.path : route.stops.map((s) => [s.lat, s.lng] as [number, number]);
-      allPoints.push(...pathCoords);
+      const pathCoords = route.path.length >= 2
+        ? route.path
+        : route.stops.map((s) => [s.lat, s.lng] as [number, number]);
 
       const polyline = L.polyline(pathCoords, {
         color: route.color,
-        weight: isSelected ? 6 : 3,
-        opacity: selectedRouteId ? (isSelected ? 0.95 : 0.25) : 0.75,
+        weight: isSelected ? 6 : 4,
+        opacity: selectedRouteId ? (isSelected ? 0.98 : 0.35) : 0.88,
       });
       layersRef.current.addLayer(polyline);
     }
 
-    // Only show stop markers for the selected route (reduces clutter)
     if (selectedRouteId) {
       const selected = routes.find((r) => r.id === selectedRouteId);
       if (selected) {
@@ -128,18 +126,22 @@ export const TransitMap = ({ routes, selectedRouteId, metroStation, selectedMetr
           layersRef.current.addLayer(marker);
         });
 
-        // Fly to selected route bounds
         const routePoints = selected.path.length >= 2
           ? selected.path
           : selected.stops.map((s) => [s.lat, s.lng] as [number, number]);
         const bounds = L.latLngBounds(routePoints);
         map.flyToBounds(bounds, { padding: [50, 50], duration: 0.8 });
+        return;
       }
-    } else if (allPoints.length > 0) {
-      const bounds = L.latLngBounds(allPoints);
-      map.fitBounds(bounds, { padding: [40, 40] });
     }
+
+    map.flyTo([38.9225, -77.0210], 14, { duration: 0.8 });
   }, [routes, selectedRouteId, activeTab]);
+
+  useEffect(() => {
+    drawRoutes();
+  }, [drawRoutes]);
+
   // Draw metro lines (GeoJSON polylines) filtered by preferences
   useEffect(() => {
     const map = mapRef.current;
