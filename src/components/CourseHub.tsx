@@ -30,10 +30,11 @@ interface CourseHubProps {
   refreshTrigger?: number;
   learningStyleSection?: ReactNode;
   syllabusSection?: ReactNode;
+  gpaSection?: ReactNode;
   velocitySection?: ReactNode;
 }
 
-export const CourseHub = ({ refreshTrigger = 0, learningStyleSection, syllabusSection, velocitySection }: CourseHubProps) => {
+export const CourseHub = ({ refreshTrigger = 0, learningStyleSection, syllabusSection, gpaSection, velocitySection }: CourseHubProps) => {
   const [classes, setClasses] = useState<UserClass[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleteTarget, setDeleteTarget] = useState<UserClass | null>(null);
