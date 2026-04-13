@@ -377,9 +377,9 @@ export const TestReminders = () => {
                       <SelectValue placeholder="Select a class" />
                     </SelectTrigger>
                     <SelectContent>
-                      {syllabi.map((s) => (
-                        <SelectItem key={s.id} value={s.class_name}>
-                          {s.class_name}
+                      {userClasses.map((c) => (
+                        <SelectItem key={c.id} value={c.class_name}>
+                          {c.class_name}
                         </SelectItem>
                       ))}
                     </SelectContent>
