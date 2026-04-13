@@ -608,6 +608,36 @@ export type Database = {
         }
         Relationships: []
       }
+      email_confirmations: {
+        Row: {
+          confirmed: boolean
+          created_at: string
+          email: string
+          expires_at: string
+          id: string
+          token: string
+          user_id: string
+        }
+        Insert: {
+          confirmed?: boolean
+          created_at?: string
+          email: string
+          expires_at?: string
+          id?: string
+          token?: string
+          user_id: string
+        }
+        Update: {
+          confirmed?: boolean
+          created_at?: string
+          email?: string
+          expires_at?: string
+          id?: string
+          token?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       flashcard_decks: {
         Row: {
           card_count: number
@@ -1098,6 +1128,7 @@ export type Database = {
         Row: {
           created_at: string | null
           email: string | null
+          email_confirmed: boolean
           full_name: string | null
           id: string
           learning_styles: string[] | null
@@ -1107,6 +1138,7 @@ export type Database = {
         Insert: {
           created_at?: string | null
           email?: string | null
+          email_confirmed?: boolean
           full_name?: string | null
           id: string
           learning_styles?: string[] | null
@@ -1116,6 +1148,7 @@ export type Database = {
         Update: {
           created_at?: string | null
           email?: string | null
+          email_confirmed?: boolean
           full_name?: string | null
           id?: string
           learning_styles?: string[] | null
