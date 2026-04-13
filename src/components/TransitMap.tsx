@@ -85,7 +85,7 @@ export const TransitMap = ({ routes, selectedRouteId, metroStation, selectedMetr
   }, []);
 
   // Draw shuttle routes
-  const drawRoutes = useCallback(async () => {
+  const drawRoutes = useCallback(() => {
     const map = mapRef.current;
     if (!map) return;
     layersRef.current.clearLayers();
@@ -102,16 +102,8 @@ export const TransitMap = ({ routes, selectedRouteId, metroStation, selectedMetr
       const stopCoords: [number, number][] = route.stops.map((s) => [s.lat, s.lng]);
       allPoints.push(...stopCoords);
 
-      const cacheKey = route.id;
-      let routePath = routeCache[cacheKey];
-      if (!routePath && stopCoords.length >= 2) {
-        routePath = await fetchOSRMRoute(stopCoords);
-        setRouteCache((prev) => ({ ...prev, [cacheKey]: routePath! }));
-      }
-
-      const pathCoords = routePath && routePath.length > 0 ? routePath : stopCoords;
-      if (pathCoords.length >= 2) {
-        const polyline = L.polyline(pathCoords, {
+      if (stopCoords.length >= 2) {
+        const polyline = L.polyline(stopCoords, {
           color: route.color,
           weight: selectedRouteId === route.id ? 5 : 3,
           opacity: 0.85,
@@ -144,8 +136,7 @@ export const TransitMap = ({ routes, selectedRouteId, metroStation, selectedMetr
         map.fitBounds(bounds, { padding: [40, 40] });
       }
     }
-  }, [routes, selectedRouteId, routeCache, activeTab]);
-
+  }, [routes, selectedRouteId, activeTab]);
   useEffect(() => {
     drawRoutes();
   }, [drawRoutes]);
