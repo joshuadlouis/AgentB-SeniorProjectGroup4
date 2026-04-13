@@ -34,6 +34,7 @@ interface UserClass {
 export const TestReminders = () => {
   const [tests, setTests] = useState<TestEvent[]>([]);
   const [syllabi, setSyllabi] = useState<Syllabus[]>([]);
+  const [userClasses, setUserClasses] = useState<UserClass[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isExtracting, setIsExtracting] = useState(false);
   const [isAddingManually, setIsAddingManually] = useState(false);
