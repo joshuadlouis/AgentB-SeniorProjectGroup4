@@ -51,6 +51,7 @@ export const TestReminders = () => {
   useEffect(() => {
     fetchTests();
     fetchSyllabi();
+    fetchUserClasses();
 
     // Realtime: refresh when test events change
     const channel = supabase
