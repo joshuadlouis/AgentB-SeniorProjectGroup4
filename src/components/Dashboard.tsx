@@ -24,6 +24,7 @@ import {
   MessageCircle, BarChart3, Menu, ChevronUp,
 } from "lucide-react";
 import { LearningVelocityDashboard } from "./LearningVelocityDashboard";
+import { GpaCalculator } from "./GpaCalculator";
 import { SyllabusUpload } from "./SyllabusUpload";
 import { UpcomingAssignments } from "./UpcomingAssignments";
 import { DailySchedule } from "./DailySchedule";
