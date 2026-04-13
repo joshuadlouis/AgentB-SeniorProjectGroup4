@@ -46,7 +46,12 @@ export const TutorialProvider = ({ children }: { children: React.ReactNode }) =>
     check();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (!session) {
+      if (session) {
+        const dismissed = localStorage.getItem(`tutorial_dismissed_${session.user.id}`);
+        if (!dismissed) {
+          setShowTutorial(true);
+        }
+      } else {
         setShowTutorial(false);
         setActiveTutorialId(null);
       }
