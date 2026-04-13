@@ -84,7 +84,7 @@ export const TransitMap = ({ routes, selectedRouteId, metroStation, selectedMetr
     };
   }, []);
 
-  // Draw shuttle routes
+  // Draw shuttle routes — uses pre-computed path coordinates
   const drawRoutes = useCallback(() => {
     const map = mapRef.current;
     if (!map) return;
@@ -92,55 +92,54 @@ export const TransitMap = ({ routes, selectedRouteId, metroStation, selectedMetr
 
     if (activeTab !== 'shuttles') return;
 
-    const visibleRoutes = selectedRouteId
-      ? routes.filter((r) => r.id === selectedRouteId)
-      : routes;
-
     const allPoints: [number, number][] = [];
 
-    for (const route of visibleRoutes) {
-      const stopCoords: [number, number][] = route.stops.map((s) => [s.lat, s.lng]);
-      allPoints.push(...stopCoords);
+    // Always draw polylines for all visible routes
+    for (const route of routes) {
+      const isSelected = selectedRouteId === route.id;
+      const pathCoords = route.path.length >= 2 ? route.path : route.stops.map((s) => [s.lat, s.lng] as [number, number]);
+      allPoints.push(...pathCoords);
 
-      if (stopCoords.length >= 2) {
-        const polyline = L.polyline(stopCoords, {
-          color: route.color,
-          weight: selectedRouteId === route.id ? 5 : 3,
-          opacity: 0.85,
-        });
-        layersRef.current.addLayer(polyline);
-      }
-
-      route.stops.forEach((stop) => {
-        const icon = stop.isMajor
-          ? createMajorIcon(route.color)
-          : createMinorIcon(route.color);
-        const marker = L.marker([stop.lat, stop.lng], { icon });
-        marker.bindPopup(
-          `<div style="font-size:13px">
-            <strong>${stop.name}</strong>
-            ${stop.isMajor ? ' <span style="color:#003A70;font-size:10px;">★ Major</span>' : ""}
-            <br/><span style="color:#888;font-size:11px">${route.name}</span>
-            <br/><span style="color:#aaa;font-size:10px">${stop.address}</span>
-          </div>`
-        );
-        layersRef.current.addLayer(marker);
+      const polyline = L.polyline(pathCoords, {
+        color: route.color,
+        weight: isSelected ? 6 : 3,
+        opacity: selectedRouteId ? (isSelected ? 0.95 : 0.25) : 0.75,
       });
+      layersRef.current.addLayer(polyline);
     }
 
-    if (allPoints.length > 0) {
-      const bounds = L.latLngBounds(allPoints);
-      if (selectedRouteId) {
+    // Only show stop markers for the selected route (reduces clutter)
+    if (selectedRouteId) {
+      const selected = routes.find((r) => r.id === selectedRouteId);
+      if (selected) {
+        selected.stops.forEach((stop) => {
+          const icon = stop.isMajor
+            ? createMajorIcon(selected.color)
+            : createMinorIcon(selected.color);
+          const marker = L.marker([stop.lat, stop.lng], { icon });
+          marker.bindPopup(
+            `<div style="font-size:13px">
+              <strong>${stop.name}</strong>
+              ${stop.isMajor ? ' <span style="color:#003A70;font-size:10px;">★ Major Stop</span>' : ""}
+              <br/><span style="color:#888;font-size:11px">${selected.name}</span>
+              <br/><span style="color:#aaa;font-size:10px">${stop.address}</span>
+            </div>`
+          );
+          layersRef.current.addLayer(marker);
+        });
+
+        // Fly to selected route bounds
+        const routePoints = selected.path.length >= 2
+          ? selected.path
+          : selected.stops.map((s) => [s.lat, s.lng] as [number, number]);
+        const bounds = L.latLngBounds(routePoints);
         map.flyToBounds(bounds, { padding: [50, 50], duration: 0.8 });
-      } else {
-        map.fitBounds(bounds, { padding: [40, 40] });
       }
+    } else if (allPoints.length > 0) {
+      const bounds = L.latLngBounds(allPoints);
+      map.fitBounds(bounds, { padding: [40, 40] });
     }
   }, [routes, selectedRouteId, activeTab]);
-  useEffect(() => {
-    drawRoutes();
-  }, [drawRoutes]);
-
   // Draw metro lines (GeoJSON polylines) filtered by preferences
   useEffect(() => {
     const map = mapRef.current;
