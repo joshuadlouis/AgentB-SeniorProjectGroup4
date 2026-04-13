@@ -30,10 +30,11 @@ interface CourseHubProps {
   refreshTrigger?: number;
   learningStyleSection?: ReactNode;
   syllabusSection?: ReactNode;
+  gpaSection?: ReactNode;
   velocitySection?: ReactNode;
 }
 
-export const CourseHub = ({ refreshTrigger = 0, learningStyleSection, syllabusSection, velocitySection }: CourseHubProps) => {
+export const CourseHub = ({ refreshTrigger = 0, learningStyleSection, syllabusSection, gpaSection, velocitySection }: CourseHubProps) => {
   const [classes, setClasses] = useState<UserClass[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleteTarget, setDeleteTarget] = useState<UserClass | null>(null);
@@ -354,7 +355,20 @@ export const CourseHub = ({ refreshTrigger = 0, learningStyleSection, syllabusSe
         </Collapsible>
       )}
 
-      {/* Learning Velocity Section — collapsible */}
+      {/* GPA Calculator — collapsible */}
+      {gpaSection && (
+        <Collapsible className="mb-6 border-t border-border pt-6">
+          <CollapsibleTrigger className="flex items-center justify-between w-full group">
+            <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+              GPA Calculator
+            </h4>
+            <ChevronDown className="w-4 h-4 text-muted-foreground transition-transform group-data-[state=open]:rotate-180" />
+          </CollapsibleTrigger>
+          <CollapsibleContent className="mt-4">
+            {gpaSection}
+          </CollapsibleContent>
+        </Collapsible>
+      )}
       {velocitySection && (
         <Collapsible className="border-t border-border pt-6">
           <CollapsibleTrigger className="flex items-center justify-between w-full group">

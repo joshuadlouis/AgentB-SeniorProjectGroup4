@@ -24,6 +24,7 @@ import {
   MessageCircle, BarChart3, Menu, ChevronUp,
 } from "lucide-react";
 import { LearningVelocityDashboard } from "./LearningVelocityDashboard";
+import { GpaCalculator } from "./GpaCalculator";
 import { SyllabusUpload } from "./SyllabusUpload";
 import { UpcomingAssignments } from "./UpcomingAssignments";
 import { DailySchedule } from "./DailySchedule";
@@ -225,6 +226,7 @@ export const Dashboard = ({ learningStyles, onOpenChat, onRetakeQuiz }: Dashboar
             syllabusSection={
               <SyllabusUpload embedded onUploadComplete={() => setSyllabusRefreshTrigger((prev) => prev + 1)} />
             }
+            gpaSection={<GpaCalculator />}
             velocitySection={<LearningVelocityDashboard embedded />}
           />
         </div>
