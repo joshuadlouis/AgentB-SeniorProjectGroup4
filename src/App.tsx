@@ -23,6 +23,7 @@ import CampusMapPage from "./pages/CampusMapPage";
 import SafetyResourcesPage from "./pages/SafetyResourcesPage";
 import DiningPage from "./pages/DiningPage";
 import ResetPassword from "./pages/ResetPassword";
+import ConfirmEmailPage from "./pages/ConfirmEmailPage";
 import NotFound from "./pages/NotFound";
 import { SelectionListenTooltip } from "./components/SelectionListenTooltip";
 
@@ -42,6 +43,7 @@ const App = () => (
                 <Route path="/" element={<Index />} />
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
+                <Route path="/confirm-email" element={<ConfirmEmailPage />} />
                 <Route path="/calendar" element={<RequireAuth><CalendarPage /></RequireAuth>} />
                 <Route path="/profile" element={<RequireAuth><Profile /></RequireAuth>} />
                 <Route path="/read-aloud" element={<RequireAuth><ReadAloudDemo /></RequireAuth>} />
