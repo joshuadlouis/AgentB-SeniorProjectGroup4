@@ -109,6 +109,18 @@ export const TestReminders = () => {
     }
   };
 
+  const fetchUserClasses = async () => {
+    const { data, error } = await supabase
+      .from("user_classes")
+      .select("id, class_name")
+      .eq("is_archived", false)
+      .order("class_name");
+
+    if (!error && data) {
+      setUserClasses(data as unknown as UserClass[]);
+    }
+  };
+
   const extractTestsFromSyllabus = async (syllabusId: string) => {
     setIsExtracting(true);
     try {
