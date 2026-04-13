@@ -26,9 +26,15 @@ interface Syllabus {
   file_path: string;
 }
 
+interface UserClass {
+  id: string;
+  class_name: string;
+}
+
 export const TestReminders = () => {
   const [tests, setTests] = useState<TestEvent[]>([]);
   const [syllabi, setSyllabi] = useState<Syllabus[]>([]);
+  const [userClasses, setUserClasses] = useState<UserClass[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isExtracting, setIsExtracting] = useState(false);
   const [isAddingManually, setIsAddingManually] = useState(false);
@@ -45,6 +51,7 @@ export const TestReminders = () => {
   useEffect(() => {
     fetchTests();
     fetchSyllabi();
+    fetchUserClasses();
 
     // Realtime: refresh when test events change
     const channel = supabase
@@ -99,6 +106,18 @@ export const TestReminders = () => {
 
     if (!error && data) {
       setSyllabi(data);
+    }
+  };
+
+  const fetchUserClasses = async () => {
+    const { data, error } = await supabase
+      .from("user_classes")
+      .select("id, class_name")
+      .eq("is_archived", false)
+      .order("class_name");
+
+    if (!error && data) {
+      setUserClasses(data as unknown as UserClass[]);
     }
   };
 
@@ -358,9 +377,9 @@ export const TestReminders = () => {
                       <SelectValue placeholder="Select a class" />
                     </SelectTrigger>
                     <SelectContent>
-                      {syllabi.map((s) => (
-                        <SelectItem key={s.id} value={s.class_name}>
-                          {s.class_name}
+                      {userClasses.map((c) => (
+                        <SelectItem key={c.id} value={c.class_name}>
+                          {c.class_name}
                         </SelectItem>
                       ))}
                     </SelectContent>
