@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback, useState } from "react";
+import { useEffect, useRef, useCallback } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import type { ShuttleRoute } from "@/data/shuttleData";
@@ -13,25 +13,6 @@ interface TransitMapProps {
   selectedMetroLine?: string | null;
   linePreferences?: LinePreferences;
   activeTab: 'shuttles' | 'public-transit';
-}
-
-// OSRM public demo server for routing
-async function fetchOSRMRoute(coords: [number, number][]): Promise<[number, number][]> {
-  if (coords.length < 2) return coords;
-  const coordStr = coords.map(([lat, lng]) => `${lng},${lat}`).join(";");
-  const url = `https://router.project-osrm.org/route/v1/driving/${coordStr}?overview=full&geometries=geojson`;
-  try {
-    const res = await fetch(url);
-    const data = await res.json();
-    if (data.code === "Ok" && data.routes?.[0]) {
-      return data.routes[0].geometry.coordinates.map(
-        ([lng, lat]: [number, number]) => [lat, lng] as [number, number]
-      );
-    }
-  } catch (e) {
-    console.warn("OSRM routing failed, falling back to straight lines", e);
-  }
-  return coords;
 }
 
 function createMajorIcon(color: string) {
@@ -82,8 +63,6 @@ export const TransitMap = ({ routes, selectedRouteId, metroStation, selectedMetr
   const layersRef = useRef<L.LayerGroup>(L.layerGroup());
   const metroLayerRef = useRef<L.LayerGroup>(L.layerGroup());
   const metroLinesLayerRef = useRef<L.LayerGroup>(L.layerGroup());
-  const [routeCache, setRouteCache] = useState<Record<string, [number, number][]>>({});
-
   // Initialize map once
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
