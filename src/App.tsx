@@ -23,6 +23,7 @@ import CampusMapPage from "./pages/CampusMapPage";
 import SafetyResourcesPage from "./pages/SafetyResourcesPage";
 import DiningPage from "./pages/DiningPage";
 import ResetPassword from "./pages/ResetPassword";
+import ConfirmEmailPage from "./pages/ConfirmEmailPage";
 import NotFound from "./pages/NotFound";
 import { SelectionListenTooltip } from "./components/SelectionListenTooltip";
 
