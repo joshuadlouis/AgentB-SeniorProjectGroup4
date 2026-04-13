@@ -26,6 +26,11 @@ interface Syllabus {
   file_path: string;
 }
 
+interface UserClass {
+  id: string;
+  class_name: string;
+}
+
 export const TestReminders = () => {
   const [tests, setTests] = useState<TestEvent[]>([]);
   const [syllabi, setSyllabi] = useState<Syllabus[]>([]);
