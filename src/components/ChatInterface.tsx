@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, ReactNode } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,6 +7,18 @@ import { X, Send, Sparkles, BookOpen, Lightbulb, HelpCircle, FileQuestion } from
 import { useAgentBChat } from "@/hooks/useAgentBChat";
 import ReactMarkdown from "react-markdown";
 import { MathText } from "@/components/MathText";
+
+/** Recursively extract plain text from React children */
+function childrenToText(children: ReactNode): string {
+  if (typeof children === "string") return children;
+  if (typeof children === "number") return String(children);
+  if (children == null || typeof children === "boolean") return "";
+  if (Array.isArray(children)) return children.map(childrenToText).join("");
+  if (typeof children === "object" && "props" in children) {
+    return childrenToText((children as any).props?.children);
+  }
+  return "";
+}
 
 interface ChatInterfaceProps {
   onClose: () => void;
@@ -85,8 +97,8 @@ export const ChatInterface = ({ onClose, learningStyles = [] }: ChatInterfacePro
                       message.role === "assistant" ? (
                         <ReactMarkdown
                           components={{
-                            p: ({ children }) => <p className="mb-2 last:mb-0"><MathText text={String(children)} /></p>,
-                            li: ({ children }) => <li><MathText text={String(children)} /></li>,
+                            p: ({ children }) => <p className="mb-2 last:mb-0"><MathText text={childrenToText(children)} /></p>,
+                            li: ({ children }) => <li><MathText text={childrenToText(children)} /></li>,
                             code: ({ children, className }) => {
                               const isBlock = className?.includes("language-");
                               return isBlock ? (
