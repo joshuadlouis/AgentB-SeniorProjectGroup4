@@ -258,7 +258,7 @@ export const StudyPlan = ({
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between mb-1">
                             <span className="font-medium text-sm text-foreground truncate group-hover:text-primary transition-colors">
-                              {resource.title}
+                              <MathText text={resource.title} />
                             </span>
                             <div className="flex items-center gap-2 ml-2 flex-shrink-0">
                               <Badge variant="outline" className="text-xs">
@@ -269,7 +269,7 @@ export const StudyPlan = ({
                               )}
                             </div>
                           </div>
-                          <p className="text-xs text-muted-foreground mb-1">{resource.description}</p>
+                          <p className="text-xs text-muted-foreground mb-1 break-words"><MathText text={resource.description} /></p>
                           <div className="flex items-center gap-2">
                             <Badge variant="secondary" className="text-xs">
                               {resource.topic}
