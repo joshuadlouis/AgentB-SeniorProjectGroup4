@@ -19,6 +19,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { QuizResult, LearningObjective, StudyResource } from "@/hooks/useStudyPlan";
 import { toast } from "sonner";
+import { MathText } from "@/components/MathText";
 
 interface StudyPlanProps {
   quizResult: QuizResult | null;
@@ -257,7 +258,7 @@ export const StudyPlan = ({
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between mb-1">
                             <span className="font-medium text-sm text-foreground truncate group-hover:text-primary transition-colors">
-                              {resource.title}
+                              <MathText text={resource.title} />
                             </span>
                             <div className="flex items-center gap-2 ml-2 flex-shrink-0">
                               <Badge variant="outline" className="text-xs">
@@ -268,7 +269,7 @@ export const StudyPlan = ({
                               )}
                             </div>
                           </div>
-                          <p className="text-xs text-muted-foreground mb-1">{resource.description}</p>
+                          <p className="text-xs text-muted-foreground mb-1 break-words"><MathText text={resource.description} /></p>
                           <div className="flex items-center gap-2">
                             <Badge variant="secondary" className="text-xs">
                               {resource.topic}
@@ -299,8 +300,8 @@ export const StudyPlan = ({
           </div>
           <div className="flex flex-wrap gap-2">
             {quizResult.weakAreas.map((area, idx) => (
-              <Badge key={idx} variant="outline" className="bg-amber-500/5 border-amber-500/20 text-amber-600 whitespace-normal text-left max-w-full">
-                {area}
+              <Badge key={idx} variant="outline" className="bg-amber-500/5 border-amber-500/20 text-amber-600 whitespace-normal text-left max-w-full break-words">
+                <MathText text={area} />
               </Badge>
             ))}
           </div>
@@ -334,7 +335,9 @@ export const StudyPlan = ({
               </div>
             ) : (
               <div className="prose prose-sm dark:prose-invert max-w-none">
-                <div className="whitespace-pre-wrap text-foreground break-words">{resourceContent.replace(/\\n/g, '\n').replace(/\\t/g, '  ').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&#39;/g, "'").replace(/&quot;/g, '"')}</div>
+                <div className="whitespace-pre-wrap text-foreground break-words overflow-hidden">
+                  <MathText text={resourceContent.replace(/\\n/g, '\n').replace(/\\t/g, '  ').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&#39;/g, "'").replace(/&quot;/g, '"')} />
+                </div>
               </div>
             )}
           </ScrollArea>
