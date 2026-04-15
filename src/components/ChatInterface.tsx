@@ -5,6 +5,8 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { X, Send, Sparkles, BookOpen, Lightbulb, HelpCircle, FileQuestion } from "lucide-react";
 import { useAgentBChat } from "@/hooks/useAgentBChat";
+import ReactMarkdown from "react-markdown";
+import { MathText } from "@/components/MathText";
 
 interface ChatInterfaceProps {
   onClose: () => void;
@@ -78,9 +80,28 @@ export const ChatInterface = ({ onClose, learningStyles = [] }: ChatInterfacePro
                       : "bg-muted text-foreground"
                   }`}
                 >
-                  <div className="text-sm whitespace-pre-wrap prose prose-sm dark:prose-invert max-w-none">
+                  <div className="text-sm whitespace-pre-wrap prose prose-sm dark:prose-invert max-w-none break-words overflow-hidden">
                     {message.content ? (
-                      message.content
+                      message.role === "assistant" ? (
+                        <ReactMarkdown
+                          components={{
+                            p: ({ children }) => <p className="mb-2 last:mb-0"><MathText text={String(children)} /></p>,
+                            li: ({ children }) => <li><MathText text={String(children)} /></li>,
+                            code: ({ children, className }) => {
+                              const isBlock = className?.includes("language-");
+                              return isBlock ? (
+                                <pre className="bg-background/50 rounded p-2 overflow-x-auto text-xs"><code>{children}</code></pre>
+                              ) : (
+                                <code className="bg-background/30 rounded px-1 py-0.5 text-xs">{children}</code>
+                              );
+                            },
+                          }}
+                        >
+                          {message.content}
+                        </ReactMarkdown>
+                      ) : (
+                        <MathText text={message.content} />
+                      )
                     ) : message.role === "assistant" ? (
                       <span className="animate-pulse">Thinking...</span>
                     ) : null}

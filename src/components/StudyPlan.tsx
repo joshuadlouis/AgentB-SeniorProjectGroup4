@@ -19,6 +19,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { QuizResult, LearningObjective, StudyResource } from "@/hooks/useStudyPlan";
 import { toast } from "sonner";
+import { MathText } from "@/components/MathText";
 
 interface StudyPlanProps {
   quizResult: QuizResult | null;
@@ -299,8 +300,8 @@ export const StudyPlan = ({
           </div>
           <div className="flex flex-wrap gap-2">
             {quizResult.weakAreas.map((area, idx) => (
-              <Badge key={idx} variant="outline" className="bg-amber-500/5 border-amber-500/20 text-amber-600 whitespace-normal text-left max-w-full">
-                {area}
+              <Badge key={idx} variant="outline" className="bg-amber-500/5 border-amber-500/20 text-amber-600 whitespace-normal text-left max-w-full break-words">
+                <MathText text={area} />
               </Badge>
             ))}
           </div>
@@ -334,7 +335,9 @@ export const StudyPlan = ({
               </div>
             ) : (
               <div className="prose prose-sm dark:prose-invert max-w-none">
-                <div className="whitespace-pre-wrap text-foreground break-words">{resourceContent.replace(/\\n/g, '\n').replace(/\\t/g, '  ').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&#39;/g, "'").replace(/&quot;/g, '"')}</div>
+                <div className="whitespace-pre-wrap text-foreground break-words overflow-hidden">
+                  <MathText text={resourceContent.replace(/\\n/g, '\n').replace(/\\t/g, '  ').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&#39;/g, "'").replace(/&quot;/g, '"')} />
+                </div>
               </div>
             )}
           </ScrollArea>
