@@ -4,6 +4,8 @@
 
 AgentB is a full-stack web application developed as a senior capstone project by Group 4. It provides Howard University students with a personalized academic companion that integrates AI-driven tutoring, adaptive learning tools, and campus logistics into a unified platform.
 
+**Live Deployment:** [https://main.d2hop5f9kk97g7.amplifyapp.com](https://main.d2hop5f9kk97g7.amplifyapp.com)
+
 ---
 
 ## Features
